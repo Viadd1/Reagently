@@ -1,0 +1,11 @@
+PAT:
+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
+
+
+Commit any changes in the local repo (including removing files):
+
+git commit -a
+(uncomment lines)
+Type :wq 
+Hit Enter
+
