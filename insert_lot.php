@@ -69,6 +69,37 @@ if ($result) {
 
     echo "New reagent lot created successfully.";
 
+} else {
+
+    echo "Error: " .
+         $stmt->error;
+}
+
+
+$sql =
+"UPDATE reagents
+SET total_quantity = total_quantity + ?, available_quantity = available_quantity + ?
+WHERE reagent_id = ?";
+
+
+$stmt =
+    $link->prepare($sql);
+
+
+$stmt->bind_param(
+    "ddi",
+    $current_quantity,
+    $current_quantity,
+    $reagent_id
+);
+
+
+$result =
+    $stmt->execute();
+
+
+if ($result) {
+
     echo '<br><br>';
 
     echo '<a href="add_lot.php">
@@ -86,7 +117,6 @@ if ($result) {
     echo "Error: " .
          $stmt->error;
 }
-
 
 $stmt->close();
 $link->close();

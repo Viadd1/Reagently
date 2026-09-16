@@ -20,6 +20,9 @@ $category =
 $storage_condition =
     $_POST['storage_condition'];
 
+$total_qty = 0;
+
+$available_qty = 0;
 
 // SQL statement
 
@@ -30,25 +33,29 @@ $sql =
     supplier,
     catalog_number,
     category,
-    storage_condition
+    storage_condition,
+    total_quantity,
+    available_quantity
 )
 
-VALUES (?, ?, ?, ?, ?)";
+VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 
 $stmt =
     $link->prepare($sql);
 
 
-// All five variables are strings
+// First five variables are strings, last two are numbers
 
 $stmt->bind_param(
-    "sssss",
+    "sssssdd",
     $name,
     $supplier,
     $catalog_number,
     $category,
-    $storage_condition
+    $storage_condition,
+    $total_qty,
+    $available_qty
 );
 
 
