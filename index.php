@@ -14,6 +14,7 @@
 Sth smart...to be decided
 </p>
 
+<h2>Admin functions:</h2>
     <a href="add_reagent.php">Add Reagent</a>
     <br>
 
@@ -23,6 +24,14 @@ Sth smart...to be decided
     <a href="add_lot.php">Add Reagent Lot</a>
     <br>
     
+    <a href="add_user.php">Add User</a>
+    <br>
+
+<h2>Supervisor functions:</h2>
+    <a href="make_reservation.php">Reserve reagent</a>
+    <br>
+
+<h2>User functions:</h2>
     <a href="inventory.php">View Inventory</a>
     <br>
 

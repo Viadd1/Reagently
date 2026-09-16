@@ -4,7 +4,9 @@ CREATE TABLE reagents (
     supplier VARCHAR(255),
     catalog_number VARCHAR(100),
     category VARCHAR(100),
-    storage_condition VARCHAR(100)
+    storage_condition VARCHAR(100),
+    total_quantity DECIMAL(10, 2),
+    available_quantity DECIMAL(10, 2)
 );
 
 
@@ -35,4 +37,25 @@ CREATE TABLE reagent_lots (
 
     FOREIGN KEY (location_id)
         REFERENCES locations(location_id)
+);
+
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    lab VARCHAR(100),
+    role VARCHAR(100),
+    password VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE reservations (
+    reservation_id INT PRIMARY KEY AUTO_INCREMENT,
+    volume DECIMAL(10, 2),
+    date DATE,
+    user_id INT NOT NULL,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
 );
