@@ -27,6 +27,7 @@ CREATE TABLE reagent_lots (
 
     lot_number VARCHAR(100),
     current_quantity DECIMAL(10,2) NOT NULL,
+    available_quantity DECIMAL(10,2) NOT NULL
     unit VARCHAR(20),
 
     received_date DATE,
@@ -57,5 +58,8 @@ CREATE TABLE reservations (
     user_id INT NOT NULL,
 
     FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
+        REFERENCES users(user_id),
+    
+    FOREIGN KEY (lot_id)
+        REFERENCES reagent_lots(lot_id)
 );

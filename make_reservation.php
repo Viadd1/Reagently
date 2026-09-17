@@ -1,9 +1,3 @@
-<?php
-
-include 'db.php';
-
-?>
-
 <!DOCTYPE html>
 
 <html>
@@ -18,28 +12,34 @@ include 'db.php';
 
 
 <form
-    action="add_reservation.php"
+    action="insert_reservation.php"
     method="POST"
 >
-
     Reagent lot:
     <select
-        name="location_id"
+        name="lot_id"
         required
     >
 
         <?php
 
+        include 'db.php';
+
         $sql =
         "SELECT
+            reagent_lots.lot_id,
+            reagents.reagent_id,
             reagents.name,
             reagent_lots.lot_number,
-            reagent_lots.current_quantity,
+            reagent_lots.available_quantity,
             reagent_lots.unit
 
          FROM reagent_lots
 
-         JOIN reagents ON reagent_lots.reagent_id=reagents.reagent_id";
+         JOIN reagents ON 
+         reagent_lots.reagent_id=reagents.reagent_id
+         
+         ORDER BY reagents.name";
 
 
         $result =
@@ -53,7 +53,7 @@ include 'db.php';
 
             echo
             "<option value='" .
-            $row["lot_id"] .
+            $row["lot_id"] . 
             "'>" .
 
             htmlspecialchars(
@@ -61,7 +61,7 @@ include 'db.php';
                 " lot no. " .
                 $row["lot_number"] .
                 ",  " .
-                $row["current_quantity"] .
+                $row["available_quantity"] .
                 "  " .
                 $row["unit"] .
                 " in stock"
@@ -69,7 +69,7 @@ include 'db.php';
 
             "</option>";
         }
-
+        $link->close();
         ?>
 
     </select>

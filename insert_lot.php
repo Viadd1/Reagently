@@ -14,7 +14,7 @@ $location_id =
 $lot_number =
     $_POST['lot_number'];
 
-$current_quantity =
+$quantity =
     $_POST['current_quantity'];
 
 $unit =
@@ -36,12 +36,13 @@ $sql =
     location_id,
     lot_number,
     current_quantity,
+    available_quantity,
     unit,
     received_date,
     expiry_date
 )
 
-VALUES (?, ?, ?, ?, ?, ?, ?)";
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
 
 $stmt =
@@ -49,12 +50,13 @@ $stmt =
 
 
 $stmt->bind_param(
-    "iisdsss",
+    "iisddsss",
 
     $reagent_id,
     $location_id,
     $lot_number,
-    $current_quantity,
+    $quantity,
+    $quantity,
     $unit,
     $received_date,
     $expiry_date
@@ -88,8 +90,8 @@ $stmt =
 
 $stmt->bind_param(
     "ddi",
-    $current_quantity,
-    $current_quantity,
+    $quantity,
+    $quantity,
     $reagent_id
 );
 
