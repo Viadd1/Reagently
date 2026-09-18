@@ -1,0 +1,157 @@
+/* General settings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;}
+
+body {
+background-color: white;
+color: #222;
+font-family: 'Times New Roman', Times, serif;}
+
+/* Website title */
+header {
+text-align: center;
+padding: 25px;
+background-color: white;}
+
+header h1 {
+font-size: 36px;}
+
+/* Navigation bar */
+.navbar {
+
+/* Makes the navigation horizontal */
+display: flex;
+
+/* Centers the navigation buttons */
+justify-content: center;
+
+/* Aligns buttons vertically */
+align-items: center;
+
+/* Space between buttons */
+gap: 10px;
+
+/* Navigation background */
+background-color: #222;
+
+/* Space inside navigation bar */
+padding: 12px;}
+
+/* Navigation links */
+.navbar a {
+color: white;
+text-decoration: none;
+font-size: 17px;
+padding: 10px 18px;
+border-radius: 5px;}
+
+/* What happens when you move the mouse over a navigation button */
+.navbar a:hover {
+background-color: #222;}
+
+/* Page content */
+.page {
+
+/* Makes the content fill the screen */
+min-height: calc(100vh - 115px);
+
+/* Centers content horizontally */
+display: flex;
+
+/* Allows content to stack vertically */
+flex-direction: column;
+
+/* Centers content vertically */
+justify-content: center;
+
+/* Centers content horizontally */
+align-items: center;
+
+/* Centers text */
+text-align: center;
+
+/* Space between elements */
+gap: 15px;
+padding: 30px;}
+
+.page h2 {
+font-size: 32px;}
+
+.page p {
+font-size: 18px;}
+
+/* Page buttons */
+.buttons {
+display: flex;
+gap: 15px;
+margin-top: 15px;
+
+/* Allows buttons to move to a new line on small screens */
+flex-wrap: wrap;
+justify-content: center;}
+
+.button {
+display: inline-block;
+padding: 12px 20px;
+background-color: #222;
+color: white;
+text-decoration: none;
+border-radius: 5px;}
+
+.button:hover {
+background-color: #222;}
+
+/* Home page*/
+.welcome {
+text-align: center;
+padding: 50px 20px 30px;}
+
+.welcome h2 {
+font-size: 32px;
+margin-bottom: 15px;}
+
+.welcome p {
+font-size: 18px;
+max-width: 700px;
+margin: 0 auto;
+line-height: 1.6;}
+
+/* news part on homepage */
+.news {
+width: 90%;
+max-width: 900px;
+margin: 0 auto;
+padding: 20px 0 60px;}
+
+.news-list { /*container that holds all news items*/
+display: flex;
+flex-wrap:wrap; /*allows wrapping on smaller screens*/
+gap: 20px;/*spacing between boxes*/
+justify-content: flex-start;} /*aligns left*/
+
+.news-item { /*each news box*/
+width: calc(50% - 10px); /*two boxes per row*/
+background-color: white;
+padding: 25px;
+margin-bottom: 20px;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);}
+
+.news > h2 { /*Recent Updates from your Department: Depatment1*/
+text-align: center;
+font-size: 28px;
+margin-bottom: 25px;}
+
+.news-item h3 { /*Welcome to Reagently*/
+font-size: 22px;
+margin-bottom: 8px;}
+
+.news-date {
+color: #666;
+font-size: 14px;
+margin-bottom: 12px;}
+
+.news-item p {
+line-height: 1.6;}
