@@ -1,6 +1,6 @@
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL UNIQUE,
     lab VARCHAR(100),
     firstname VARCHAR(100),
     lastname VARCHAR(100),
@@ -75,7 +75,7 @@ CREATE TABLE reagent_lots (
 
 
 CREATE TABLE reservations (
-    reservation_id INT PRIMARY KEY AUTO_INCREMENT,
+    reservation_id INT UNIQUE PRIMARY KEY AUTO_INCREMENT,
 
     user_id INT NOT NULL,
     project_id INT NOT NULL,

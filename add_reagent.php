@@ -25,14 +25,6 @@
     <br><br>
 
 
-    Supplier:
-    <input
-        type="text"
-        name="supplier"
-    >
-
-    <br><br>
-
 
     Catalog number:
     <input
@@ -52,10 +44,22 @@
     <br><br>
 
 
+    Unit:
+    <input
+        type="text"
+        name="unit"
+        placeholder="mL, g, mg..."
+        required
+    >
+
+    <br><br>
+
+
     Storage condition:
     <input
         type="text"
         name="storage_condition"
+        placeholder="4°C, -20°C, room temp..."
     >
 
     <br><br>

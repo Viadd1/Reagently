@@ -3,6 +3,8 @@
 include 'db.php';
 
 
+// Fetch data from POST request
+
 $room =
     $_POST['room'];
 
@@ -16,6 +18,8 @@ $box_name =
     $_POST['box_name'];
 
 
+// SQL statement
+
 $sql =
 "INSERT INTO locations
 (
@@ -28,9 +32,13 @@ $sql =
 VALUES (?, ?, ?, ?)";
 
 
+// Prepare statement
+
 $stmt =
     $link->prepare($sql);
 
+
+// Bind variables
 
 $stmt->bind_param(
     "ssss",
@@ -41,9 +49,13 @@ $stmt->bind_param(
 );
 
 
+// Execute
+
 $result =
     $stmt->execute();
 
+
+// Check result
 
 if ($result) {
 
@@ -67,6 +79,8 @@ if ($result) {
          $stmt->error;
 }
 
+
+// Close
 
 $stmt->close();
 $link->close();

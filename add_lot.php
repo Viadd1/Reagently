@@ -33,9 +33,16 @@ include 'db.php';
         <?php
 
         $sql =
-            "SELECT reagent_id, name
-             FROM reagents
-             ORDER BY name";
+        "SELECT
+            reagent_id,
+            name,
+            catalog_number,
+            unit
+
+         FROM reagents
+
+         ORDER BY name";
+
 
         $result =
             $link->query($sql);
@@ -50,9 +57,16 @@ include 'db.php';
             "<option value='" .
             $row["reagent_id"] .
             "'>" .
+
             htmlspecialchars(
-                $row["name"]
+                $row["name"] .
+                " - " .
+                $row["catalog_number"] .
+                " (" .
+                $row["unit"] .
+                ")"
             ) .
+
             "</option>";
 
         }
@@ -60,6 +74,17 @@ include 'db.php';
         ?>
 
     </select>
+
+
+    <br><br>
+
+
+    Supplier:
+
+    <input
+        type="text"
+        name="supplier"
+    >
 
 
     <br><br>
@@ -81,20 +106,8 @@ include 'db.php';
     <input
         type="number"
         step="0.01"
+        min="0"
         name="current_quantity"
-        required
-    >
-
-
-    <br><br>
-
-
-    Unit:
-
-    <input
-        type="text"
-        name="unit"
-        placeholder="mL, g, mg..."
         required
     >
 
@@ -200,3 +213,9 @@ Back to home
 </body>
 
 </html>
+
+<?php
+
+$link->close();
+
+?>

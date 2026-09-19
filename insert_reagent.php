@@ -8,8 +8,6 @@ include 'db.php';
 $name =
     $_POST['name'];
 
-$supplier =
-    $_POST['supplier'];
 
 $catalog_number =
     $_POST['catalog_number'];
@@ -17,12 +15,12 @@ $catalog_number =
 $category =
     $_POST['category'];
 
+$unit =
+    $_POST['unit'];
+
 $storage_condition =
     $_POST['storage_condition'];
 
-$total_qty = 0;
-
-$available_qty = 0;
 
 // SQL statement
 
@@ -30,15 +28,13 @@ $sql =
 "INSERT INTO reagents
 (
     name,
-    supplier,
     catalog_number,
     category,
-    storage_condition,
-    total_quantity,
-    available_quantity
+    unit,
+    storage_condition
 )
 
-VALUES (?, ?, ?, ?, ?, ?, ?)";
+VALUES (?, ?, ?, ?, ?)";
 
 
 $stmt =
@@ -48,43 +44,86 @@ $stmt =
 // First five variables are strings, last two are numbers
 
 $stmt->bind_param(
-    "sssssdd",
+    "sssss",
     $name,
-    $supplier,
     $catalog_number,
     $category,
-    $storage_condition,
-    $total_qty,
-    $available_qty
+    $unit,
+    $storage_condition
 );
 
 
-$result =
-    $stmt->execute();
+// Try to insert the reagent
+try {
+
+    $result =
+        $stmt->execute();
 
 
-if ($result) {
+    // Reagent was created successfully
+    if ($result) {
 
-    echo "New reagent created successfully.";
+        echo "New reagent created successfully.";
 
-    echo '<br><br>';
+        echo "<br><br>";
 
-    echo '<a href="add_reagent.php">
-          Add another reagent
-          </a>';
+        echo
+        '<a href="add_reagent.php">
+            Add another reagent
+        </a>';
 
-    echo '<br>';
+        echo "<br>";
 
-    echo '<a href="index.php">
-          Back to home
-          </a>';
+        echo
+        '<a href="admin.php">
+            Back to admin page
+        </a>';
 
-} else {
+    }
 
-    echo "Error: " .
-         $stmt->error;
+
+} catch (mysqli_sql_exception $e) {
+
+
+    // Error code 1062 means a UNIQUE value
+    // already exists in the database
+    if ($e->getCode() == 1062) {
+
+        echo
+            "A reagent with this catalog number already exists.";
+
+        echo "<br><br>";
+
+        echo
+            "If you want to add a new batch of the same reagent,
+            please add a new reagent lot instead.";
+
+        echo "<br><br>";
+
+        echo
+            '<a href="add_lot.php">
+                Add Reagent Lot
+            </a>';
+
+        echo "<br>";
+
+        echo
+            '<a href="add_reagent.php">
+                Back to Add Reagent
+            </a>';
+
+
+    } else {
+
+
+        // Show other database errors
+        echo
+            "Database error: " .
+            $e->getMessage();
+
+    }
+
 }
-
 
 $stmt->close();
 $link->close();
