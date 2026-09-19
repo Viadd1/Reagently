@@ -1,3 +1,8 @@
+<!--
+Displays a form for adding a new reagent storage location.
+The form sends the location information to insert_location.php.
+-->
+
 <!DOCTYPE html>
 
 <html>

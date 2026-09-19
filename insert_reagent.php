@@ -1,5 +1,11 @@
 <?php
 
+/*
+insert_reagent.php
+Adds a new reagent to the database using data submitted from add_reagent.php.
+*/
+
+
 include 'db.php';
 
 

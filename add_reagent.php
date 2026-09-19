@@ -1,3 +1,8 @@
+<!--
+Displays a form for adding a new reagent.
+The form sends the reagent information to insert_reagent.php.
+-->
+
 <!DOCTYPE html>
 
 <html>

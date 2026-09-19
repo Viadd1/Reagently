@@ -1,5 +1,10 @@
 <?php
 
+/*
+Creates a new reagent lot and connects it to an existing reagent and storage location.
+*/
+
+
 include 'db.php';
 
 

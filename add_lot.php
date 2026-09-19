@@ -1,5 +1,11 @@
 <?php
 
+/*
+Displays a form for adding a new lot of an existing reagent.
+Existing reagents and storage locations are loaded from the database and shown in dropdown menus.
+*/
+
+
 include 'db.php';
 
 ?>

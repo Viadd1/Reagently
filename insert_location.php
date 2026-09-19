@@ -1,5 +1,11 @@
 <?php
 
+/*
+Adds a new storage location to the database using data submitted from add_location.php.
+*/
+
+
+
 include 'db.php';
 
 

@@ -1,5 +1,10 @@
 <?php
 
+/*
+Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
+*/
+
+
 // Start the session so that we can check
 // whether the user is logged in
 session_start();
