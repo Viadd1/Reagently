@@ -1,5 +1,11 @@
 <?php
 
+/*
+Displays a form for adding an existing user to an existing project.
+Users and projects are loaded from the database and shown in dropdown menus.
+*/
+
+
 // Include database connection
 include 'db.php';
 

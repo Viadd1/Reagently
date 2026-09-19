@@ -1,3 +1,8 @@
+<!--
+Displays a form for creating a new research project.
+The form sends the project information to insert_project.php.
+-->
+
 <!DOCTYPE html>
 
 <html>

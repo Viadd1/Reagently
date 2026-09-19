@@ -1,5 +1,10 @@
 <?php
 
+/*
+Creates a new project in the database using data submitted from add_project.php.
+*/
+
+
 // Include database connection
 include 'db.php';
 

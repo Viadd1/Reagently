@@ -1,5 +1,10 @@
 <?php
 
+/*
+Adds a user to a project by creating a new record in the project_members table.
+*/
+
+
 // Include database connection
 include 'db.php';
 
