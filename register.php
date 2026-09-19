@@ -1,3 +1,8 @@
+<!--
+Displays the registration form for new Reagently users.
+The entered information is sent to insert_user.php.
+-->
+
 <!DOCTYPE html>
 
 <html>

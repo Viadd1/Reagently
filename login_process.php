@@ -1,5 +1,10 @@
 <?php
 
+/*
+Checks the username and password submitted from login.php.
+If the login is successful, the user ID, username and role are stored in the session.
+*/
+
 // Start or resume a session.
 // This must be placed before any HTML or echo output.
 session_start();

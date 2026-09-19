@@ -1,5 +1,9 @@
 <?php
 
+/*
+Logs the current user out by clearing and destroying the session, then redirects the user to the login page.
+*/
+
 // Start the existing session
 //
 // We need to access the current session

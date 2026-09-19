@@ -1,3 +1,8 @@
+<!--
+Displays the login form where users enter their username and password.
+The form sends the login information to login_process.php.
+-->
+
 <!DOCTYPE html>
 
 <html>
