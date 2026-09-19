@@ -1,5 +1,10 @@
 <?php
 
+/*
+Displays information for the currently logged-in user, including personal details, project memberships and reservations.
+*/
+
+
 // Start session so that we know
 // which user is currently logged in
 session_start();

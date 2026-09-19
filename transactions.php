@@ -1,5 +1,12 @@
 <?php
 
+/*
+Displays inventory transaction history.
+Regular users can view their own transactions, while admins can view all recorded inventory changes.
+*/
+
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();
