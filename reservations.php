@@ -1,5 +1,12 @@
 <?php
 
+/*
+Displays reservations from projects that the logged-in user belongs to. Active reservations owned by the user can be cancelled
+or completed by recording usage.
+*/
+
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();

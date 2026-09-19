@@ -1,5 +1,11 @@
 <?php
 
+/*
+Validates and creates a new reagent reservation.
+It checks project membership and current stock availability before saving the reservation to the database.
+*/
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();

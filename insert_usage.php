@@ -1,5 +1,11 @@
 <?php
 
+/*
+Records the final reagent usage for a reservation.
+It updates the physical stock, creates an inventory transaction, and changes the reservation status to COMPLETED.
+*/
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();

@@ -1,5 +1,10 @@
 <?php
 
+/*
+Displays an active reservation and allows the user to enter the actual quantity of reagent used and an optional note.
+*/
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();

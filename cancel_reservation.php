@@ -1,5 +1,11 @@
 <?php
 
+/*
+Cancels an active reservation owned by the logged-in user.
+Cancelling a reservation releases the reserved quantity without changing the physical stock.
+*/
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();

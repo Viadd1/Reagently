@@ -1,5 +1,12 @@
 <?php
 
+
+/*
+Displays the reservation form for the logged-in user.
+Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations.
+*/
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();
