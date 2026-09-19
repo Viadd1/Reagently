@@ -1,5 +1,9 @@
 <?php
 
+/*
+Creates a new user account using information submitted from register.php. The password is checked and hashed before the user is added to the database.
+*/
+
 // Include database connection
 include 'db.php';
 
