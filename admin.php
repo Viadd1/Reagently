@@ -1,5 +1,10 @@
 <?php
 
+/*
+Main administration page for Reagently.
+Only users with the admin role can access this page and use the available reagent, project and inventory management functions.
+*/
+
 // Start the session so that we can check
 // the currently logged-in user's role
 session_start();

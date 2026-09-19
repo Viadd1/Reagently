@@ -1,5 +1,11 @@
 <?php
 
+/*
+Main homepage of Reagently.
+It shows navigation options, a welcome message, quick links, and recent department updates.
+*/
+
+
 // Start session so that the homepage knows
 // whether a user is logged in
 session_start();

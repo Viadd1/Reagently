@@ -1,5 +1,9 @@
 <?php
 
+/*
+Creates the connection. Other PHP files include this file when database access is needed.
+*/
+
 $servername = "localhost";
 $username = "root";
 $password = "root";
