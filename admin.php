@@ -14,10 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 
-// Check whether the logged-in user is an admin
-//
-// Only users with role = 'admin'
-// are allowed to access this page.
+// Only admins can access this page
 if (
     !isset($_SESSION['role'])
     ||
@@ -42,7 +39,6 @@ if (
         Reagently - Admin
     </title>
 
-    <!-- Use the existing website stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -54,7 +50,6 @@ if (
 <body>
 
 
-<!-- Website title -->
 <header>
 
     <h1>Reagently</h1>
@@ -62,7 +57,6 @@ if (
 </header>
 
 
-<!-- Navigation bar -->
 <nav class="navbar">
 
     <a href="index.php">
@@ -88,11 +82,6 @@ if (
 </nav>
 
 
-
-<!-- =========================
-     Admin page
-     ========================= -->
-
 <main class="page">
 
 
@@ -108,14 +97,9 @@ if (
     <br>
 
 
-    <!-- =========================
-         Reagent management
-         ========================= -->
-
     <h3>Reagent Management</h3>
 
 
-    <!-- Add a new reagent type -->
     <a
         class="button"
         href="add_reagent.php"
@@ -124,7 +108,6 @@ if (
     </a>
 
 
-    <!-- Add a new physical reagent lot -->
     <a
         class="button"
         href="add_lot.php"
@@ -133,7 +116,6 @@ if (
     </a>
 
 
-    <!-- Add a new storage location -->
     <a
         class="button"
         href="add_location.php"
@@ -142,19 +124,12 @@ if (
     </a>
 
 
-
     <br><br>
 
-
-
-    <!-- =========================
-         Project management
-         ========================= -->
 
     <h3>Project Management</h3>
 
 
-    <!-- Create a new research project -->
     <a
         class="button"
         href="add_project.php"
@@ -163,7 +138,6 @@ if (
     </a>
 
 
-    <!-- Add an existing user to a project -->
     <a
         class="button"
         href="add_project_member.php"
@@ -172,19 +146,12 @@ if (
     </a>
 
 
-
     <br><br>
 
-
-
-    <!-- =========================
-         Inventory management
-         ========================= -->
 
     <h3>Inventory Management</h3>
 
 
-    <!-- View current reagent inventory -->
     <a
         class="button"
         href="view_reagents.php"
@@ -193,14 +160,12 @@ if (
     </a>
 
 
-    <!-- View inventory transaction history -->
     <a
         class="button"
         href="transactions.php"
     >
         Inventory History
     </a>
-
 
 
 </main>

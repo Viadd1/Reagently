@@ -12,7 +12,7 @@ session_start();
 
 <head>
 
-    <title>Reagently</title>
+    <title>Reagently - Home</title>
 
     <!-- Use the existing stylesheet -->
     <link
@@ -131,7 +131,6 @@ session_start();
 
     // Personalized welcome message
     // for logged-in users
-
     if (isset($_SESSION['username'])) {
 
         echo
@@ -147,7 +146,7 @@ session_start();
 
         echo
         "<h2>
-            Welcome to Reagently
+            Welcome to Reagently!
         </h2>";
 
     }
@@ -163,7 +162,6 @@ session_start();
         reservations and usage.
 
     </p>
-
 
 
     <?php
@@ -239,61 +237,61 @@ session_start();
 
 
 <!-- =========================
-     Recent updates
+     Department news
      ========================= -->
 
 <section class="news">
 
 
     <h2>
-        Recent Updates
+        Recent Updates from your Department
     </h2>
 
 
     <div class="news-list">
 
 
-        <div class="news-item">
+        <article class="news-item">
 
             <h3>
                 Welcome to Reagently
             </h3>
 
             <p class="news-date">
-                September 2026
+                18 September 2026
             </p>
 
             <p>
 
-                Reagently provides a shared system
-                for managing laboratory reagents,
-                locations and availability.
+                Welcome to the new Reagently system.
+                Department-specific updates and
+                notifications will be displayed here.
 
             </p>
 
-        </div>
+        </article>
 
 
 
-        <div class="news-item">
+        <article class="news-item">
 
             <h3>
                 Reservation System
             </h3>
 
             <p class="news-date">
-                September 2026
+                18 September 2026
             </p>
 
             <p>
 
-                Researchers can reserve available
+                Researchers can now reserve available
                 reagents for projects and record
                 their final usage.
 
             </p>
 
-        </div>
+        </article>
 
 
     </div>
