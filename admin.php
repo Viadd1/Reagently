@@ -157,13 +157,6 @@ if (
     <h3>Inventory Management</h3>
 
 
-    <a
-        class="button"
-        href="view_reagents.php"
-    >
-        View Inventory
-    </a>
-
 
     <a
         class="button"
