@@ -115,18 +115,18 @@ if (
 
     <a
         class="button"
+        href="add_location.php"
+    >
+        Add Location
+    </a>
+
+    <a
+        class="button"
         href="add_lot.php"
     >
         Add Reagent Lot
     </a>
 
-
-    <a
-        class="button"
-        href="add_location.php"
-    >
-        Add Location
-    </a>
 
 
     <br><br>
