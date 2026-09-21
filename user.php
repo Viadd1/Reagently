@@ -637,14 +637,6 @@ $reservation_result =
     <br><br>
 
 
-    <!-- Create a new reservation -->
-    <a
-        class="button"
-        href="make_reservation.php"
-    >
-        Make Reservation
-    </a>
-
 
     <!-- View reservations from all projects
          that the user belongs to -->
@@ -656,12 +648,12 @@ $reservation_result =
     </a>
 
 
-    <!-- View user's inventory history -->
+    <!-- View user's Usage history -->
     <a
         class="button"
         href="transactions.php"
     >
-        Inventory History
+        Usage History
     </a>
 
 
