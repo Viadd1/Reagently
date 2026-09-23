@@ -25,10 +25,7 @@ else {
     $search_query = "";
 }
 
-/* 
-Check if the user has filled in a stock filter
-and alter the WHERE condition accordingly
-*/
+// Check if the user has filled in a stock filter and alter the WHERE condition accordingly
 
 if ($_GET['stock_filter']==='in_stock') {
     $stock_filter = '`reagent_lots`.`current_quantity` > 0';
@@ -127,7 +124,7 @@ ON reagent_lots.lot_id
 =
 reservation_totals.lot_id
 
--- Only show reagents that match search query (if there is one)
+-- Only show reagents that match search query and filters
 WHERE reagents.name LIKE '%$search_query%'
 
 AND $stock_filter
@@ -172,7 +169,6 @@ $result =
 </header>
 
 <!-- Navigation bar -->
- <!-- Navigation bar -->
 
 <nav class="navbar">
 
@@ -255,6 +251,8 @@ $result =
     </p>
     
     <br>
+
+<!-- Search bar and filters -->
 
     <search>
         <form 
