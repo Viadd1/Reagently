@@ -277,21 +277,29 @@ $result =
             name="stock_filter"
             value="show_all"
             checked>
-            <label for="all">Show all</label>
+            <label
+            for="all">Show all
+            </label>
 
             <input
             type="radio"
             id="in_stock"
-            name="stock_filter" value="in_stock"
+            name="stock_filter"
+            value="in_stock"
             >
-            <label for="in_stock">In stock</label>
+            <label
+            for="in_stock">In stock
+            </label>
 
             <input
             type="radio"
             id="not_in_stock"
-            name="stock_filter" value="not_in_stock"
+            name="stock_filter"
+            value="not_in_stock"
             >
-            <label for="not_in_stock">Not in stock</label>
+            <label
+            for="not_in_stock">Not in stock
+            </label>
 
         </form>
     </search>
