@@ -16,6 +16,30 @@ if (!isset($_SESSION['user_id'])) {
 // Include database connection
 include 'db.php';
 
+
+// If user has searched for something, save in variable
+if ($_GET['search_query']) {
+    $search_query = $_GET['search_query'];
+} 
+else {
+    $search_query = "";
+}
+
+/* 
+Check if the user has filled in a stock filter
+and alter the WHERE condition accordingly
+*/
+
+if ($_GET['stock_filter']==='in_stock') {
+    $stock_filter = '`reagent_lots`.`current_quantity` > 0';
+}
+elseif ($_GET['stock_filter']==='not_in_stock') {
+    $stock_filter = '`reagent_lots`.`current_quantity` = 0';
+}
+else {
+    $stock_filter = '`reagent_lots`.`current_quantity` >= 0';
+}
+
 // Get reagent inventory
 
 // Retrieve reagent lot information.
@@ -102,6 +126,11 @@ LEFT JOIN
 ON reagent_lots.lot_id
 =
 reservation_totals.lot_id
+
+-- Only show reagents that match search query (if there is one)
+WHERE reagents.name LIKE '%$search_query%'
+
+AND $stock_filter
 
 -- Sort reagents alphabetically
 ORDER BY
@@ -224,8 +253,51 @@ $result =
     <p>
         Current reagent inventory and availability.
     </p>
-
+    
     <br>
+
+    <search>
+        <form 
+        action="/view_reagents.php"
+        method="GET"
+        >
+
+            <input
+            type="text"
+            name="search_query"
+            placeholder="Search reagents...">
+
+            <input
+            type="submit"
+            value="Submit">
+
+            <br>
+
+            <input
+            type="radio"
+            id="all"
+            name="stock_filter"
+            value="show_all"
+            checked>
+            <label for="all">Show all</label>
+
+            <input
+            type="radio"
+            id="in_stock"
+            name="stock_filter" value="in_stock"
+            >
+            <label for="in_stock">In stock</label>
+
+            <input
+            type="radio"
+            id="not_in_stock"
+            name="stock_filter" value="not_in_stock"
+            >
+            <label for="not_in_stock">Not in stock</label>
+
+        </form>
+    </search>
+
 
     <!-- Inventory table -->
     <table border="1">
