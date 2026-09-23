@@ -7,9 +7,112 @@ Creates a new user account using information submitted from register.php. The pa
 // Include database connection
 include 'db.php';
 
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Registration</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+
+
+<!-- Website title -->
+
+<header>
+
+    <h1>Reagently</h1>
+
+</header>
+
+
+<!-- Navigation bar -->
+
+<nav class="navbar">
+
+    <a href="index.php">
+        Home
+    </a>
+
+    <?php
+
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
+
+    ?>
+
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
+
+</nav>
+
+<?php
 
 // Fetch data submitted from register.php
-
 $username =
     $_POST['username'];
 
@@ -72,7 +175,6 @@ VALUES (?, ?, ?, ?, ?, ?)";
 
 
 // Prepare SQL statement
-
 $stmt =
     $link->prepare($sql);
 
@@ -87,17 +189,13 @@ $stmt->bind_param(
     $hashed_password
 );
 
-
 // Execute the INSERT statement
-
 $result =
     $stmt->execute();
 
 
 // Check whether registration was successful
-
 if ($result) {
-
     echo "Registration successful.";
 
     echo '<br><br>';
@@ -122,11 +220,9 @@ if ($result) {
          $stmt->error;
 }
 
-
 // Close prepared statement
 
 $stmt->close();
-
 
 // Close database connection
 

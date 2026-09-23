@@ -1,11 +1,7 @@
 <?php
-
-/*
-Displays reservations from projects that the logged-in user belongs to. Active reservations owned by the user can be cancelled
+/* Displays reservations from projects that the logged-in user belongs to. Active reservations owned by the user can be cancelled
 or completed by recording usage.
-*/
-
-
+*/ 
 
 // Start the session so that we can identify
 // the currently logged-in user
@@ -139,10 +135,8 @@ $stmt->bind_param(
     $user_id
 );
 
-
 // Execute query
 $stmt->execute();
-
 
 // Get query result
 $result =
@@ -157,23 +151,103 @@ $result =
 
 <head>
 
-    <title>
-        Reservations - Reagently
-    </title>
+    <!-- Title displayed in the browser tab -->
+    <title>Reservations - Reagently</title>
+    
+    <!-- Use existing website design -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+<!-- Website title -->
 
-<h1>Reservations</h1>
+<header>
 
+    <h1>Reagently</h1>
 
-<p>
-    Reservations from your projects are shown below.
-</p>
+</header>
 
+<!-- Navigation bar -->
+
+<nav class="navbar">
+
+    <a href="index.php">
+        Home
+    </a>
+
+    <?php
+
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
+
+    ?>
+
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
+
+</nav>
+
+<!-- Main heading -->
+<main class="page">
+    <h2>Reservations</h2>
+    <h3>Reservations from your project are shown below!</h3>
 
 <!-- Reservation table -->
 <table border="1">
@@ -386,41 +460,27 @@ if ($result->num_rows > 0) {
 
 }
 
-
 ?>
-
 
 </table>
 
-
 <br><br>
 
-
 <!-- Create a new reservation -->
-<a href="make_reservation.php">
+<a href="make_reservation.php" class="button">
 Make a reservation
 </a>
 
-
 <br><br>
-
-
-<!-- Return to home page -->
-<a href="index.php">
-Back to home
-</a>
-
 
 </body>
 
 </html>
 
-
 <?php
 
 // Close prepared statement
 $stmt->close();
-
 
 // Close database connection
 $link->close();

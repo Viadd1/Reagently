@@ -109,10 +109,12 @@ text-align: center;
 padding: 50px 20px 30px;}
 
 .welcome h2 {
+text-align: center;
 font-size: 32px;
 margin-bottom: 15px;}
 
 .welcome p {
+text-align: center;
 font-size: 18px;
 max-width: 700px;
 margin: 0 auto;

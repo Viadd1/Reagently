@@ -9,7 +9,6 @@ Only users with the admin role can access this page and use the available reagen
 // the currently logged-in user's role
 session_start();
 
-
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
@@ -17,7 +16,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
-
 
 // Only admins can access this page
 if (
@@ -32,7 +30,6 @@ if (
 }
 
 ?>
-
 
 <!DOCTYPE html>
 
@@ -51,9 +48,7 @@ if (
 
 </head>
 
-
 <body>
-
 
 <header>
 
@@ -61,6 +56,7 @@ if (
 
 </header>
 
+<!-- Navigation bar -->
 
 <nav class="navbar">
 
@@ -68,21 +64,67 @@ if (
         Home
     </a>
 
-    <a href="view_reagents.php">
-        View reagents
-    </a>
+    <?php
 
-    <a href="user.php">
-        User
-    </a>
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
 
-    <a href="admin.php">
-        Admin
-    </a>
+    ?>
 
-    <a href="logout.php">
-        Log out
-    </a>
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
 
 </nav>
 
@@ -127,13 +169,9 @@ if (
         Add Reagent Lot
     </a>
 
-
-
     <br><br>
 
-
     <h3>Project Management</h3>
-
 
     <a
         class="button"
@@ -142,7 +180,6 @@ if (
         Create Project
     </a>
 
-
     <a
         class="button"
         href="add_project_member.php"
@@ -150,13 +187,9 @@ if (
         Add Project Member
     </a>
 
-
     <br><br>
 
-
     <h3>Inventory Management</h3>
-
-
 
     <a
         class="button"
@@ -165,9 +198,7 @@ if (
         Inventory History
     </a>
 
-
 </main>
-
 
 </body>
 

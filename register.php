@@ -11,16 +11,101 @@ The entered information is sent to insert_user.php.
 
     <!-- Title displayed in the browser tab -->
     <title>Register - Reagently</title>
+    
+    <!-- Use existing website design -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+<!-- Website title -->
+
+<header>
+
+    <h1>Reagently</h1>
+
+</header>
+
+<!-- Navigation bar -->
+
+<nav class="navbar">
+
+    <a href="index.php">
+        Home
+    </a>
+
+    <?php
+
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
+
+    ?>
+
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
+
+</nav>
 
 <!-- Main heading -->
-<h1>Create an Account</h1>
-
+<main class="page">
+    <h2>Register to Reagently here!</h2>
+    <h3>Create an account</h3>
 
 <!--
     Registration form
@@ -28,11 +113,10 @@ The entered information is sent to insert_user.php.
     The entered information will be sent to
     insert_user.php using the POST method.
 -->
-<form
+    <form
     action="insert_user.php"
     method="POST"
->
-
+    >
 
     <!-- Username used to identify the user in the system -->
     Username:
@@ -45,7 +129,6 @@ The entered information is sent to insert_user.php.
 
     <br><br>
 
-
     <!-- User's first name -->
     First name:
 
@@ -55,7 +138,6 @@ The entered information is sent to insert_user.php.
     >
 
     <br><br>
-
 
     <!-- User's last name -->
     Last name:
@@ -67,7 +149,6 @@ The entered information is sent to insert_user.php.
 
     <br><br>
 
-
     <!-- Laboratory or research group -->
     Lab / Group:
 
@@ -77,7 +158,6 @@ The entered information is sent to insert_user.php.
     >
 
     <br><br>
-
 
     <!--
         Email address
@@ -94,7 +174,6 @@ The entered information is sent to insert_user.php.
     >
 
     <br><br>
-
 
     <!--
         Password field
@@ -113,7 +192,6 @@ The entered information is sent to insert_user.php.
 
     <br><br>
 
-
     <!--
         Confirmation field
 
@@ -130,9 +208,8 @@ The entered information is sent to insert_user.php.
 
     <br><br>
 
-
-    <!-- Submit registration form -->
     <input
+        class="button"
         type="submit"
         value="Register"
     >
@@ -140,24 +217,12 @@ The entered information is sent to insert_user.php.
 
 </form>
 
-
-<br>
-
-
 <!-- Link for users who already have an account -->
 <a href="login.php">
 Already have an account? Log in
 </a>
 
-
-<br><br>
-
-
-<!-- Return to the home page -->
-<a href="index.php">
-Back to home
-</a>
-
+</main>
 
 </body>
 

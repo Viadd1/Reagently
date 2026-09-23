@@ -1,13 +1,9 @@
 <?php
 
-/*
-Main homepage of Reagently.
-It shows navigation options, a welcome message, quick links, and recent department updates.
-*/
+// Main homepage of Reagently.
+// It shows navigation options, a welcome message, quick links, and recent department updates.
 
-
-// Start session so that the homepage knows
-// whether a user is logged in
+// Start session so that the homepage knows whether a user is logged in
 session_start();
 
 ?>
@@ -28,13 +24,9 @@ session_start();
 
 </head>
 
-
 <body>
 
-
-<!-- =========================
-     Website title
-     ========================= -->
+<!-- Website title -->
 
 <header>
 
@@ -43,17 +35,13 @@ session_start();
 </header>
 
 
-
-<!-- =========================
-     Navigation bar
-     ========================= -->
+<!-- Navigation bar -->
 
 <nav class="navbar">
 
     <a href="index.php">
         Home
     </a>
-
 
     <?php
 
@@ -69,7 +57,6 @@ session_start();
         <a href="user.php">
             User
         </a>
-
 
         <?php
 
@@ -92,11 +79,9 @@ session_start();
 
         ?>
 
-
         <a href="logout.php">
             Log out
         </a>
-
 
     <?php
 
@@ -104,8 +89,7 @@ session_start();
 
     ?>
 
-        <!-- Show Login and Register
-             when nobody is logged in -->
+        <!-- Show Login and Register when nobody is logged in -->
 
         <a href="login.php">
             Login
@@ -115,7 +99,6 @@ session_start();
             Register
         </a>
 
-
     <?php
 
     }
@@ -124,24 +107,18 @@ session_start();
 
 </nav>
 
-
-
-<!-- =========================
-     Welcome section
-     ========================= -->
+<!-- Welcome section -->
 
 <section class="welcome">
 
-
     <?php
 
-    // Personalized welcome message
-    // for logged-in users
+    // Personalized welcome message for logged-in users
     if (isset($_SESSION['username'])) {
 
         echo
         "<h2>
-            Welcome, " .
+            Welcome " .
             htmlspecialchars(
                 $_SESSION['username']
             ) .
@@ -149,16 +126,23 @@ session_start();
         </h2>";
 
     } else {
-
         echo
         "<h2>
             Welcome to Reagently!
-        </h2>";
+        </h2>
+        <br>
+        <br>
+
+        <h3>
+        Please log in to access the Reagently web.
+        </h3>";
 
     }
 
     ?>
 
+    <br>
+    <br>
 
     <p>
 
@@ -169,93 +153,41 @@ session_start();
 
     </p>
 
+</section>
 
-    <?php
+<!-- Department news -->
 
-    // Show quick actions when the user is logged in
-    if (isset($_SESSION['user_id'])) {
+<?php 
+if (isset($_SESSION['user_id'])) { 
+?>
 
-    ?>
+<section class="news">
+<?php
 
-        <div class="buttons">
+    // Personalized department in news section for logged-in users
+    if (isset($_SESSION['lab'])) {
 
-            <a
-                class="button"
-                href="view_reagents.php"
-            >
-                View Reagents
-            </a>
-
-
-            <a
-                class="button"
-                href="make_reservation.php"
-            >
-                Make Reservation
-            </a>
-
-
-            <a
-                class="button"
-                href="user.php"
-            >
-                My Account
-            </a>
-
-        </div>
-
-
-    <?php
+        echo
+        "<h2>
+            Recent Updates from your lab: " .
+            htmlspecialchars(
+                $_SESSION['lab']
+            ) .
+            "
+        </h2>";
 
     } else {
 
-    ?>
-
-        <div class="buttons">
-
-            <a
-                class="button"
-                href="login.php"
-            >
-                Login
-            </a>
-
-
-            <a
-                class="button"
-                href="register.php"
-            >
-                Register
-            </a>
-
-        </div>
-
-
-    <?php
+        echo
+        "<h2>
+            Recent Updates from your lab:
+        </h2>";
 
     }
 
     ?>
 
-
-</section>
-
-
-
-<!-- =========================
-     Department news
-     ========================= -->
-
-<section class="news">
-
-
-    <h2>
-        Recent Updates from your Department
-    </h2>
-
-
     <div class="news-list">
-
 
         <article class="news-item">
 
@@ -277,8 +209,6 @@ session_start();
 
         </article>
 
-
-
         <article class="news-item">
 
             <h3>
@@ -299,12 +229,12 @@ session_start();
 
         </article>
 
-
     </div>
-
 
 </section>
 
+<?php } 
+?>
 
 </body>
 

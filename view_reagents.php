@@ -1,52 +1,34 @@
 <?php
 
-/*
-Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
-*/
+// Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
 
 
-// Start the session so that we can check
-// whether the user is logged in
+// Start the session so that we can check whether the user is logged in
 session_start();
 
-
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in then redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
     exit;
 }
 
-
 // Include database connection
 include 'db.php';
 
-
-
-/* =========================
-   Get reagent inventory
-   ========================= */
-
+// Get reagent inventory
 
 // Retrieve reagent lot information.
-//
-// Physical quantity
-// = reagent_lots.current_quantity
-//
-// Reserved quantity
-// = total quantity from ALL ACTIVE reservations
-//
-// Available quantity
-// = Physical quantity - Reserved quantity
-//
+
+// Physical quantity = reagent_lots.current_quantity
+
+// Reserved quantity = total quantity from ALL ACTIVE reservations
+
+// Available quantity = Physical quantity - Reserved quantity
+
 // IMPORTANT:
-//
-// The reserved quantity is calculated using
-// ALL active reservations from ALL projects.
-//
-// Users do not need to see reservation details
-// from other projects, but those reservations
+// The reserved quantity is calculated using ALL active reservations from ALL projects.
+// Users do not need to see reservation details from other projects, but those reservations
 // still affect the available stock.
 
 $sql =
@@ -85,14 +67,12 @@ $sql =
 
 FROM reagent_lots
 
-
 -- Connect each lot to its reagent
 JOIN reagents
 
 ON reagent_lots.reagent_id
 =
 reagents.reagent_id
-
 
 -- Connect each lot to its storage location
 JOIN locations
@@ -101,9 +81,7 @@ ON reagent_lots.location_id
 =
 locations.location_id
 
-
--- Calculate the total ACTIVE reserved quantity
--- for each reagent lot
+-- Calculate the total ACTIVE reserved quantity for each reagent lot
 LEFT JOIN
 (
     SELECT
@@ -121,11 +99,9 @@ LEFT JOIN
 
 ) AS reservation_totals
 
-
 ON reagent_lots.lot_id
 =
 reservation_totals.lot_id
-
 
 -- Sort reagents alphabetically
 ORDER BY
@@ -133,13 +109,11 @@ ORDER BY
     reagents.name,
     reagent_lots.expiry_date";
 
-
 // Execute the SQL query
 $result =
     $link->query($sql);
 
 ?>
-
 
 <!DOCTYPE html>
 
@@ -159,9 +133,7 @@ $result =
 
 </head>
 
-
 <body>
-
 
 <!-- Website title -->
 <header>
@@ -170,55 +142,93 @@ $result =
 
 </header>
 
-
 <!-- Navigation bar -->
+ <!-- Navigation bar -->
+
 <nav class="navbar">
 
     <a href="index.php">
         Home
     </a>
 
-    <a href="view_reagents.php">
-        View reagents
-    </a>
+    <?php
 
-    <a href="user.php">
-        User
-    </a>
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
 
-    <a href="admin.php">
-        Admin
-    </a>
+    ?>
 
-    <a href="logout.php">
-        Log out
-    </a>
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
 
 </nav>
 
-
-
-<!-- =========================
-     Main page
-     ========================= -->
+<!-- Main page -->
 
 <main class="page">
 
-
     <h2>View Reagents</h2>
-
 
     <p>
         Current reagent inventory and availability.
     </p>
 
-
     <br>
-
 
     <!-- Inventory table -->
     <table border="1">
-
 
         <tr>
 
@@ -246,13 +256,10 @@ $result =
 
         </tr>
 
-
         <?php
-
 
         // Check whether any reagent lots exist
         if ($result->num_rows > 0) {
-
 
             // Display one row for each reagent lot
             while (
@@ -260,10 +267,7 @@ $result =
                 $result->fetch_assoc()
             ) {
 
-
                 echo "<tr>";
-
-
 
                 // Reagent name
                 echo "<td>" .
@@ -274,8 +278,6 @@ $result =
 
                 "</td>";
 
-
-
                 // Catalog number
                 echo "<td>" .
 
@@ -284,8 +286,6 @@ $result =
                 ) .
 
                 "</td>";
-
-
 
                 // Reagent category
                 echo "<td>" .
@@ -296,8 +296,6 @@ $result =
 
                 "</td>";
 
-
-
                 // Supplier belongs to the specific lot
                 echo "<td>" .
 
@@ -306,8 +304,6 @@ $result =
                 ) .
 
                 "</td>";
-
-
 
                 // Lot number
                 echo "<td>" .
@@ -318,14 +314,9 @@ $result =
 
                 "</td>";
 
+                /* Physical quantity */
 
-
-                /* =========================
-                   Physical quantity
-                   ========================= */
-
-                // Physical quantity is the quantity
-                // actually present in the laboratory.
+                // Physical quantity is the quantity actually present in the laboratory.
 
                 echo "<td>" .
 
@@ -341,14 +332,9 @@ $result =
 
                 "</td>";
 
+                /* Reserved quantity */
 
-
-                /* =========================
-                   Reserved quantity
-                   ========================= */
-
-                // Reserved quantity is the sum of
-                // all ACTIVE reservations for this lot.
+                // Reserved quantity is the sum of all ACTIVE reservations for this lot.
 
                 echo "<td>" .
 
@@ -364,15 +350,9 @@ $result =
 
                 "</td>";
 
+                /* Available quantity */
 
-
-                /* =========================
-                   Available quantity
-                   ========================= */
-
-                // Available quantity is calculated
-                // dynamically:
-                //
+                // Available quantity is calculated dynamically:
                 // Available = Physical - Reserved
 
                 echo "<td>" .
@@ -389,10 +369,7 @@ $result =
 
                 "</td>";
 
-
-
-                // Recommended storage condition
-                // for this reagent
+                // Recommended storage condition for this reagent
                 echo "<td>" .
 
                 htmlspecialchars(
@@ -401,14 +378,9 @@ $result =
 
                 "</td>";
 
-
-
-                /* =========================
-                   Physical location
-                   ========================= */
+                /* Physical location */
 
                 // Build the full storage location:
-                //
                 // Room / Storage unit / Shelf / Box
 
                 echo "<td>" .
@@ -433,8 +405,6 @@ $result =
 
                 "</td>";
 
-
-
                 // Expiry date
                 echo "<td>" .
 
@@ -444,18 +414,13 @@ $result =
 
                 "</td>";
 
-
-
                 echo "</tr>";
 
             }
 
-
         } else {
 
-
-            // Display this if there are no reagent lots
-            // in the database yet.
+            // Display this if there are no reagent lots in the database yet.
 
             echo
             "<tr>
@@ -468,16 +433,13 @@ $result =
 
         }
 
-
         ?>
-
 
     </table>
 
-
     <br><br>
 
-
+    <h4>Need more reagents for your project? Reserve them below!</h4>
     <!-- Go to reservation page -->
     <a
         class="button"
@@ -486,14 +448,11 @@ $result =
         Make Reservation
     </a>
 
-
 </main>
-
 
 </body>
 
 </html>
-
 
 <?php
 

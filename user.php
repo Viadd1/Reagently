@@ -1,41 +1,27 @@
 <?php
 
-/*
-Displays information for the currently logged-in user, including personal details, project memberships and reservations.
-*/
+// Displays information for the currently logged-in user, including personal details, project memberships and reservations.
 
-
-// Start session so that we know
-// which user is currently logged in
+// Start session so that we know which user is currently logged in
 session_start();
 
-
-// If the user is not logged in,
-// redirect to login page
+// If the user is not logged in redirect to login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
     exit;
 }
 
-
 // Include database connection
 include 'db.php';
-
 
 // Get current user's ID from session
 $user_id =
     $_SESSION['user_id'];
 
+// Get user information:
 
-
-/* =========================
-   Get user information
-   ========================= */
-
-
-// Get personal information about
-// the currently logged-in user
+// Get personal information about the currently logged-in user
 
 $user_sql =
 "SELECT
@@ -51,11 +37,9 @@ $user_sql =
 
  WHERE user_id = ?";
 
-
 // Prepare query
 $user_stmt =
     $link->prepare($user_sql);
-
 
 // Bind current user ID
 $user_stmt->bind_param(
@@ -63,15 +47,12 @@ $user_stmt->bind_param(
     $user_id
 );
 
-
 // Execute query
 $user_stmt->execute();
-
 
 // Get query result
 $user_result =
     $user_stmt->get_result();
-
 
 // Check whether the user exists
 if ($user_result->num_rows !== 1) {
@@ -81,23 +62,14 @@ if ($user_result->num_rows !== 1) {
     );
 }
 
-
 // Fetch user information
 $user =
     $user_result->fetch_assoc();
 
+// Get user's projects:
 
-
-/* =========================
-   Get user's projects
-   ========================= */
-
-
-// Get all projects that the current
-// user belongs to.
-//
-// project_members connects
-// users and projects.
+// Get all projects that the current user belongs to.
+// project_members connects users and projects.
 
 $project_sql =
 "SELECT
@@ -118,39 +90,24 @@ $project_sql =
 
  ORDER BY projects.project_name";
 
-
 $project_stmt =
     $link->prepare($project_sql);
-
 
 $project_stmt->bind_param(
     "i",
     $user_id
 );
 
-
 $project_stmt->execute();
-
 
 $project_result =
     $project_stmt->get_result();
 
+// Get user's reservations
 
-
-/* =========================
-   Get user's reservations
-   ========================= */
-
-
-// Get reservations created by
-// the currently logged-in user.
-//
-// This section shows only the user's
-// own reservations.
-//
-// reservations.php can separately show
-// reservations from all projects that
-// the user belongs to.
+// Get reservations created by the currently logged-in user.
+// This section shows only the user's own reservations.
+// reservations.php can separately show reservations from all projects that the user belongs to.
 
 $reservation_sql =
 "SELECT
@@ -171,13 +128,11 @@ $reservation_sql =
 
  FROM reservations
 
-
  JOIN projects
 
  ON reservations.project_id
  =
  projects.project_id
-
 
  JOIN reagent_lots
 
@@ -185,16 +140,13 @@ $reservation_sql =
  =
  reagent_lots.lot_id
 
-
  JOIN reagents
 
  ON reagent_lots.reagent_id
  =
  reagents.reagent_id
 
-
  WHERE reservations.user_id = ?
-
 
  ORDER BY
 
@@ -206,25 +158,20 @@ $reservation_sql =
 
     reservations.created_at DESC";
 
-
 $reservation_stmt =
     $link->prepare($reservation_sql);
-
 
 $reservation_stmt->bind_param(
     "i",
     $user_id
 );
 
-
 $reservation_stmt->execute();
-
 
 $reservation_result =
     $reservation_stmt->get_result();
 
 ?>
-
 
 <!DOCTYPE html>
 
@@ -244,9 +191,7 @@ $reservation_result =
 
 </head>
 
-
 <body>
-
 
 <!-- Website title -->
 <header>
@@ -255,44 +200,83 @@ $reservation_result =
 
 </header>
 
-
 <!-- Navigation bar -->
+
 <nav class="navbar">
 
     <a href="index.php">
         Home
     </a>
 
-    <a href="view_reagents.php">
-        View reagents
-    </a>
+    <?php
 
-    <a href="user.php">
-        User
-    </a>
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
 
-    <a href="admin.php">
-        Admin
-    </a>
+    ?>
 
-    <a href="logout.php">
-        Log out
-    </a>
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
 
 </nav>
-
-
 
 <!-- Main user page -->
 <main class="page">
 
-
-    <!-- =========================
-         User information
-         ========================= -->
-
+    <!-- User information -->
     <h2>User Information</h2>
-
 
     <p>
 
@@ -307,7 +291,6 @@ $reservation_result =
         ?>
 
     </p>
-
 
     <p>
 
@@ -325,7 +308,6 @@ $reservation_result =
 
     </p>
 
-
     <p>
 
         <strong>Lab / Group:</strong>
@@ -339,7 +321,6 @@ $reservation_result =
         ?>
 
     </p>
-
 
     <p>
 
@@ -355,7 +336,6 @@ $reservation_result =
 
     </p>
 
-
     <p>
 
         <strong>Role:</strong>
@@ -370,30 +350,19 @@ $reservation_result =
 
     </p>
 
-
-
     <br><br>
 
-
-
-    <!-- =========================
-         My Projects
-         ========================= -->
+    <!-- My Projects -->
 
     <h2>My Projects</h2>
 
-
     <?php
 
-
-    // Check whether the user belongs
-    // to any projects
+    // Check whether the user belongs to any projects
 
     if ($project_result->num_rows > 0) {
 
-
         echo "<table border='1'>";
-
 
         echo
         "<tr>
@@ -404,16 +373,13 @@ $reservation_result =
 
         </tr>";
 
-
         // Display each project
         while (
             $project =
             $project_result->fetch_assoc()
         ) {
 
-
             echo "<tr>";
-
 
             echo "<td>" .
             htmlspecialchars(
@@ -421,24 +387,19 @@ $reservation_result =
             ) .
             "</td>";
 
-
             echo "<td>" .
             htmlspecialchars(
                 $project["description"] ?? ""
             ) .
             "</td>";
 
-
             echo "</tr>";
 
         }
 
-
         echo "</table>";
 
-
     } else {
-
 
         echo
         "<p>
@@ -448,33 +409,21 @@ $reservation_result =
 
     }
 
-
     ?>
-
-
 
     <br><br>
 
-
-
-    <!-- =========================
-         My Reservations
-         ========================= -->
+    <!-- My Reservations -->
 
     <h2>My Reservations</h2>
 
-
     <?php
 
-
-    // Check whether the current user
-    // has created any reservations
+    // Check whether the current user has created any reservations
 
     if ($reservation_result->num_rows > 0) {
 
-
         echo "<table border='1'>";
-
 
         echo
         "<tr>
@@ -497,16 +446,13 @@ $reservation_result =
 
         </tr>";
 
-
         // Display each reservation
         while (
             $reservation =
             $reservation_result->fetch_assoc()
         ) {
 
-
             echo "<tr>";
-
 
             // Project
             echo "<td>" .
@@ -515,14 +461,12 @@ $reservation_result =
             ) .
             "</td>";
 
-
             // Reagent
             echo "<td>" .
             htmlspecialchars(
                 $reservation["reagent_name"]
             ) .
             "</td>";
-
 
             // Catalog number
             echo "<td>" .
@@ -531,14 +475,12 @@ $reservation_result =
             ) .
             "</td>";
 
-
             // Lot
             echo "<td>" .
             htmlspecialchars(
                 $reservation["lot_number"] ?? ""
             ) .
             "</td>";
-
 
             // Reserved quantity
             echo "<td>" .
@@ -551,14 +493,12 @@ $reservation_result =
             ) .
             "</td>";
 
-
             // Needed date
             echo "<td>" .
             htmlspecialchars(
                 $reservation["needed_date"]
             ) .
             "</td>";
-
 
             // Status
             echo "<td>" .
@@ -567,10 +507,8 @@ $reservation_result =
             ) .
             "</td>";
 
-
             // Action
             echo "<td>";
-
 
             // Only ACTIVE reservations
             // can still be used or cancelled
@@ -580,7 +518,6 @@ $reservation_result =
                 "ACTIVE"
             ) {
 
-
                 echo
                 "<a href='record_usage.php?reservation_id=" .
                 $reservation["reservation_id"] .
@@ -588,9 +525,7 @@ $reservation_result =
                     Record usage
                 </a>";
 
-
                 echo "<br>";
-
 
                 echo
                 "<a href='cancel_reservation.php?reservation_id=" .
@@ -599,28 +534,21 @@ $reservation_result =
                     Cancel
                 </a>";
 
-
             } else {
-
 
                 echo "-";
 
             }
 
-
             echo "</td>";
-
 
             echo "</tr>";
 
         }
 
-
         echo "</table>";
 
-
     } else {
-
 
         echo
         "<p>
@@ -629,24 +557,17 @@ $reservation_result =
 
     }
 
-
     ?>
-
-
 
     <br><br>
 
-
-
-    <!-- View reservations from all projects
-         that the user belongs to -->
+    <!-- View reservations from all projects that the user belongs to -->
     <a
         class="button"
         href="reservations.php"
     >
         Project Reservations
     </a>
-
 
     <!-- View user's Usage history -->
     <a
@@ -656,14 +577,11 @@ $reservation_result =
         Usage History
     </a>
 
-
 </main>
-
 
 </body>
 
 </html>
-
 
 <?php
 
@@ -674,7 +592,6 @@ $user_stmt->close();
 $project_stmt->close();
 
 $reservation_stmt->close();
-
 
 // Close database connection
 

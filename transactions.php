@@ -201,25 +201,109 @@ $result =
 
 ?>
 
-
 <!DOCTYPE html>
 
 <html>
 
 <head>
 
-    <title>
-        Inventory History - Reagently
-    </title>
+    <title>Reagently - Inventory</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+<!-- Website title -->
 
-<h1>Inventory History</h1>
+<header>
 
+    <h1>Reagently</h1>
+
+</header>
+
+
+<!-- Navigation bar -->
+
+<nav class="navbar">
+
+    <a href="index.php">
+        Home
+    </a>
+
+    <?php
+
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
+
+    ?>
+
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
+
+</nav>
+
+
+<!-- Main heading -->
+<main class="page">
+    <h2>Reagent Inventory</h2>
 
 <?php
 
@@ -242,10 +326,8 @@ if ($role === 'admin') {
 
 ?>
 
-
 <!-- Inventory transaction table -->
 <table border="1">
-
 
 <tr>
 
@@ -269,9 +351,7 @@ if ($role === 'admin') {
 
 </tr>
 
-
 <?php
-
 
 // Check whether any transactions exist
 if ($result->num_rows > 0) {
@@ -395,9 +475,7 @@ if ($result->num_rows > 0) {
 
     }
 
-
 } else {
-
 
     // No transaction history exists
     echo
@@ -411,39 +489,18 @@ if ($result->num_rows > 0) {
 
 }
 
-
 ?>
 
-
 </table>
-
-
-<br><br>
-
-
-<a href="view_reagents.php">
-View reagents
-</a>
-
-
-<br><br>
-
-
-<a href="index.php">
-Back to home
-</a>
-
 
 </body>
 
 </html>
 
-
 <?php
 
 // Close prepared statement
 $stmt->close();
-
 
 // Close database connection
 $link->close();

@@ -1,12 +1,7 @@
+<!-- Displays the reservation form for the logged-in user.
+Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations. -->
+
 <?php
-
-
-/*
-Displays the reservation form for the logged-in user.
-Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations.
-*/
-
-
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();
@@ -198,25 +193,107 @@ $lot_result =
 
 ?>
 
-
 <!DOCTYPE html>
 
 <html>
 
 <head>
 
-    <title>
-        Make Reservation - Reagently
-    </title>
+    <title>Reagently - Make reservation</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+<!-- Website title -->
 
-<h1>Make Reservation</h1>
+<header>
 
+    <h1>Reagently</h1>
+
+</header>
+
+<!-- Navigation bar -->
+
+<nav class="navbar">
+
+    <a href="index.php">
+        Home
+    </a>
+
+    <?php
+
+    // Show these links only when a user is logged in
+    if (isset($_SESSION['user_id'])) {
+
+    ?>
+
+        <a href="view_reagents.php">
+            View reagents
+        </a>
+
+        <a href="user.php">
+            User
+        </a>
+
+        <?php
+
+        // Only admins see the Admin link
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+        ) {
+
+        ?>
+
+            <a href="admin.php">
+                Admin
+            </a>
+
+        <?php
+
+        }
+
+        ?>
+
+        <a href="logout.php">
+            Log out
+        </a>
+
+    <?php
+
+    } else {
+
+    ?>
+
+        <!-- Show Login and Register when nobody is logged in -->
+
+        <a href="login.php">
+            Login
+        </a>
+
+        <a href="register.php">
+            Register
+        </a>
+
+    <?php
+
+    }
+
+    ?>
+
+</nav>
+
+<main class="page">
+    <h2>Make Reservation</h2>
+    <h3>Reserve your reagents here!</h3>
 
 <!--
     Reservation form
@@ -242,15 +319,11 @@ $lot_result =
         required
     >
 
-
         <?php
 
-
-        // Check whether the user belongs
-        // to at least one project
+        // Check whether the user belongs to at least one project
 
         if ($project_result->num_rows > 0) {
-
 
             // Create one option for each project
             // that the current user belongs to
@@ -259,7 +332,6 @@ $lot_result =
                 $project =
                 $project_result->fetch_assoc()
             ) {
-
 
                 echo
                 "<option value='" .
@@ -274,9 +346,7 @@ $lot_result =
 
             }
 
-
         } else {
-
 
             // The user cannot make a reservation
             // without being a member of a project
@@ -288,16 +358,11 @@ $lot_result =
 
         }
 
-
         ?>
-
 
     </select>
 
-
     <br><br>
-
-
 
     <!-- =========================
          Reagent lot selection
@@ -310,9 +375,7 @@ $lot_result =
         required
     >
 
-
         <?php
-
 
         // Check whether there are reagent lots
         // with available quantity
@@ -350,9 +413,7 @@ $lot_result =
 
             }
 
-
         } else {
-
 
             echo
             "<option value='' disabled>
@@ -361,16 +422,11 @@ $lot_result =
 
         }
 
-
         ?>
-
 
     </select>
 
-
     <br><br>
-
-
 
     <!-- Quantity that the user wants to reserve -->
 
@@ -384,14 +440,11 @@ $lot_result =
         required
     >
 
-
     <br><br>
-
-
 
     <!-- Date when the reagent is needed -->
 
-    Needed date:
+    Needed by:
 
     <input
         type="date"
@@ -399,37 +452,17 @@ $lot_result =
         required
     >
 
-
     <br><br>
-
-
 
     <!-- Submit the reservation -->
 
     <input
+        class="button"
         type="submit"
         value="Reserve"
     >
 
-
 </form>
-
-
-<br>
-
-
-<a href="view_reagents.php">
-Back to reagents
-</a>
-
-
-<br><br>
-
-
-<a href="index.php">
-Back to home
-</a>
-
 
 </body>
 
