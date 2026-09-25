@@ -198,6 +198,17 @@ if (
         Inventory History
     </a>
 
+        <br><br>
+
+    <h3>User Management</h3>
+
+    <a
+        class="button"
+        href="view_users.php"
+    >
+        Administer Users
+    </a>
+
 </main>
 
 </body>
