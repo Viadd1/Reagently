@@ -32,6 +32,12 @@ if (
 // Include database connection
 include 'db.php';
 
+// Give search_query a default value
+// when the page is opened without a search
+
+$_GET['search_query'] =
+    $_GET['search_query'] ?? '';
+
 // If admin has searched for something, save in variable
 if ($_GET['search_query']) {
     $search_query = $_GET['search_query'];

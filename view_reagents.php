@@ -16,6 +16,14 @@ if (!isset($_SESSION['user_id'])) {
 // Include database connection
 include 'db.php';
 
+// Give default values when the page is opened
+// before any search or filter has been submitted
+$_GET['search_query'] =
+    $_GET['search_query'] ?? '';
+
+$_GET['stock_filter'] =
+    $_GET['stock_filter'] ?? 'show_all';
+
 
 // If user has searched for something, save in variable
 if ($_GET['search_query']) {
@@ -56,6 +64,7 @@ $sql =
 "SELECT
 
     reagent_lots.lot_id,
+    reagents.reagent_id,
 
     reagents.name,
     reagents.catalog_number,
@@ -332,6 +341,10 @@ $result =
 
             <th>Expiry Date</th>
 
+            <th>Action</th>
+
+            
+
         </tr>
 
         <?php
@@ -492,20 +505,63 @@ $result =
 
                 "</td>";
 
+                // Action button
+
+                echo "<td>";
+
+                if ($row["available_quantity"] > 0) {
+                    echo
+                    "<a
+                         class='button'
+                         href='make_reservation.php?lot_id=" .
+                         $row["lot_id"] .
+                         "'>
+                         Reserve
+                    </a>";
+                }
+                else {
+                    echo
+                    "<a
+                        class='button'
+                        href='request_order.php?reagent_id=" .
+                        $row["reagent_id"] .
+                        "'>
+                        Request Order
+                    </a>";
+                }
+
+                echo "</td>";
+
                 echo "</tr>";
 
             }
 
         } else {
 
-            // Display this if there are no reagent lots in the database yet.
+            // Display this if there are no reagent lots in the database and request order
 
             echo
             "<tr>
 
-                <td colspan='11'>
-                    No reagents found.
-                </td>
+                <td colspan='12'>
+                    No reagents found.";
+            // if a reagent was searched but does not exist, user can request it
+            if (!empty($search_query)) {
+                
+                echo
+                "<br><br>
+
+                <a
+                    class='button'
+                    href='request_order.php?search_query=" .
+                    urlencode($search_query) .
+                    "'>
+                    Request Order
+                </a>";
+            }
+            echo
+
+                "</td>
 
             </tr>";
 
