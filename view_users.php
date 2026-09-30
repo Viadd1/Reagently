@@ -271,7 +271,29 @@ $result = $link->query($sql);
                     $row["email"] ?? ""
                 ) . 
 
-                "</td>" . 
+                "</td>";
+
+                // Button for editing users (uses POST method for safety)
+                echo "<td>";
+
+                echo "
+                    <form 
+                    action='/edit_user.php' 
+                    method='POST'
+                    style='display:inline;'
+                    >
+                        <input 
+                        type='hidden' 
+                        name='user_id' 
+                        value='" . 
+                        htmlspecialchars($row['user_id']) . 
+                        "'>
+                        <button type='submit'
+                        class='button'>
+                        Edit user
+                        </button>
+                    </form>";
+                
 
                 "</tr>";
 

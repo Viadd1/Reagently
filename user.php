@@ -346,7 +346,23 @@ $reservation_result =
             $user["role"]
         );
 
-        ?>
+        echo "<form 
+            action='/edit_user.php' 
+            method='POST'
+            style='display:inline;'
+            >
+                <input 
+                type='hidden' 
+                name='user_id' 
+                value='" . 
+                htmlspecialchars($user_id) . 
+                "'>
+                <button type='submit'
+                class='button'>
+                 Edit user information
+                </button>
+            </form>";
+    ?>
 
     </p>
 
