@@ -196,7 +196,7 @@ $result =
 
 // Check whether registration was successful
 if ($result) {
-    echo "Registration successful.";
+    echo "Account requested successfully.";
 
     echo '<br><br>';
 

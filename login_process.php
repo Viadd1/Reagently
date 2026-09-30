@@ -28,6 +28,7 @@ $password =
 // password  -> hashed password stored in the database
 // role      -> used later to distinguish user and admin
 // lab       -> used to show users department in news section
+// approved  -> ensures that the account has been approved by the admin
 
 $sql =
 "SELECT
@@ -35,7 +36,8 @@ $sql =
     username,
     lab,
     password,
-    role
+    role,
+    approved
 
  FROM users
 
@@ -71,52 +73,12 @@ if ($result->num_rows === 1) {
     // Fetch the user's information
     $user =
         $result->fetch_assoc();
-
-    // Verify the entered password against the hashed password stored in the database
-
+    
+    // Check if the account has been approved by admin
     if (
-        password_verify(
-            $password,
-            $user['password']
-        )
+        $user['approved'] === 0
     ) {
-
-        // Create a new session ID after login for better session security
-
-        session_regenerate_id(true);
-
-        // Store important user information in the session
-
-        $_SESSION['user_id'] =
-            $user['user_id'];
-
-        $_SESSION['username'] =
-            $user['username'];
-
-        $_SESSION['lab'] =
-            $user['lab'];
-
-        $_SESSION['role'] =
-            $user['role'];
-        
-        // Login successful
-    
-        // Redirect the user to the home page
-
-        header(
-            "Location: index.php"
-        );
-
-        exit;
-
-    } else {
-
-        // Password is incorrect
-    
-        // We use a general error message instead of
-        // telling the user whether the username or password was incorrect.
-
-        echo "Incorrect username or password.";
+        echo "Account not approved by admin. Please try again later.";
 
         echo "<br><br>";
 
@@ -124,6 +86,64 @@ if ($result->num_rows === 1) {
         '<a href="login.php">
             Try again
         </a>';
+    } 
+    
+    else { 
+
+        // Verify the entered password against the hashed password stored in the database
+
+        if (
+            password_verify(
+                $password,
+                $user['password']
+            )
+            ) {
+
+            // Create a new session ID after login for better session security
+
+            session_regenerate_id(true);
+
+            // Store important user information in the session
+
+            $_SESSION['user_id'] =
+                $user['user_id'];
+
+            $_SESSION['username'] =
+                $user['username'];
+
+            $_SESSION['lab'] =
+                $user['lab'];
+
+            $_SESSION['role'] =
+                $user['role'];
+            
+            // Login successful
+        
+            // Redirect the user to the home page
+
+            header(
+                "Location: index.php"
+            );
+
+            exit;
+
+        } else {
+
+            // Password is incorrect
+        
+            // We use a general error message instead of
+            // telling the user whether the username or password was incorrect.
+
+            echo "Incorrect username or password.";
+
+            echo "<br><br>";
+
+            echo
+            '<a href="login.php">
+                Try again
+            </a>';
+
+        }
 
     }
 

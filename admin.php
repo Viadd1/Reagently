@@ -204,6 +204,13 @@ if (
 
     <a
         class="button"
+        href="approve_users.php"
+    >
+        Approve New Users
+    </a>
+
+    <a
+        class="button"
         href="view_users.php"
     >
         Administer Users
