@@ -57,6 +57,7 @@ if (isset($_POST['uname'])) {
     $user_id
     );
     
+    $stmt->execute();
 
     // Check whether the user has changed password
     // and that the passwords match
@@ -90,20 +91,13 @@ if (isset($_POST['uname'])) {
             PASSWORD_DEFAULT
         );
 
-        // If the user changed password, close previous statement 
-        // and create a new one
+        // If the user changed password, create new statement
 
         $stmt->close();
 
         $sql = "UPDATE users
 
-            SET
-            username = ?,
-            lab = ?,
-            firstname = ?,
-            lastname = ?,
-            email = ?,
-            password = ?
+            SET password = ?
             
             WHERE user_id = ?
             ";
@@ -111,18 +105,38 @@ if (isset($_POST['uname'])) {
         $stmt = $link->prepare($sql);
 
         $stmt->bind_param(
-        "ssssssi",
-        $uname,
-        $lab,
-        $fname,
-        $lname,
-        $email,
+        "si",
         $hashed_password,
         $user_id
-    );
+        );
+        
+        $stmt->execute();
+    
     }
 
-    $stmt->execute();
+    // Check if an admin has changed the role of the user
+    if(isset($_POST['role'])) {
+
+        $stmt->close();
+
+        $role = $_POST['role'];
+
+        $sql = "UPDATE users
+
+            SET role = ?
+
+            WHERE user_id = ?";
+
+        $stmt = $link->prepare($sql);
+
+        $stmt->bind_param(
+            "si",
+            $role,
+            $user_id
+        );
+
+        $stmt->execute();
+    }
 
     $success_message = "User information updated successfully.";
 }
@@ -378,7 +392,7 @@ else {
 
                 <select
                 id="role"
-                name="role"
+                name="role">
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
                 </select>

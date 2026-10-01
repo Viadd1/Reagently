@@ -76,7 +76,7 @@ if ($result->num_rows === 1) {
     
     // Check if the account has been approved by admin
     if (
-        $user['approved'] === 0
+        $user['approved'] === 0 && $user['role'] !== "admin"
     ) {
         echo "Account not approved by admin. Please try again later.";
 
