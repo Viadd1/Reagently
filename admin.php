@@ -143,6 +143,17 @@ if (
 
     <br>
 
+    <h3>Announcements</h3>
+
+    <a 
+        class="button" 
+        href="add_announcement.php"
+    >
+        Add Announcement
+    </a>
+
+<br><br>
+
 
     <h3>Reagent Management</h3>
 

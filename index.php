@@ -6,6 +6,16 @@
 // Start session so that the homepage knows whether a user is logged in
 session_start();
 
+include 'db.php';
+
+// Latest 10 announcements, newest first
+$announcements = $link->query(
+    "SELECT title, message, author_name, created_at
+     FROM announcements
+     ORDER BY created_at DESC
+     LIMIT 10"
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -189,45 +199,30 @@ if (isset($_SESSION['user_id'])) {
 
     <div class="news-list">
 
-        <article class="news-item">
+        <?php if ($announcements->num_rows > 0): ?>
 
-            <h3>
-                Welcome to Reagently
-            </h3>
+            <?php while ($a = $announcements->fetch_assoc()): ?>
 
-            <p class="news-date">
-                18 September 2026
-            </p>
+                <article class="news-item">
 
-            <p>
+                    <h3><?= htmlspecialchars($a['title']) ?></h3>
 
-                Welcome to the new Reagently system.
-                Department-specific updates and
-                notifications will be displayed here.
+                    <p class="news-date">
+                        <?= date('j F Y', strtotime($a['created_at'])) ?>
+                        &middot; by <?= htmlspecialchars($a['author_name']) ?>
+                    </p>
 
-            </p>
+                    <p><?= nl2br(htmlspecialchars($a['message'])) ?></p>
 
-        </article>
+                </article>
 
-        <article class="news-item">
+            <?php endwhile; ?>
 
-            <h3>
-                Reservation System
-            </h3>
+        <?php else: ?>
 
-            <p class="news-date">
-                18 September 2026
-            </p>
+            <p>No announcements yet.</p>
 
-            <p>
-
-                Researchers can now reserve available
-                reagents for projects and record
-                their final usage.
-
-            </p>
-
-        </article>
+        <?php endif; ?>
 
     </div>
 
@@ -239,3 +234,5 @@ if (isset($_SESSION['user_id'])) {
 </body>
 
 </html>
+
+<?php $link->close(); ?>

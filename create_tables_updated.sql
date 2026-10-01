@@ -127,6 +127,7 @@ CREATE TABLE inventory_transactions (
         REFERENCES reservations(reservation_id)
 );
 
+
 CREATE TABLE reagent_nicknames (
     nickname_id INT PRIMARY KEY AUTO_INCREMENT,
     reagent_id INT NOT NULL,
@@ -137,3 +138,13 @@ CREATE TABLE reagent_nicknames (
     FOREIGN KEY (reagent_id) REFERENCES reagents(reagent_id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES users(user_id)
 );
+
+
+CREATE TABLE announcements (
+    announcement_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(150) NOT NULL,
+    message TEXT NOT NULL,
+    author_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
