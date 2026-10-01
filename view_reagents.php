@@ -134,7 +134,16 @@ ON reagent_lots.lot_id
 reservation_totals.lot_id
 
 -- Only show reagents that match search query and filters
-WHERE reagents.name LIKE '%$search_query%'
+WHERE reagents.is_deleted = 0
+
+AND (
+    reagents.name LIKE ?
+    OR EXISTS (
+        SELECT 1 FROM reagent_nicknames
+        WHERE reagent_nicknames.reagent_id = reagents.reagent_id
+        AND reagent_nicknames.nickname LIKE ?
+    )
+)
 
 AND $stock_filter
 
@@ -145,8 +154,11 @@ ORDER BY
     reagent_lots.expiry_date";
 
 // Execute the SQL query
-$result =
-    $link->query($sql);
+$like = '%' . $search_query . '%';
+$stmt = $link->prepare($sql);
+$stmt->bind_param("ss", $like, $like);
+$stmt->execute();
+$result = $stmt->get_result();
 
 ?>
 

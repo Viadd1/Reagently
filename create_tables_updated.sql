@@ -40,7 +40,8 @@ CREATE TABLE reagents (
     catalog_number VARCHAR(100) NOT NULL UNIQUE,
     category VARCHAR(100),
     unit VARCHAR(20) NOT NULL,
-    storage_condition VARCHAR(100)
+    storage_condition VARCHAR(100),
+    is_deleted BOOL NOT NULL DEFAULT 0
 );
 
 
@@ -124,4 +125,15 @@ CREATE TABLE inventory_transactions (
 
     FOREIGN KEY (reservation_id)
         REFERENCES reservations(reservation_id)
+);
+
+CREATE TABLE reagent_nicknames (
+    nickname_id INT PRIMARY KEY AUTO_INCREMENT,
+    reagent_id INT NOT NULL,
+    nickname VARCHAR(100) NOT NULL,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (reagent_id, nickname),
+    FOREIGN KEY (reagent_id) REFERENCES reagents(reagent_id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(user_id)
 );

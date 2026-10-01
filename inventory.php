@@ -60,6 +60,7 @@ ON reagent_lots.lot_id
 =
 reservations.lot_id
 
+WHERE reagents.is_deleted = 0
 
 GROUP BY
 

@@ -171,6 +171,9 @@ reservation_totals.lot_id
 
 WHERE
 
+    reagents.is_deleted = 0
+    AND
+
     reagent_lots.current_quantity
     -
     COALESCE(

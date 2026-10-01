@@ -1,0 +1,114 @@
+<?php
+include 'db.php';
+
+// Reagents with their nicknames (deleted reagents are hidden)
+$reagents = $link->query(
+    "SELECT r.reagent_id, r.name, r.catalog_number, r.category, r.unit,
+            r.storage_condition,
+            GROUP_CONCAT(n.nickname SEPARATOR ', ') AS nicknames
+     FROM reagents r
+     LEFT JOIN reagent_nicknames n ON n.reagent_id = r.reagent_id
+     WHERE r.is_deleted = 0
+     GROUP BY r.reagent_id
+     ORDER BY r.name"
+);
+
+// Lots with reserved quantity, for the quantity-change section
+$lots = $link->query(
+    "SELECT l.lot_id, l.lot_number, l.current_quantity, r.name, r.unit,
+            COALESCE((SELECT SUM(quantity_reserved) FROM reservations
+                      WHERE lot_id = l.lot_id AND status = 'ACTIVE'), 0) AS reserved
+     FROM reagent_lots l
+     JOIN reagents r ON r.reagent_id = l.reagent_id
+     WHERE r.is_deleted = 0
+     ORDER BY r.name, l.lot_number"
+);
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reagently - Manage Reagents</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>Reagently</h1></header>
+<nav class="navbar">
+    <a href="index.php">Home</a>
+    <a href="view_reagents.php">View reagents</a>
+    <a href="user.php">User</a>
+    <a href="admin.php">Admin</a>
+    <a href="logout.php">Log out</a>
+</nav>
+
+<main class="page">
+    <h2>Manage Reagents</h2>
+
+    <?php if (isset($_GET['msg'])): ?>
+        <p><strong><?= htmlspecialchars($_GET['msg']) ?></strong></p>
+    <?php endif; ?>
+    <?php if (isset($_GET['error'])): ?>
+        <p style="color:red;"><strong><?= htmlspecialchars($_GET['error']) ?></strong></p>
+    <?php endif; ?>
+
+    <table border="1">
+        <tr>
+            <th>Reagent</th><th>Catalog No.</th><th>Category</th><th>Unit</th>
+            <th>Storage</th><th>Nicknames</th><th>Add nickname</th><th>Actions</th>
+        </tr>
+        <?php while ($row = $reagents->fetch_assoc()): ?>
+        <tr>
+            <td><?= htmlspecialchars($row['name']) ?></td>
+            <td><?= htmlspecialchars($row['catalog_number']) ?></td>
+            <td><?= htmlspecialchars($row['category'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['unit']) ?></td>
+            <td><?= htmlspecialchars($row['storage_condition'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['nicknames'] ?? '') ?></td>
+            <td>
+                <form action="add_nickname.php" method="POST">
+                    <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
+                    <input type="text" name="nickname" maxlength="100" required>
+                    <input type="submit" value="Add">
+                </form>
+            </td>
+            <td>
+                <form action="edit_reagent.php" method="POST">
+                    <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
+                    <input type="submit" value="Edit">
+                </form>
+                <form action="delete_reagent.php" method="POST"
+                      onsubmit="return confirm('Delete this reagent?');">
+                    <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    </table>
+
+    <h3>Change Lot Quantity</h3>
+    <table border="1">
+        <tr>
+            <th>Reagent</th><th>Lot</th><th>Physical</th><th>Reserved</th>
+            <th>New quantity</th><th>Note</th><th></th>
+        </tr>
+        <?php while ($lot = $lots->fetch_assoc()): ?>
+        <tr>
+            <form action="update_quantity.php" method="POST">
+                <td><?= htmlspecialchars($lot['name']) ?></td>
+                <td><?= htmlspecialchars($lot['lot_number'] ?? '') ?></td>
+                <td><?= htmlspecialchars($lot['current_quantity'] . ' ' . $lot['unit']) ?></td>
+                <td><?= htmlspecialchars($lot['reserved'] . ' ' . $lot['unit']) ?></td>
+                <td>
+                    <input type="hidden" name="lot_id" value="<?= (int)$lot['lot_id'] ?>">
+                    <input type="number" name="new_quantity" step="0.01" min="0" required>
+                </td>
+                <td><input type="text" name="note" placeholder="Reason"></td>
+                <td><input type="submit" value="Update"></td>
+            </form>
+        </tr>
+        <?php endwhile; ?>
+    </table>
+</main>
+</body>
+</html>
+<?php $link->close(); ?>

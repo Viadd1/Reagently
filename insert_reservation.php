@@ -148,11 +148,15 @@ $membership_stmt->close();
 
 $lot_sql =
 "SELECT
-    current_quantity
+    reagent_lots.current_quantity
 
  FROM reagent_lots
 
- WHERE lot_id = ?
+ JOIN reagents
+ ON reagents.reagent_id = reagent_lots.reagent_id
+
+ WHERE reagent_lots.lot_id = ?
+ AND reagents.is_deleted = 0
 
  FOR UPDATE";
 

@@ -47,6 +47,8 @@ include 'db.php';
 
          FROM reagents
 
+         WHERE is_deleted = 0
+
          ORDER BY name";
 
 

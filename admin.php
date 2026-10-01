@@ -169,6 +169,14 @@ if (
         Add Reagent Lot
     </a>
 
+    <a 
+        class="button" 
+        href="manage_reagents.php"
+        
+    >
+        Manage Reagents
+    </a>
+
     <br><br>
 
     <h3>Project Management</h3>
