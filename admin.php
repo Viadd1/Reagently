@@ -217,7 +217,15 @@ if (
         Inventory History
     </a>
 
-        <br><br>
+    
+    <a
+        class="button"
+        href="view_order_requests.php"
+    >
+        View Order Requests
+    </a>
+
+    <br><br>
 
     <h3>User Management</h3>
 
