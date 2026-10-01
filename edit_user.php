@@ -1,17 +1,138 @@
 <?php
 
+// Start or resume existing session
 session_start();
 
+// Include database connection
 include "db.php";
 
+// Ensure that user has entered the page by submitting a user ID
 $user_id = $_POST['user_id'] ?? '';
 
 if (!$user_id) {
     die("No user ID provided.");
 }
 
+// If the user has submitted new user information,
+// save variables and prepare SQL statement
+
+if (isset($_POST['uname'])) {
+    
+    $uname = 
+        $_POST['uname'];
+    
+    $fname =
+        $_POST['fname'];
+
+    $lname =
+        $_POST['lname'];
+
+    $lab =
+        $_POST['lab'];
+
+    $email =
+        $_POST['email'];
+    
+    $sql = "UPDATE users
+
+            SET
+            username = ?,
+            lab = ?,
+            firstname = ?,
+            lastname = ?,
+            email = ?
+            
+            WHERE user_id = ?
+            ";
+    
+    $stmt = $link->prepare($sql);
+
+    $stmt->bind_param(
+    "sssssi",
+    $uname,
+    $lab,
+    $fname,
+    $lname,
+    $email,
+    $user_id
+    );
+    
+
+    // Check whether the user has changed password
+    // and that the passwords match
+    $password = 
+        $_POST['password'] ?? '';
+
+    $confirm_password = 
+        $_POST['password'] ?? '';
+
+
+    if (isset($_POST['password']) &&
+        isset($_POST['confirm_password'])) {
+        
+        $password =
+            $_POST['password'];
+
+        $confirm_password =
+            $_POST['confirm_password'];
+        
+        if ($password !== $confirm_password) {
+
+            die(
+                "Passwords do not match."
+            );
+
+        }
+
+        $hashed_password =
+        password_hash(
+            $password,
+            PASSWORD_DEFAULT
+        );
+
+        // If the user changed password, close previous statement 
+        // and create a new one
+
+        $stmt->close();
+
+        $sql = "UPDATE users
+
+            SET
+            username = ?,
+            lab = ?,
+            firstname = ?,
+            lastname = ?,
+            email = ?,
+            password = ?
+            
+            WHERE user_id = ?
+            ";
+    
+        $stmt = $link->prepare($sql);
+
+        $stmt->bind_param(
+        "ssssssi",
+        $uname,
+        $lab,
+        $fname,
+        $lname,
+        $email,
+        $hashed_password,
+        $user_id
+    );
+    }
+
+    $stmt->execute();
+
+    $success_message = "User information updated successfully.";
+}
+
+
+
+// SQL query for fetching current user information
 $sql = 
 " SELECT
+        user_id,
         username,
         lab,
         firstname,
@@ -37,10 +158,10 @@ $result = $stmt->get_result();
 if ($result->num_rows === 1) {
     while ($user_data = $result->fetch_assoc()) {
 
-         $username = $user_data["username"];
+         $uname = $user_data["username"];
          $lab = $user_data["lab"];
-         $firstname = $user_data["firstname"];
-         $lastname = $user_data["lastname"];
+         $fname = $user_data["firstname"];
+         $lname = $user_data["lastname"];
          $email = $user_data["email"];
 
     }
@@ -161,15 +282,46 @@ else {
         Edit user information or delete account.
     </p>
     
-    <br>
+    <h5 style="color:darkgreen">
+
+        <?php
+        if (isset($_POST['uname'])) {
+
+            echo $success_message;
+
+        } else {
+
+            echo "<br>";
+        }
+        ?>
+
+    </h5>
 
     <form
-    action="/update_user.php"
+    action="/edit_user.php"
     method="POST"
     >
         
         <?php
+        
+        echo '<input type="hidden"
+            id="user_id"
+            name="user_id"
+            value="' . 
+            $user_id . 
+            '"><br><br>';
 
+        echo '<label for="uname">
+            Username:
+            </label>
+
+            <input type="text"
+            id="uname"
+            name="uname"
+            value="' . 
+            $uname . 
+            '" required><br><br>';
+        
         echo '<label for="fname">
             First name:
             </label>
@@ -178,7 +330,7 @@ else {
             id="fname"
             name="fname"
             value="' . 
-            $firstname . 
+            $fname . 
             '"><br><br>';
     
         echo '<label for="lname">
@@ -189,7 +341,7 @@ else {
             id="lname"
             name="lname"
             value="' . 
-            $lastname .
+            $lname .
             '"><br><br>';
 
         echo '<label for="lab">
@@ -213,7 +365,25 @@ else {
             value="' . 
             $email .
             '"><br><br>';
-    
+        
+        if (
+            isset($_SESSION['role'])
+            &&
+            $_SESSION['role'] === 'admin'
+            ) {
+            
+            echo '<label for="role">
+                Role:
+                </label>
+
+                <select
+                id="role"
+                name="role"
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                </select>
+                <br><br>';
+            }
         ?>
 
         <label for="password">
@@ -237,6 +407,8 @@ else {
             name="confirm_password">
 
         <br><br>
+
+
 
         <input type="submit" value="Submit">
     </form>
