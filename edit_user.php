@@ -68,8 +68,8 @@ if (isset($_POST['uname'])) {
         $_POST['password'] ?? '';
 
 
-    if (isset($_POST['password']) &&
-        isset($_POST['confirm_password'])) {
+    if ($password &&
+        $confirm_password) {
         
         $password =
             $_POST['password'];
@@ -140,7 +140,6 @@ if (isset($_POST['uname'])) {
 
     $success_message = "User information updated successfully.";
 }
-
 
 
 // SQL query for fetching current user information
