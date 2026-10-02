@@ -25,12 +25,9 @@ include 'db.php';
 
 
 // Get information about the current user
-$user_id =
-    $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
-$role =
-    $_SESSION['role'];
-
+$role = $_SESSION['role'];
 
 
 /* =========================
@@ -68,47 +65,24 @@ if ($role === 'admin') {
     FROM inventory_transactions
 
 
-    JOIN users
+    JOIN users ON inventory_transactions.user_id = users.user_id
 
-    ON inventory_transactions.user_id
-    =
-    users.user_id
+    JOIN reagent_lots ON inventory_transactions.lot_id = reagent_lots.lot_id
 
 
-    JOIN reagent_lots
-
-    ON inventory_transactions.lot_id
-    =
-    reagent_lots.lot_id
+    JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
 
-    JOIN reagents
-
-    ON reagent_lots.reagent_id
-    =
-    reagents.reagent_id
+    LEFT JOIN reservations ON inventory_transactions.reservation_id = reservations.reservation_id
 
 
-    LEFT JOIN reservations
-
-    ON inventory_transactions.reservation_id
-    =
-    reservations.reservation_id
-
-
-    LEFT JOIN projects
-
-    ON reservations.project_id
-    =
-    projects.project_id
-
+    LEFT JOIN projects ON reservations.project_id = projects.project_id
 
     ORDER BY inventory_transactions.created_at DESC";
 
 
     // Admin query has no parameters
-    $stmt =
-        $link->prepare($sql);
+    $stmt = $link->prepare($sql);
 
 
 } else {
@@ -135,59 +109,26 @@ if ($role === 'admin') {
 
     FROM inventory_transactions
 
+    JOIN users ON inventory_transactions.user_id = users.user_id
 
-    JOIN users
+    JOIN reagent_lots ON inventory_transactions.lot_id = reagent_lots.lot_id
 
-    ON inventory_transactions.user_id
-    =
-    users.user_id
+    JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
+    LEFT JOIN reservations ON inventory_transactions.reservation_id = reservations.reservation_id
 
-    JOIN reagent_lots
-
-    ON inventory_transactions.lot_id
-    =
-    reagent_lots.lot_id
-
-
-    JOIN reagents
-
-    ON reagent_lots.reagent_id
-    =
-    reagents.reagent_id
-
-
-    LEFT JOIN reservations
-
-    ON inventory_transactions.reservation_id
-    =
-    reservations.reservation_id
-
-
-    LEFT JOIN projects
-
-    ON reservations.project_id
-    =
-    projects.project_id
-
+    LEFT JOIN projects ON reservations.project_id = projects.project_id
 
     WHERE inventory_transactions.user_id = ?
-
 
     ORDER BY inventory_transactions.created_at DESC";
 
 
     // Prepare query for regular user
-    $stmt =
-        $link->prepare($sql);
-
+    $stmt = $link->prepare($sql);
 
     // user_id is an integer
-    $stmt->bind_param(
-        "i",
-        $user_id
-    );
-
+    $stmt->bind_param("i", $user_id);
 }
 
 
@@ -196,8 +137,7 @@ $stmt->execute();
 
 
 // Get query result
-$result =
-    $stmt->get_result();
+$result = $stmt->get_result();
 
 ?>
 

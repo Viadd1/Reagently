@@ -3,13 +3,11 @@
 or completed by recording usage.
 */ 
 
-// Start the session so that we can identify
-// the currently logged-in user
+// Start the session so that we can identify the currently logged-in user
 session_start();
 
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
@@ -22,24 +20,15 @@ include 'db.php';
 
 
 // Get the currently logged-in user's ID
-$user_id =
-    $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 
 
-/* =========================
-   Get visible reservations
-   ========================= */
+//Get visible reservations
 
 
-// Retrieve reservations from projects that
-// the current user belongs to.
-//
-// IMPORTANT:
-//
-// The user can see reservations made by other users,
-// but only if those reservations belong to a project
-// that the current user is also a member of.
+// Retrieve reservations from projects that the current user belongs to.
+// The user can see reservations made by other users, but only if those reservations belong to a project that the current user is also a member of.
 
 $sql =
 "SELECT
@@ -54,6 +43,8 @@ $sql =
     projects.project_name,
 
     users.username,
+    users.firstname,
+    users.lastname,
 
     reagents.name AS reagent_name,
     reagents.catalog_number,
@@ -66,45 +57,25 @@ FROM reservations
 
 
 -- Connect each reservation to its project
-JOIN projects
-
-ON reservations.project_id
-=
-projects.project_id
+JOIN projects ON reservations.project_id = projects.project_id
 
 
 -- Check whether the currently logged-in user
 -- belongs to the reservation's project
-JOIN project_members
-
-ON reservations.project_id
-=
-project_members.project_id
+JOIN project_members ON reservations.project_id = project_members.project_id
 
 
 -- Get information about the user
 -- who originally made the reservation
-JOIN users
-
-ON reservations.user_id
-=
-users.user_id
+JOIN users ON reservations.user_id = users.user_id
 
 
 -- Get information about the selected lot
-JOIN reagent_lots
-
-ON reservations.lot_id
-=
-reagent_lots.lot_id
+JOIN reagent_lots ON reservations.lot_id = reagent_lots.lot_id
 
 
 -- Get reagent information
-JOIN reagents
-
-ON reagent_lots.reagent_id
-=
-reagents.reagent_id
+JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
 
 -- Only show reservations from projects
@@ -125,8 +96,7 @@ ORDER BY
 
 
 // Prepare SQL query
-$stmt =
-    $link->prepare($sql);
+$stmt = $link->prepare($sql);
 
 
 // Bind current user's ID
@@ -139,8 +109,7 @@ $stmt->bind_param(
 $stmt->execute();
 
 // Get query result
-$result =
-    $stmt->get_result();
+$result = $stmt->get_result();
 
 ?>
 
@@ -262,10 +231,16 @@ if ($result->num_rows > 0) {
 
 
         // User who made the reservation
+        $full_name =
+            trim(($row["firstname"] ?? "") . " " . ($row["lastname"] ?? ""));
+
+        $display_name = $row["username"];
+        // Add first name and last name if they are available
+
+        if ($full_name !== "") { $display_name .= " (" . $full_name . ")";}
+        
         echo "<td>" .
-        htmlspecialchars(
-            $row["username"]
-        ) .
+        htmlspecialchars($display_name) .
         "</td>";
 
 
@@ -305,20 +280,13 @@ if ($result->num_rows > 0) {
         "</td>";
 
 
-        /* =========================
-           Reservation actions
-           ========================= */
+        //Reservation actions
 
         echo "<td>";
 
 
-        // For now, only the user who created
-        // the reservation can record usage
-        // or cancel their own ACTIVE reservation.
-        //
-        // Other project members can see the
-        // reservation information but cannot
-        // change it.
+        // For now, only the user who created the reservation can record usage or cancel their own ACTIVE reservation.
+        // Other project members can see the reservation information but cannot change it.
 
         if (
             $row["status"] === "ACTIVE"

@@ -45,11 +45,9 @@ $sql =
 
 // Prepare SQL statement
 
-$stmt =
-    $link->prepare($sql);
+$stmt = $link->prepare($sql);
 
 // Bind username to the placeholder
-
 // username is a string, therefore the type is "s".
 
 $stmt->bind_param(

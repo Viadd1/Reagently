@@ -2,7 +2,6 @@
 
 // Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
 
-
 // Start the session so that we can check whether the user is logged in
 session_start();
 
@@ -48,17 +47,11 @@ else {
 // Get reagent inventory
 
 // Retrieve reagent lot information.
-
 // Physical quantity = reagent_lots.current_quantity
-
 // Reserved quantity = total quantity from ALL ACTIVE reservations
-
 // Available quantity = Physical quantity - Reserved quantity
-
-// IMPORTANT:
 // The reserved quantity is calculated using ALL active reservations from ALL projects.
-// Users do not need to see reservation details from other projects, but those reservations
-// still affect the available stock.
+// Users do not need to see reservation details from other projects, but those reservations still affect the available stock.
 
 $sql =
 "SELECT
@@ -98,18 +91,10 @@ $sql =
 FROM reagent_lots
 
 -- Connect each lot to its reagent
-JOIN reagents
-
-ON reagent_lots.reagent_id
-=
-reagents.reagent_id
+JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
 -- Connect each lot to its storage location
-JOIN locations
-
-ON reagent_lots.location_id
-=
-locations.location_id
+JOIN locations ON reagent_lots.location_id = locations.location_id
 
 -- Calculate the total ACTIVE reserved quantity for each reagent lot
 LEFT JOIN
@@ -129,9 +114,7 @@ LEFT JOIN
 
 ) AS reservation_totals
 
-ON reagent_lots.lot_id
-=
-reservation_totals.lot_id
+ON reagent_lots.lot_id = reservation_totals.lot_id
 
 -- Only show reagents that match search query and filters
 WHERE reagents.is_deleted = 0
@@ -170,7 +153,7 @@ $result = $stmt->get_result();
 
     <title>Reagently - View Reagents</title>
 
-    <!-- Use the existing stylesheet -->
+    <!-- Use existing website stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -380,8 +363,7 @@ include "navbar.php";
 
                 /* Available quantity */
 
-                // Available quantity is calculated dynamically:
-                // Available = Physical - Reserved
+                // Available quantity is calculated: Available = Physical - Reserved
 
                 echo "<td>" .
 
@@ -408,8 +390,7 @@ include "navbar.php";
 
                 /* Physical location */
 
-                // Build the full storage location:
-                // Room / Storage unit / Shelf / Box
+                // Build the full storage location: Room / Storage unit / Shelf / Box
 
                 echo "<td>" .
 
