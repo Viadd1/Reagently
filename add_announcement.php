@@ -1,7 +1,28 @@
 <?php
 
-// Start session so that the homepage knows whether a user is logged in
+// Start the session so that we can check
+// the currently logged-in user's role
 session_start();
+
+// If the user is not logged in,
+// redirect them to the login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: login.php");
+    exit;
+}
+
+// Only admins can access this page
+if (
+    !isset($_SESSION['role'])
+    ||
+    $_SESSION['role'] !== 'admin'
+) {
+
+    die(
+        "Access denied. Admin permission is required."
+    );
+}
 
 // Include database link
 include 'db.php';
