@@ -20,8 +20,7 @@ include 'db.php';
 
 
 // Get the currently logged-in user's ID
-$user_id =
-    $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 
 
@@ -44,6 +43,8 @@ $sql =
     projects.project_name,
 
     users.username,
+    users.firstname,
+    users.lastname,
 
     reagents.name AS reagent_name,
     reagents.catalog_number,
@@ -305,10 +306,16 @@ if ($result->num_rows > 0) {
 
 
         // User who made the reservation
+        $full_name =
+            trim(($row["firstname"] ?? "") . " " . ($row["lastname"] ?? ""));
+
+        $display_name = $row["username"];
+        // Add first name and last name if they are available
+
+        if ($full_name !== "") { $display_name .= " (" . $full_name . ")";}
+        
         echo "<td>" .
-        htmlspecialchars(
-            $row["username"]
-        ) .
+        htmlspecialchars($display_name) .
         "</td>";
 
 
