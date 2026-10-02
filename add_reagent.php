@@ -3,15 +3,35 @@ Displays a form for adding a new reagent.
 The form sends the reagent information to insert_reagent.php.
 -->
 
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 
 <html>
 
 <head>
-    <title>Add Reagent</title>
+
+    <title>Reagently - Add Reagent</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
+
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 <h1>Add Reagent</h1>
 
@@ -83,6 +103,9 @@ The form sends the reagent information to insert_reagent.php.
 <a href="index.php">
 Back to home
 </a>
+
+
+</main>
 
 </body>
 

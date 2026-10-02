@@ -2,6 +2,9 @@
 Displays a form for creating a new research project.
 The form sends the project information to insert_project.php.
 -->
+<?php
+session_start();
+?>
 
 <!DOCTYPE html>
 
@@ -9,14 +12,25 @@ The form sends the project information to insert_project.php.
 
 <head>
 
-    <!-- Title displayed in the browser tab -->
-    <title>Create Project - Reagently</title>
+    <title>Reagently - Create Project</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 <!-- Main heading -->
 <h1>Create Project</h1>
@@ -79,6 +93,8 @@ The form sends the project information to insert_project.php.
 Back to home
 </a>
 
+
+</main>
 
 </body>
 

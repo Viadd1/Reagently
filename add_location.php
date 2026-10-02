@@ -3,15 +3,35 @@ Displays a form for adding a new reagent storage location.
 The form sends the location information to insert_location.php.
 -->
 
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 
 <html>
 
 <head>
-    <title>Add Location</title>
+
+    <title>Reagently - Add Storage Location</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
+
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 <h1>Add Storage Location</h1>
 
@@ -72,6 +92,8 @@ The form sends the location information to insert_location.php.
 Back to home
 </a>
 
+
+</main>
 
 </body>
 

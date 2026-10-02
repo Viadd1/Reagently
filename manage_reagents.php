@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'db.php';
 
 // Reagents with their nicknames (deleted reagents are hidden)
@@ -24,21 +25,30 @@ $lots = $link->query(
      ORDER BY r.name, l.lot_number"
 );
 ?>
+
 <!DOCTYPE html>
+
 <html>
+
 <head>
-    <title>Reagently - Manage Reagents</title>
-    <link rel="stylesheet" href="style.css">
+
+    <title>Reagently - Manage reagents</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 <body>
-<header><h1>Reagently</h1></header>
-<nav class="navbar">
-    <a href="index.php">Home</a>
-    <a href="view_reagents.php">View reagents</a>
-    <a href="user.php">User</a>
-    <a href="admin.php">Admin</a>
-    <a href="logout.php">Log out</a>
-</nav>
+
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
     <h2>Manage Reagents</h2>

@@ -183,14 +183,26 @@ $reservation =
 
 <head>
 
-    <title>
-        Record Usage - Reagently
-    </title>
+    <title>Reagently - Record usage</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
 
 <body>
+
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 
 <h1>Record Usage</h1>
@@ -412,6 +424,7 @@ $reservation =
 Back to reservations
 </a>
 
+</main>
 
 </body>
 

@@ -1,4 +1,9 @@
 <?php
+
+// Start session so that the homepage knows whether a user is logged in
+session_start();
+
+// Include database link
 include 'db.php';
 
 // All announcements, newest first
@@ -8,6 +13,7 @@ $announcements = $link->query(
      ORDER BY created_at DESC"
 );
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,14 +21,11 @@ $announcements = $link->query(
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>Reagently</h1></header>
-<nav class="navbar">
-    <a href="index.php">Home</a>
-    <a href="view_reagents.php">View reagents</a>
-    <a href="user.php">User</a>
-    <a href="admin.php">Admin</a>
-    <a href="logout.php">Log out</a>
-</nav>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
     <h2>Add Announcement</h2>

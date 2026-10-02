@@ -1,4 +1,6 @@
 <?php
+
+session_start();
 include 'db.php';
 
 $reagent_id = (int)($_POST['reagent_id'] ?? 0);
@@ -19,13 +21,12 @@ if (!$reagent) { die("Reagent not found."); }
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>Reagently</h1></header>
-<nav class="navbar">
-    <a href="index.php">Home</a>
-    <a href="admin.php">Admin</a>
-    <a href="logout.php">Log out</a>
-</nav>
-<main class="page">
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
     <h2>Edit Reagent</h2>
     <form action="update_reagent.php" method="POST">
         <input type="hidden" name="reagent_id" value="<?= $reagent_id ?>">

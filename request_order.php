@@ -78,10 +78,9 @@ elseif (isset($_GET['search_query'])) {
 
 <head>
 
-    <title>
-        Reagently - Request Order
-    </title>
+    <title>Reagently - Request order</title>
 
+    <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -93,59 +92,10 @@ elseif (isset($_GET['search_query'])) {
 <body>
 
 
-<header>
-
-    <h1>Reagently</h1>
-
-</header>
-
-
-<!-- Navigation bar -->
-
-<nav class="navbar">
-
-    <a href="index.php">
-        Home
-    </a>
-
-    <a href="view_reagents.php">
-        View reagents
-    </a>
-
-    <a href="user.php">
-        User
-    </a>
-
-
-    <?php
-
-    // Only admins see Admin link
-
-    if (
-        isset($_SESSION['role'])
-        &&
-        $_SESSION['role'] === 'admin'
-    ) {
-
-    ?>
-
-        <a href="admin.php">
-            Admin
-        </a>
-
-    <?php
-
-    }
-
-    ?>
-
-
-    <a href="logout.php">
-        Log out
-    </a>
-
-</nav>
-
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 
 <main class="page">

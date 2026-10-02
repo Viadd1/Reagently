@@ -5,6 +5,7 @@ Displays a form for adding an existing user to an existing project.
 Users and projects are loaded from the database and shown in dropdown menus.
 */
 
+session_start();
 
 // Include database connection
 include 'db.php';
@@ -55,14 +56,25 @@ $user_result =
 
 <head>
 
-    <!-- Title displayed in the browser tab -->
-    <title>Add Project Member - Reagently</title>
+    <title>Reagently - Add Project Member</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
-
 <body>
 
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 <!-- Main heading -->
 <h1>Add Project Member</h1>
@@ -188,6 +200,8 @@ $user_result =
 Back to home
 </a>
 
+
+</main>
 
 </body>
 
