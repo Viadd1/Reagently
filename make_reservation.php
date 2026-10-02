@@ -2,13 +2,11 @@
 Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations. -->
 
 <?php
-// Start the session so that we can identify
-// the currently logged-in user
+// Start the session so that we can identify the currently logged-in user
 session_start();
 
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
@@ -26,14 +24,10 @@ $user_id =
 
 
 
-/* =========================
-   Get user's projects
-   ========================= */
+//Get user's projects
 
 
-// Only show projects that the current user belongs to.
-//
-// project_members connects users and projects.
+// Only show projects that the current user belongs to. project_members connects users and projects.
 
 $project_sql =
 "SELECT
@@ -42,11 +36,7 @@ $project_sql =
 
  FROM projects
 
- JOIN project_members
-
- ON projects.project_id
- =
- project_members.project_id
+ JOIN project_members ON projects.project_id = project_members.project_id
 
  WHERE project_members.user_id = ?
 
@@ -55,8 +45,7 @@ $project_sql =
 
 // Prepare the query
 
-$project_stmt =
-    $link->prepare($project_sql);
+$project_stmt = $link->prepare($project_sql);
 
 
 // Bind the current user's ID
@@ -74,31 +63,18 @@ $project_stmt->execute();
 
 // Get project query result
 
-$project_result =
-    $project_stmt->get_result();
+$project_result = $project_stmt->get_result();
 
 
 
-/* =========================
-   Get reagent lots
-   ========================= */
+//Get reagent lots
 
 
-// This query retrieves all reagent lots
-// together with their available quantity.
-//
-// Physical quantity
-// = reagent_lots.current_quantity
-//
-// Reserved quantity
-// = total quantity from all ACTIVE reservations
-//
-// Available quantity
-// = Physical - Reserved
-//
-// IMPORTANT:
-// Reserved quantity is calculated from ALL ACTIVE
-// reservations, regardless of which project made them.
+// This query retrieves all reagent lots together with their available quantity.
+// Physical quantity = reagent_lots.current_quantity
+// Reserved quantity = total quantity from all ACTIVE reservations
+// Available quantity = Physical - Reserved
+// Reserved quantity is calculated from ALL ACTIVE reservations, regardless of which project made them.
 
 $lot_sql =
 "SELECT
@@ -118,38 +94,16 @@ $lot_sql =
     locations.shelf,
     locations.box_name,
 
-    COALESCE(
-        reservation_totals.reserved_quantity,
-        0
-    ) AS reserved_quantity,
+    COALESCE(reservation_totals.reserved_quantity, 0) AS reserved_quantity,
 
-    reagent_lots.current_quantity
-    -
-    COALESCE(
-        reservation_totals.reserved_quantity,
-        0
-    ) AS available_quantity
+    reagent_lots.current_quantity - COALESCE(reservation_totals.reserved_quantity,0) AS available_quantity
 
 
 FROM reagent_lots
-
-
-JOIN reagents
-
-ON reagent_lots.reagent_id
-=
-reagents.reagent_id
-
-
-JOIN locations
-
-ON reagent_lots.location_id
-=
-locations.location_id
-
-
+JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
+JOIN locations ON reagent_lots.location_id = locations.location_id
 LEFT JOIN
-(
+
     SELECT
         lot_id,
         SUM(quantity_reserved)
@@ -164,24 +118,11 @@ LEFT JOIN
 ) AS reservation_totals
 
 
-ON reagent_lots.lot_id
-=
-reservation_totals.lot_id
-
+ON reagent_lots.lot_id = reservation_totals.lot_id
 
 WHERE
 
-    reagents.is_deleted = 0
-    AND
-
-    reagent_lots.current_quantity
-    -
-    COALESCE(
-        reservation_totals.reserved_quantity,
-        0
-    )
-    > 0
-
+    reagents.is_deleted = 0 AND reagent_lots.current_quantity - COALESCE( reservation_totals.reserved_quantity, 0) > 0
 
 ORDER BY
 
@@ -311,9 +252,7 @@ $lot_result =
 >
 
 
-    <!-- =========================
-         Project selection
-         ========================= -->
+    <!--Project selection>
 
     Project:
 
@@ -351,8 +290,7 @@ $lot_result =
 
         } else {
 
-            // The user cannot make a reservation
-            // without being a member of a project
+            // The user cannot make a reservation without being a member of a project
 
             echo
             "<option value='' disabled>
@@ -380,8 +318,7 @@ $lot_result =
 
         <?php
 
-        // Check whether there are reagent lots
-        // with available quantity
+        // Check whether there are reagent lots with available quantity
 
         if ($lot_result->num_rows > 0) {
 
@@ -392,8 +329,7 @@ $lot_result =
             ) {
 
 
-                // The user sees useful reagent information,
-                // but the submitted value is only lot_id.
+                // The user sees useful reagent information, but the submitted value is only lot_id.
 
                 echo
                 "<option value='" .
