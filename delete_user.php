@@ -158,8 +158,6 @@ while ($row = $result->fetch_assoc()) {
 
     $res = $stmt->get_result();
 
-    echo $res->num_rows;
-
     if ($res->num_rows == 0) {
 
         $stmt->close();
@@ -198,9 +196,9 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-/*
+/*-----------
 Before removing the user, remove all project member entries linked to the user.
-*/
+-----------*/
 
 $sql_rm_pm = "DELETE FROM project_members
               WHERE user_id = ?";
@@ -214,10 +212,10 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-/*
+/*-------------
 All links to the user account have been removed or unlinked,
 so we can now delete the user from the database.
-*/
+-------------*/
 
 $sql_rm_user = "DELETE FROM users
                 WHERE user_id = ?";
