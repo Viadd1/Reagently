@@ -60,7 +60,12 @@ if ($quantity_reserved <= 0) {
     );
 }
 
-
+// Added possibility to link back to this reservation script for confirm partial request
+// If user cancelled 
+if ($decision === 'cancel') { 
+    
+    header("Location: make_reservation.php"); exit; 
+}
 
 /* =========================
    Start database transaction
@@ -284,46 +289,22 @@ $available_quantity =
 // quantity is larger than the latest
 // available quantity.
 
-if (
-    $quantity_reserved
-    >
-    $available_quantity
-) {
+//added:
+// Reserve as much as is currently available, 
+// but never more than the user requested. 
 
-    // Cancel the database transaction
-    $link->rollback();
+$reservation_quantity = 
+    min( 
+        $quantity_requested, 
+        $available_quantity 
+    ); 
 
+// Anything that cannot be reserved becomes 
+// an order request. 
 
-    echo
-        "Not enough reagent available.";
-
-    echo
-        "<br><br>";
-
-
-    echo
-        "Available quantity: " .
-        htmlspecialchars(
-            $available_quantity
-        );
-
-
-    echo
-        "<br><br>";
-
-
-    echo
-        '<a href="make_reservation.php">
-            Back to reservation
-        </a>';
-
-
-    $link->close();
-
-    exit;
-}
-
-
+$request_quantity = 
+    $quantity_requested - $reservation_quantity;
+//end of added part, removed corresponding end of script "cancel database transaction" 
 
 /* =========================
    Insert reservation
@@ -338,7 +319,9 @@ if (
 //
 // created_at is also generated automatically.
 
-$insert_sql =
+if ($reservation_quantity > 0) {
+
+$insert_reservation_sql =
 "INSERT INTO reservations
 (
     user_id,
@@ -351,8 +334,8 @@ $insert_sql =
 VALUES (?, ?, ?, ?, ?)";
 
 
-$insert_stmt =
-    $link->prepare($insert_sql);
+$insert_reservation_stmt =
+    $link->prepare($insert_reservation_sql);
 
 
 // Data types:
@@ -375,11 +358,66 @@ $insert_stmt->bind_param(
     $needed_date
 );
 
+if ( 
+    !$insert_reservation_stmt->execute() 
+) { 
+    $link->rollback(); 
+    
+    die( "Could not create reservation: " 
+    . 
+    $insert_reservation_stmt->error 
+    ); 
+}
 
-// Execute the reservation INSERT
-$result =
-    $insert_stmt->execute();
+    $insert_reservation_stmt->close(); 
+}
 
+/* ========================= 
+    Insert order request 
+    ========================= */ 
+    
+if ($request_quantity > 0) { 
+
+    $insert_request_sql = 
+    "INSERT INTO order_requests 
+    ( 
+        user_id, 
+        project_id, 
+        lot_id, 
+        quantity_requested, 
+        needed_date 
+    )
+
+    VALUES (?, ?, ?, ?, ?)"; 
+    
+    $insert_request_stmt = 
+        $link->prepare( 
+            $insert_request_sql 
+        );
+
+    $insert_request_stmt->bind_param( 
+        "iiids", 
+        $user_id, 
+        $project_id, 
+        $lot_id, 
+        $request_quantity, 
+        $needed_date 
+    );
+
+    if ( 
+        !$insert_request_stmt->execute() 
+    ) { 
+        $link->rollback(); 
+        
+        die( 
+            "Could not create order request: " 
+            . 
+            $insert_request_stmt->error 
+        ); 
+    }
+
+    $insert_request_stmt->close(); 
+}
 
 
 /* =========================
@@ -443,4 +481,49 @@ $insert_stmt->close();
 // Close database connection
 $link->close();
 
+
+
+// new
+$link->commit(); 
+
+echo 
+    "Reservation and order request created."; 
+    
+echo "<br><br>";
+
+echo 
+    "Reserved: " 
+    .
+    htmlspecialchars( 
+        $reservation_quantity 
+    ); 
+
+echo 
+    "<br>";
+
+echo 
+    "Requested from supplier: " 
+    . 
+    htmlspecialchars( 
+        $request_quantity 
+    ); 
+    
+echo 
+    "<br><br>";
+
+echo 
+    '<a href="make_reservation.php"> 
+        Make another reservation 
+    </a>'; 
+
+echo 
+    "<br>"; 
+
+echo 
+    '<a href="user.php"> 
+        View my reservations 
+    </a>';
+
+$link->close();
+// end
 ?>
