@@ -1,10 +1,28 @@
-```php
 <?php
 
+/*
+Confirms a reservation after the user has been shown
+the available quantity.
+
+If the user chooses "cancel", nothing is saved.
+
+If the user chooses "confirm":
+- Check project membership again
+- Check the reagent lot again
+- Calculate available quantity again
+- Create the reservation
+- Create an order request if necessary
+- Commit the transaction
+*/
+
+
+// Start the session so that we can identify
+// the currently logged-in user
 session_start();
 
 
-// Check login
+// If the user is not logged in,
+// redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
@@ -12,14 +30,16 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 
+// Include database connection
 include 'db.php';
 
 
+// Get the current logged-in user's ID
 $user_id =
     $_SESSION['user_id'];
 
 
-// Get data from previous form
+// Get information from the confirmation form
 
 $project_id =
     (int) $_POST['project_id'];
@@ -27,7 +47,7 @@ $project_id =
 $lot_id =
     (int) $_POST['lot_id'];
 
-$quantity_requested =
+$quantity_reserved =
     (float) $_POST['quantity_reserved'];
 
 $needed_date =
@@ -37,7 +57,8 @@ $decision =
     $_POST['decision'];
 
 
-// If user cancelled
+// If the user chose "No",
+// do not create anything
 if ($decision === 'cancel') {
 
     header("Location: make_reservation.php");
@@ -45,18 +66,26 @@ if ($decision === 'cancel') {
 }
 
 
-
 /* =========================
-   Start transaction
+   Start database transaction
    ========================= */
 
-$link->begin_transaction();
+// We start a new transaction because
+// the previous request has already ended.
+//
+// The stock must be checked again because
+// the available quantity could have changed
+// while the user was deciding.
 
+$link->begin_transaction();
 
 
 /* =========================
    Check project membership
    ========================= */
+
+// Check that the current user still belongs
+// to the selected project.
 
 $membership_sql =
 "SELECT
@@ -86,6 +115,8 @@ $membership_result =
     $membership_stmt->get_result();
 
 
+// If the user is not a member,
+// cancel the transaction
 if ($membership_result->num_rows !== 1) {
 
     $link->rollback();
@@ -99,21 +130,35 @@ if ($membership_result->num_rows !== 1) {
 $membership_stmt->close();
 
 
-
 /* =========================
    Lock and check reagent lot
    ========================= */
 
+// Get:
+// - current physical quantity
+// - reagent_id
+// - reagent_name
+//
+// FOR UPDATE locks this lot while
+// we perform the reservation.
+// for reagent name we use an alias because the name is saves as name in reagent_lots
+// and as reagent_name in order, making a little more convenitent to have the same name here
+
 $lot_sql =
 "SELECT
-    reagent_lots.current_quantity
+
+    reagent_lots.current_quantity,
+    reagent_lots.reagent_id,
+    reagents.name AS reagent_name
 
  FROM reagent_lots
 
  JOIN reagents
- ON reagents.reagent_id = reagent_lots.reagent_id
+ ON reagents.reagent_id =
+    reagent_lots.reagent_id
 
  WHERE reagent_lots.lot_id = ?
+
  AND reagents.is_deleted = 0
 
  FOR UPDATE";
@@ -136,6 +181,7 @@ $lot_result =
     $lot_stmt->get_result();
 
 
+// Check that the selected lot exists
 if ($lot_result->num_rows !== 1) {
 
     $link->rollback();
@@ -146,6 +192,7 @@ if ($lot_result->num_rows !== 1) {
 }
 
 
+// Get information about the lot
 $lot =
     $lot_result->fetch_assoc();
 
@@ -154,13 +201,23 @@ $current_quantity =
     (float) $lot['current_quantity'];
 
 
-$lot_stmt->close();
+$reagent_id =
+    (int) $lot['reagent_id'];
 
+
+$reagent_name =
+    $lot['reagent_name'];
+
+
+$lot_stmt->close();
 
 
 /* =========================
    Calculate active reservations
    ========================= */
+
+// Calculate how much of this lot
+// is already reserved.
 
 $reserved_sql =
 "SELECT
@@ -205,10 +262,15 @@ $reserved_quantity =
 $reserved_stmt->close();
 
 
-
 /* =========================
    Calculate available quantity
    ========================= */
+
+// Available quantity:
+//
+// Physical stock
+// minus
+// Active reservations
 
 $available_quantity =
     $current_quantity
@@ -216,29 +278,27 @@ $available_quantity =
     $reserved_quantity;
 
 
-
 /* =========================
-   Calculate reservation/request
+   Calculate reservation
    ========================= */
 
-// Reserve as much as is currently available,
+// Reserve as much as is available,
 // but never more than the user requested.
 
 $reservation_quantity =
     min(
-        $quantity_requested,
+        $quantity_reserved,
         $available_quantity
     );
 
 
-// Anything that cannot be reserved becomes
-// an order request.
+// Anything that cannot be reserved
+// becomes an order request.
 
 $request_quantity =
-    $quantity_requested
+    $quantity_reserved
     -
     $reservation_quantity;
-
 
 
 /* =========================
@@ -294,24 +354,50 @@ if ($reservation_quantity > 0) {
 }
 
 
-
 /* =========================
    Insert order request
    ========================= */
 
+// Only create an order request
+// if the user requested more than
+// what was available.
+
 if ($request_quantity > 0) {
+
+    /*
+    information needed for order requests is: s
+    - user_id
+    - reagent_id
+    - reagent_name
+    - request_text
+    */
+
+    $request_text =
+        "Please order "
+        .
+        $request_quantity
+        .
+        " of "
+        .
+        $reagent_name
+        .
+        ". Needed by "
+        .
+        $needed_date
+        .
+        ".";
+
 
     $insert_request_sql =
     "INSERT INTO order_requests
     (
         user_id,
-        project_id,
-        lot_id,
-        quantity_requested,
-        needed_date
+        reagent_id,
+        reagent_name,
+        request_text
     )
 
-    VALUES (?, ?, ?, ?, ?)";
+    VALUES (?, ?, ?, ?)";
 
 
     $insert_request_stmt =
@@ -321,12 +407,11 @@ if ($request_quantity > 0) {
 
 
     $insert_request_stmt->bind_param(
-        "iiids",
+        "iiss",
         $user_id,
-        $project_id,
-        $lot_id,
-        $request_quantity,
-        $needed_date
+        $reagent_id,
+        $reagent_name,
+        $request_text
     );
 
 
@@ -348,16 +433,22 @@ if ($request_quantity > 0) {
 }
 
 
-
 /* =========================
    Finish transaction
    ========================= */
 
+// Everything succeeded,
+// so permanently save the changes.
+
 $link->commit();
 
 
+/* =========================
+   Show result
+   ========================= */
+
 echo
-    "Reservation and order request created.";
+    "Your request was completed.";
 
 echo
     "<br><br>";
@@ -396,8 +487,15 @@ echo
         View my reservations
     </a>';
 
+echo
+    "<br>";
+
+echo
+    '<a href="index.php">
+        Go to Home page
+    </a>';
+
 
 $link->close();
 
 ?>
-

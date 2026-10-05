@@ -60,18 +60,9 @@ if ($quantity_reserved <= 0) {
     );
 }
 
-/* =========================
-   Start database transaction
-   ========================= */
-
-// A transaction keeps the availability check
-// and reservation insertion together.
-//
-// Either everything succeeds,
-// or nothing is saved.
-$link->begin_transaction();
-
-
+// IMPORTANT: this file now only checks if we want to reserve and order
+// the actual orer and reserve is done by confirm_partial_reservation
+// that is why we don't have a database link in this script
 
 /* =========================
    Check project membership
@@ -278,11 +269,6 @@ $available_quantity =
    Check requested quantity
    ========================= */
 
-// Reject the reservation if the requested
-// quantity is larger than the latest
-// available quantity.
-
-//added:
 // Reserve as much as is currently available, 
 // but never more than the user requested. 
 
@@ -297,184 +283,72 @@ $reservation_quantity =
 
 $request_quantity = 
     $quantity_reserved - $reservation_quantity;
-//end of added part, removed corresponding end of script "cancel database transaction" 
 
 /* =========================
-   Insert reservation
+   HTML form
    ========================= */
 
-// The availability check has passed.
-//
-// Create the reservation.
-//
-// status is not included because the database
-// automatically uses the default value 'ACTIVE'.
-//
-// created_at is also generated automatically.
+// display to the user what the stock is and ask for an input Yes or No
+// if yes, a reservation and order will be made
+// if not, reservation is canceled
 
-if ($reservation_quantity > 0) {
+?>
 
-$insert_reservation_sql =
-"INSERT INTO reservations
-(
-    user_id,
-    project_id,
-    lot_id,
-    quantity_reserved,
-    needed_date
-)
+<!DOCTYPE html>
 
-VALUES (?, ?, ?, ?, ?)";
+<html>
 
+<form method="POST" action="confirm_partial_reservation.php">
 
-$insert_reservation_stmt =
-    $link->prepare($insert_reservation_sql);
+    <input type="hidden" name="project_id"
+           value="<?= htmlspecialchars($project_id) ?>">
 
+    <input type="hidden" name="lot_id"
+           value="<?= htmlspecialchars($lot_id) ?>">
 
-// Data types:
-//
-// user_id            = integer
-// project_id         = integer
-// lot_id             = integer
-// quantity_reserved  = decimal/double
-// needed_date        = string
-//
-// Therefore:
-// i i i d s
+    <input type="hidden" name="quantity_reserved"
+           value="<?= htmlspecialchars($quantity_reserved) ?>">
 
-$insert_reservation_stmt->bind_param(
-    "iiids",
-    $user_id,
-    $project_id,
-    $lot_id,
-    $quantity_reserved,
-    $needed_date
-);
+    <input type="hidden" name="needed_date"
+           value="<?= htmlspecialchars($needed_date) ?>">
 
-if ( 
-    !$insert_reservation_stmt->execute() 
-) { 
-    $link->rollback(); 
-    
-    die( "Could not create reservation: " 
-    . 
-    $insert_reservation_stmt->error 
-    ); 
-}
+    <p>
+        You requested:
+        <?= htmlspecialchars($quantity_reserved) ?>
+    </p>
 
-    $insert_reservation_stmt->close(); 
-}
+    <p>
+        Available quantity:
+        <?= htmlspecialchars($available_quantity) ?>
+    </p>
 
-/* ========================= 
-    Insert order request 
-    ========================= */ 
-    
-if ($request_quantity > 0) { 
+    <p>
+        Quantity to reserve:
+        <?= htmlspecialchars($reservation_quantity) ?>
+    </p>
 
-    $insert_request_sql = 
-    "INSERT INTO order_requests 
-    ( 
-        user_id, 
-        project_id, 
-        lot_id, 
-        quantity_requested, 
-        needed_date 
-    )
+    <p>
+        Quantity to order:
+        <?= htmlspecialchars($request_quantity) ?>
+    </p>
 
-    VALUES (?, ?, ?, ?, ?)"; 
-    
-    $insert_request_stmt = 
-        $link->prepare( 
-            $insert_request_sql 
-        );
+    <button type="submit" name="decision" value="confirm">
+        Yes, continue
+    </button>
 
-    $insert_request_stmt->bind_param( 
-        "iiids", 
-        $user_id, 
-        $project_id, 
-        $lot_id, 
-        $request_quantity, 
-        $needed_date 
-    );
+    <button type="submit" name="decision" value="cancel">
+        No, cancel
+    </button>
 
-    if ( 
-        !$insert_request_stmt->execute() 
-    ) { 
-        $link->rollback(); 
-        
-        die( 
-            "Could not create order request: " 
-            . 
-            $insert_request_stmt->error 
-        ); 
-    }
+</form>
 
-    $insert_request_stmt->close(); 
-}
+</html>
 
+<?php
 
-/* =========================
-   Finish transaction
-   ========================= */
+// The reservation and order request will only be created by 
+// confirm_partial_reservation.php after the user clicks "Yes". 
 
-$link->commit(); 
-
-if ($request_quantity > 0)
-    {
-    echo 
-        "Reservation and order request created."; 
-    }
-
-    else {
-        echo
-            "Reservation made successfully";
-    }
-    
-echo "<br><br>";
-
-echo 
-    "Reserved: " 
-    .
-    htmlspecialchars( 
-        $reservation_quantity 
-    ); 
-
-echo 
-    "<br>";
-
-if ($request_quantity > 0)
-    {
-    echo 
-        "Requested from supplier: " 
-        . 
-        htmlspecialchars( 
-            $request_quantity 
-        ); 
-    }
-echo 
-    "<br><br>";
-
-echo 
-    '<a href="make_reservation.php"> 
-        Make another reservation 
-    </a>'; 
-
-echo 
-    "<br>"; 
-
-echo 
-    '<a href="user.php"> 
-        View my reservations 
-    </a>';
-
-echo 
-    "<br>"; 
-
-echo 
-    '<a href="index.php"> 
-        Home 
-    </a>';
-
-$link->close();
+exit; 
 
 ?>
