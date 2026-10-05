@@ -1,3 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reservations</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
 <?php
 
 /*
@@ -332,6 +355,7 @@ $request_quantity =
         <?= htmlspecialchars($request_quantity) ?>
     </p>
 
+    
     <button type="submit" name="decision" value="confirm">
         Yes, continue
     </button>

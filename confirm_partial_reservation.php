@@ -442,10 +442,35 @@ if ($request_quantity > 0) {
 
 $link->commit();
 
-
 /* =========================
    Show result
    ========================= */
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reservations </title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<?php
 
 echo
     "Your request was completed.";
