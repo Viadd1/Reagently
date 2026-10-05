@@ -60,13 +60,6 @@ if ($quantity_reserved <= 0) {
     );
 }
 
-// Added possibility to link back to this reservation script for confirm partial request
-// If user cancelled 
-if ($decision === 'cancel') { 
-    
-    header("Location: make_reservation.php"); exit; 
-}
-
 /* =========================
    Start database transaction
    ========================= */
@@ -295,7 +288,7 @@ $available_quantity =
 
 $reservation_quantity = 
     min( 
-        $quantity_requested, 
+        $quantity_reserved, 
         $available_quantity 
     ); 
 
@@ -303,7 +296,7 @@ $reservation_quantity =
 // an order request. 
 
 $request_quantity = 
-    $quantity_requested - $reservation_quantity;
+    $quantity_reserved - $reservation_quantity;
 //end of added part, removed corresponding end of script "cancel database transaction" 
 
 /* =========================
@@ -349,7 +342,7 @@ $insert_reservation_stmt =
 // Therefore:
 // i i i d s
 
-$insert_stmt->bind_param(
+$insert_reservation_stmt->bind_param(
     "iiids",
     $user_id,
     $project_id,
@@ -424,70 +417,18 @@ if ($request_quantity > 0) {
    Finish transaction
    ========================= */
 
-if ($result) {
-
-    // Everything was successful,
-    // so permanently save the transaction
-    $link->commit();
-
-
-    echo
-        "Reservation created successfully.";
-
-    echo
-        "<br><br>";
-
-
-    echo
-        '<a href="make_reservation.php">
-            Make another reservation
-        </a>';
-
-    echo
-        "<br>";
-
-
-    echo
-        '<a href="view_reagents.php">
-            View reagents
-        </a>';
-
-    echo
-        "<br>";
-
-
-    echo
-        '<a href="user.php">
-            View my reservations
-        </a>';
-
-} else {
-
-    // Something failed,
-    // so cancel all changes in this transaction
-    $link->rollback();
-
-
-    echo
-        "Error: " .
-        $insert_stmt->error;
-}
-
-
-// Close prepared statement
-$insert_stmt->close();
-
-
-// Close database connection
-$link->close();
-
-
-
-// new
 $link->commit(); 
 
-echo 
-    "Reservation and order request created."; 
+if ($request_quantity > 0)
+    {
+    echo 
+        "Reservation and order request created."; 
+    }
+
+    else {
+        echo
+            "Reservation made successfully";
+    }
     
 echo "<br><br>";
 
@@ -501,13 +442,15 @@ echo
 echo 
     "<br>";
 
-echo 
-    "Requested from supplier: " 
-    . 
-    htmlspecialchars( 
-        $request_quantity 
-    ); 
-    
+if ($request_quantity > 0)
+    {
+    echo 
+        "Requested from supplier: " 
+        . 
+        htmlspecialchars( 
+            $request_quantity 
+        ); 
+    }
 echo 
     "<br><br>";
 
@@ -524,6 +467,14 @@ echo
         View my reservations 
     </a>';
 
+echo 
+    "<br>"; 
+
+echo 
+    '<a href="index.php"> 
+        Home 
+    </a>';
+
 $link->close();
-// end
+
 ?>
