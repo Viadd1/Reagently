@@ -134,6 +134,14 @@ $password =
 $confirm_password =
     $_POST['confirm_password'];
 
+/*
+Check that user has not entered username 'null' or email null@null
+This is not allowed because they are used as a dummy user for deleted accounts
+*/
+
+if ($username === 'null' or $email === 'null@null') {
+    die("Invalid username or email.");
+}
 
 // Check whether the two entered passwords match
 if ($password !== $confirm_password) {

@@ -140,6 +140,8 @@ include "navbar.php";
 
             <th>Email</th>
 
+            <th>Edit</th>
+
         </tr>
 
         <?php
@@ -200,11 +202,10 @@ include "navbar.php";
 
                 "</td>";
 
-                // Button for editing users (uses POST method for safety)
-                echo "<td>";
+                // Button for editing users
+                echo "<td>" .
 
-                echo "
-                    <form 
+                "<form 
                     action='/edit_user.php' 
                     method='POST'
                     style='display:inline;'
@@ -219,10 +220,11 @@ include "navbar.php";
                         class='button'>
                         Edit user
                         </button>
-                    </form>";
+                    </form>" .
                 
+                "</td>";
 
-                "</tr>";
+                echo "</tr>";
 
             }
 

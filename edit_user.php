@@ -12,17 +12,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
 
 // Include database connection
 include "db.php";
@@ -372,6 +361,23 @@ include "navbar.php";
         <input type="submit" value="Submit">
     </form>
 
+    <form action="delete_user.php" 
+        method="POST"
+        onsubmit="return confirm('Are you sure you want to delete this account?');">
+
+        <?php
+        echo '<input type="hidden"
+            id="user_id"
+            name="user_id"
+            value="' . 
+            $user_id . 
+            '">';
+        ?>
+        
+        <input
+        type="submit"
+        value="Delete account">
+    </form>
 
 <?php
 // Close prepared statement

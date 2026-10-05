@@ -102,7 +102,7 @@ $lot_sql =
 FROM reagent_lots
 JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 JOIN locations ON reagent_lots.location_id = locations.location_id
-LEFT JOIN
+LEFT JOIN (
 
     SELECT
         lot_id,
@@ -178,7 +178,7 @@ include "navbar.php";
 >
 
 
-    <!--Project selection>
+    <!--Project selection-->
 
     Project:
 
