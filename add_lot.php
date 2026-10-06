@@ -5,6 +5,29 @@ Displays a form for adding a new lot of an existing reagent.
 Existing reagents and storage locations are loaded from the database and shown in dropdown menus.
 */
 
+// Start the session so that we can check
+// the currently logged-in user's role
+session_start();
+
+// If the user is not logged in,
+// redirect them to the login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: login.php");
+    exit;
+}
+
+// Only admins can access this page
+if (
+    !isset($_SESSION['role'])
+    ||
+    $_SESSION['role'] !== 'admin'
+) {
+
+    die(
+        "Access denied. Admin permission is required."
+    );
+}
 
 include 'db.php';
 
@@ -15,10 +38,26 @@ include 'db.php';
 <html>
 
 <head>
-    <title>Add Reagent Lot</title>
+
+    <title>Reagently - Add Reagent Lot</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
+
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
 
 <h1>Add Reagent Lot</h1>
 
@@ -217,6 +256,8 @@ include 'db.php';
 Back to home
 </a>
 
+
+</main>
 
 </body>
 

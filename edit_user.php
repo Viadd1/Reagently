@@ -1,7 +1,17 @@
 <?php
 
-// Start or resume existing session
+// Start the session so that we can check
+// the currently logged-in user's role
 session_start();
+
+// If the user is not logged in,
+// redirect them to the login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: login.php");
+    exit;
+}
+
 
 // Include database connection
 include "db.php";
@@ -194,7 +204,7 @@ else {
 <head>
 
     <title>
-        Reagently - Edit Users
+        Reagently - Edit User
     </title>
 
     <!-- Use your existing website stylesheet -->
@@ -207,85 +217,10 @@ else {
 
 <body>
 
-<!-- Website title -->
-<header>
-
-    <h1>Reagently</h1>
-
-</header>
-
-<!-- Navigation bar -->
-
-<nav class="navbar">
-
-    <a href="index.php">
-        Home
-    </a>
-
-    <?php
-
-    // Show these links only when a user is logged in
-    if (isset($_SESSION['user_id'])) {
-
-    ?>
-
-        <a href="view_reagents.php">
-            View reagents
-        </a>
-
-        <a href="user.php">
-            User
-        </a>
-
-        <?php
-
-        // Only admins see the Admin link
-        if (
-            isset($_SESSION['role'])
-            &&
-            $_SESSION['role'] === 'admin'
-        ) {
-
-        ?>
-
-            <a href="admin.php">
-                Admin
-            </a>
-
-        <?php
-
-        }
-
-        ?>
-
-        <a href="logout.php">
-            Log out
-        </a>
-
-    <?php
-
-    } else {
-
-    ?>
-
-        <!-- Show Login and Register when nobody is logged in -->
-
-        <a href="login.php">
-            Login
-        </a>
-
-        <a href="register.php">
-            Register
-        </a>
-
-    <?php
-
-    }
-
-    ?>
-
-</nav>
-
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
 
@@ -426,6 +361,23 @@ else {
         <input type="submit" value="Submit">
     </form>
 
+    <form action="delete_user.php" 
+        method="POST"
+        onsubmit="return confirm('Are you sure you want to delete this account?');">
+
+        <?php
+        echo '<input type="hidden"
+            id="user_id"
+            name="user_id"
+            value="' . 
+            $user_id . 
+            '">';
+        ?>
+        
+        <input
+        type="submit"
+        value="Delete account">
+    </form>
 
 <?php
 // Close prepared statement

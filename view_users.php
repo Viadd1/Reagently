@@ -54,7 +54,8 @@ $sql =
         lab,
         firstname,
         lastname,
-        email
+        email,
+        approved
 
     FROM users
     
@@ -75,10 +76,9 @@ $result = $link->query($sql);
 
 <head>
 
-    <title>
-        Reagently - Admin
-    </title>
+    <title>Reagently - Administer Users</title>
 
+    <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -88,83 +88,11 @@ $result = $link->query($sql);
 
 <body>
 
-<header>
 
-    <h1>Reagently</h1>
-
-</header>
-
-<!-- Navigation bar -->
-
-<nav class="navbar">
-
-    <a href="index.php">
-        Home
-    </a>
-
-    <?php
-
-    // Show these links only when a user is logged in
-    if (isset($_SESSION['user_id'])) {
-
-    ?>
-
-        <a href="view_reagents.php">
-            View reagents
-        </a>
-
-        <a href="user.php">
-            User
-        </a>
-
-        <?php
-
-        // Only admins see the Admin link
-        if (
-            isset($_SESSION['role'])
-            &&
-            $_SESSION['role'] === 'admin'
-        ) {
-
-        ?>
-
-            <a href="admin.php">
-                Admin
-            </a>
-
-        <?php
-
-        }
-
-        ?>
-
-        <a href="logout.php">
-            Log out
-        </a>
-
-    <?php
-
-    } else {
-
-    ?>
-
-        <!-- Show Login and Register when nobody is logged in -->
-
-        <a href="login.php">
-            Login
-        </a>
-
-        <a href="register.php">
-            Register
-        </a>
-
-    <?php
-
-    }
-
-    ?>
-
-</nav>
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
 
@@ -212,6 +140,10 @@ $result = $link->query($sql);
             <th>Username</th>
 
             <th>Email</th>
+
+            <th>Approved</th>
+
+            <th>Edit</th>
 
         </tr>
 
@@ -273,11 +205,25 @@ $result = $link->query($sql);
 
                 "</td>";
 
-                // Button for editing users (uses POST method for safety)
+                // Approved or not
+
                 echo "<td>";
 
-                echo "
-                    <form 
+                if ($row["approved"] == 0) {
+
+                    echo "No";
+                } 
+
+                else {
+                    echo "Yes";
+                }
+
+                echo "</td>";
+
+                // Button for editing users
+                echo "<td>" .
+
+                "<form 
                     action='/edit_user.php' 
                     method='POST'
                     style='display:inline;'
@@ -292,10 +238,11 @@ $result = $link->query($sql);
                         class='button'>
                         Edit user
                         </button>
-                    </form>";
+                    </form>" .
                 
+                "</td>";
 
-                "</tr>";
+                echo "</tr>";
 
             }
 

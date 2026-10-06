@@ -1,4 +1,30 @@
 <?php
+
+// Start the session so that we can check
+// the currently logged-in user's role
+session_start();
+
+// If the user is not logged in,
+// redirect them to the login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: login.php");
+    exit;
+}
+
+// Only admins can access this page
+if (
+    !isset($_SESSION['role'])
+    ||
+    $_SESSION['role'] !== 'admin'
+) {
+
+    die(
+        "Access denied. Admin permission is required."
+    );
+}
+
+// Include database link
 include 'db.php';
 
 // All announcements, newest first
@@ -8,6 +34,7 @@ $announcements = $link->query(
      ORDER BY created_at DESC"
 );
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,14 +42,11 @@ $announcements = $link->query(
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>Reagently</h1></header>
-<nav class="navbar">
-    <a href="index.php">Home</a>
-    <a href="view_reagents.php">View reagents</a>
-    <a href="user.php">User</a>
-    <a href="admin.php">Admin</a>
-    <a href="logout.php">Log out</a>
-</nav>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
     <h2>Add Announcement</h2>

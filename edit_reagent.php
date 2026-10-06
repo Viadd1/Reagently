@@ -1,4 +1,29 @@
 <?php
+
+// Start the session so that we can check
+// the currently logged-in user's role
+session_start();
+
+// If the user is not logged in,
+// redirect them to the login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: login.php");
+    exit;
+}
+
+// Only admins can access this page
+if (
+    !isset($_SESSION['role'])
+    ||
+    $_SESSION['role'] !== 'admin'
+) {
+
+    die(
+        "Access denied. Admin permission is required."
+    );
+}
+
 include 'db.php';
 
 $reagent_id = (int)($_POST['reagent_id'] ?? 0);
@@ -19,13 +44,12 @@ if (!$reagent) { die("Reagent not found."); }
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>Reagently</h1></header>
-<nav class="navbar">
-    <a href="index.php">Home</a>
-    <a href="admin.php">Admin</a>
-    <a href="logout.php">Log out</a>
-</nav>
-<main class="page">
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
     <h2>Edit Reagent</h2>
     <form action="update_reagent.php" method="POST">
         <input type="hidden" name="reagent_id" value="<?= $reagent_id ?>">

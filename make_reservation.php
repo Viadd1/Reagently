@@ -102,7 +102,7 @@ $lot_sql =
 FROM reagent_lots
 JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 JOIN locations ON reagent_lots.location_id = locations.location_id
-LEFT JOIN
+LEFT JOIN (
 
     SELECT
         lot_id,
@@ -143,7 +143,7 @@ $lot_result =
 
 <head>
 
-    <title>Reagently - Make reservation</title>
+    <title>Reagently - Make Reservation</title>
 
     <!-- Use the existing stylesheet -->
     <link
@@ -155,85 +155,11 @@ $lot_result =
 
 <body>
 
-<!-- Website title -->
 
-<header>
-
-    <h1>Reagently</h1>
-
-</header>
-
-<!-- Navigation bar -->
-
-<nav class="navbar">
-
-    <a href="index.php">
-        Home
-    </a>
-
-    <?php
-
-    // Show these links only when a user is logged in
-    if (isset($_SESSION['user_id'])) {
-
-    ?>
-
-        <a href="view_reagents.php">
-            View reagents
-        </a>
-
-        <a href="user.php">
-            User
-        </a>
-
-        <?php
-
-        // Only admins see the Admin link
-        if (
-            isset($_SESSION['role'])
-            &&
-            $_SESSION['role'] === 'admin'
-        ) {
-
-        ?>
-
-            <a href="admin.php">
-                Admin
-            </a>
-
-        <?php
-
-        }
-
-        ?>
-
-        <a href="logout.php">
-            Log out
-        </a>
-
-    <?php
-
-    } else {
-
-    ?>
-
-        <!-- Show Login and Register when nobody is logged in -->
-
-        <a href="login.php">
-            Login
-        </a>
-
-        <a href="register.php">
-            Register
-        </a>
-
-    <?php
-
-    }
-
-    ?>
-
-</nav>
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
 
 <main class="page">
     <h2>Make Reservation</h2>
@@ -252,7 +178,7 @@ $lot_result =
 >
 
 
-    <!--Project selection>
+    <!--Project selection-->
 
     Project:
 

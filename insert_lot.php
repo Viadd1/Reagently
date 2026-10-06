@@ -93,12 +93,6 @@ if ($result) {
 
     echo '<br>';
 
-    echo '<a href="inventory.php">
-          View inventory
-          </a>';
-
-    echo '<br>';
-
     echo '<a href="index.php">
           Back to home
           </a>';
