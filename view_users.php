@@ -54,7 +54,8 @@ $sql =
         lab,
         firstname,
         lastname,
-        email
+        email,
+        approved
 
     FROM users
     
@@ -140,6 +141,8 @@ include "navbar.php";
 
             <th>Email</th>
 
+            <th>Approved</th>
+
             <th>Edit</th>
 
         </tr>
@@ -201,6 +204,21 @@ include "navbar.php";
                 ) . 
 
                 "</td>";
+
+                // Approved or not
+
+                echo "<td>";
+
+                if ($row["approved"] == 0) {
+
+                    echo "No";
+                } 
+
+                else {
+                    echo "Yes";
+                }
+
+                echo "</td>";
 
                 // Button for editing users
                 echo "<td>" .

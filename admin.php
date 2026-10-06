@@ -37,7 +37,7 @@ if (
 
 <head>
 
-    <title>Reagently - Add location</title>
+    <title>Reagently - Admin</title>
 
     <!-- Use the existing stylesheet -->
     <link

@@ -229,14 +229,57 @@ $stmt->bind_param(
 
 $delete = $stmt->execute();
 
-if ($delete) {
+
+// If unable to delete account, raise error
+if (!$delete) {
+
+    echo "Error: " . $stmt->error;
+}
+
+// If the user deletes their own account, destroy session
+elseif ($delete && $_SESSION['user_id'] == $user_id) {
+    
     session_unset();
 
     session_destroy();
 
-    echo "Account deleted successfully.<br>";
+    header(
+    "Location: login.php"
+    );
 
-    echo "<a href='login.php'>To login page</a>";
+    exit;
+} 
+
+// Otherwise, an admin deleted the account, so we do nothing
+
+else {
+
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Admin</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<?php
+
+include "navbar.php";
+
+echo "Account deleted successfully.";
+
 }
 
 $stmt->close();
