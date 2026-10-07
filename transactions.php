@@ -148,7 +148,6 @@ $result = $stmt->get_result();
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
 <body>
@@ -185,29 +184,18 @@ if ($role === 'admin') {
 ?>
 
 <!-- Inventory transaction table -->
-<table border="1">
-
-<tr>
-
-    <th>Date</th>
-
-    <th>Reagent</th>
-
-    <th>Catalog No.</th>
-
-    <th>Lot</th>
-
-    <th>User</th>
-
-    <th>Project</th>
-
-    <th>Type</th>
-
-    <th>Quantity Change</th>
-
-    <th>Note</th>
-
-</tr>
+<table class="table">
+    <tr>
+        <th>Date</th>
+        <th>Reagent</th>
+        <th>Catalog No.</th>
+        <th>Lot</th>
+        <th>User</th>
+        <th>Project</th>
+        <th>Type</th>
+        <th>Quantity Change</th>
+        <th>Note</th>
+    </tr>
 
 <?php
 

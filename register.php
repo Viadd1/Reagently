@@ -112,6 +112,7 @@ include "navbar.php";
     <input
         type="password"
         name="password"
+        minlength="8"
         required
     >
 
@@ -134,18 +135,30 @@ include "navbar.php";
     <br><br>
 
     <input
+        type="checkbox"
+        required
+    >
+
+    I consent to Reagently storing and processing my data in accordance with GDPR.
+
+    <br><br>
+
+    <input
         class="button"
         type="submit"
         value="Register"
     >
 
-
 </form>
 
 <!-- Link for users who already have an account -->
+ <p>
+
+Already have an account?
 <a href="login.php">
-Already have an account? Log in
+Log in
 </a>
+</p>
 
 </main>
 

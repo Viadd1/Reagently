@@ -49,13 +49,13 @@ include "navbar.php";
     <?php
 
     // Personalized welcome message for logged-in users
-    if (isset($_SESSION['username'])) {
+    if (isset($_SESSION['user_id'])) {
 
         echo
         "<h2>
             Welcome " .
             htmlspecialchars(
-                $_SESSION['username']
+                $_SESSION["username"]
             ) .
             "!
         </h2>";

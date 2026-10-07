@@ -79,6 +79,7 @@ if (
 // We also retrieve:
 // user_id   -> used to identify the logged-in user
 // username  -> useful for displaying the user's name
+// firstname -> for welcome message
 // password  -> hashed password stored in the database
 // role      -> used later to distinguish user and admin
 // lab       -> used to show users department in news section
@@ -88,6 +89,7 @@ $sql =
 "SELECT
     user_id,
     username,
+    firstname,
     lab,
     password,
     role,
@@ -168,6 +170,9 @@ if ($result->num_rows === 1) {
 
             $_SESSION['username'] =
                 $user['username'];
+
+            $_SESSION['firstname'] =
+                $user['firstname'];
 
             $_SESSION['lab'] =
                 $user['lab'];

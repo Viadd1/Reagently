@@ -66,14 +66,18 @@ if ($username === 'null' or $email === 'null@null') {
     die("Invalid username or email.");
 }
 
-// Check whether the two entered passwords match
-if ($password !== $confirm_password) {
-
-    die(
-        "Passwords do not match."
-    );
+if (!ctype_alnum($username)) {
+    die("Username can only contain letters and numbers.");
 }
 
+if (strlen($password) < 8) {
+    die("Password not long enough.");
+}
+
+// Check whether the two entered passwords match
+if ($password !== $confirm_password) {
+    die("Passwords do not match.");
+}
 
 // Hash the password before storing it in the database
 // The original password should never be stored directly
@@ -83,7 +87,6 @@ $hashed_password =
         $password,
         PASSWORD_DEFAULT
     );
-
 
 /*---------------
 Before constructing and executing the SQL query for inserting users,
@@ -177,8 +180,7 @@ if ($result) {
 } else {
 
     // Display database error
-    // For example, this may happen when an email address
-    // already exists because email is UNIQUE.
+    // For example, this may happen when an email address already exists because email is UNIQUE.
 
     echo "Error: " .
          $stmt->error;

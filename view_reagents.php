@@ -199,7 +199,7 @@ include "navbar.php";
             type="submit"
             value="Search">
 
-            <br>
+            <br><br>
 
             <input
             type="radio"
@@ -230,6 +230,8 @@ include "navbar.php";
             <label
             for="not_in_stock">Not in stock
             </label>
+
+            <br><br>
 
         </form>
     </search>

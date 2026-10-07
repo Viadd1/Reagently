@@ -27,7 +27,7 @@ include "navbar.php";
 ?>
 
 <!-- Main page content -->
-<main class="page" style="margin-top: -50px;">
+<main class="page" style="margin-top: 20px;">
 
     <h2>Login to Reagently here!</h2>
 
@@ -86,12 +86,12 @@ include "navbar.php";
             id="captchaImage"
             alt="CAPTCHA"
         >
-        <br>
+        <br><br>
         <!-- Refresh CAPTCHA without refreshing the whole page -->
          <button
-                type="button"
+                class=button
                 onclick="document.getElementById('captchaImage').src ='captcha.php?' + Date.now();" >
-                Refresh
+                Refresh CAPTCHA
         </button>
 
         <br><br>
@@ -105,7 +105,6 @@ include "navbar.php";
         
         <br><br>
 
-
         <!-- Login button -->
         <br>
         <input
@@ -117,9 +116,9 @@ include "navbar.php";
     </form>
 
     <p>
-        Forgotten password?
+        Forgot password?
         <a href="forgot_password.php">
-            Click here
+            Reset password
         </a>
     </p>
 

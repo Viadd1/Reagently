@@ -9,8 +9,7 @@ Only users with the admin role can access this page.
 // the currently logged-in user's role
 session_start();
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");

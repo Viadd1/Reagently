@@ -1,4 +1,5 @@
 /* General settings */
+
 * {
   margin: 0;
   padding: 0;
@@ -157,3 +158,16 @@ margin-bottom: 12px;}
 
 .news-item p {
 line-height: 1.6;}
+
+.table {
+    border-collapse: collapse;
+    width: 95%;
+    margin: 20px auto
+}
+
+.table th, 
+.table tr {
+    border: 5px solid #222;
+    padding: 8px 12px;
+    text-align: left;
+}
