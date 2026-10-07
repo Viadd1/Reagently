@@ -76,6 +76,36 @@ include "navbar.php";
         
         </div>
 
+        <br><br>
+        <label>
+            Verification code:
+        </label>
+        <br><br>
+        <img
+            src="captcha.php"
+            id="captchaImage"
+            alt="CAPTCHA"
+        >
+        <br>
+        <!-- Refresh CAPTCHA without refreshing the whole page -->
+         <button
+                type="button"
+                onclick="document.getElementById('captchaImage').src ='captcha.php?' + Date.now();" >
+                Refresh
+        </button>
+
+        <br><br>
+
+        <input
+            type="text"
+            name="captcha"
+            placeholder="Enter the code above"
+            required
+            autocomplete="off" >
+        
+        <br><br>
+
+
         <!-- Login button -->
         <br>
         <input

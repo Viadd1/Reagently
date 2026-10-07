@@ -30,15 +30,9 @@ $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 
 
-/* =========================
-   SQL query
-   ========================= */
-
-
+//SQL query
 // Admin users can see all inventory transactions.
-//
-// Regular users can only see transactions
-// that were created by themselves.
+// Regular users can only see transactions that were created by themselves.
 
 if ($role === 'admin') {
 
