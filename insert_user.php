@@ -5,6 +5,9 @@ Creates a new user account using information submitted from register.php.
 The password is checked and hashed before the user is added to the database.
 */
 
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
+
 // Include database connection
 include 'db.php';
 

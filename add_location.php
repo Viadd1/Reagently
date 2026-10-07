@@ -36,7 +36,7 @@ if (
 
 <head>
 
-    <title>Reagently - Add Storage Location</title>
+    <title>Reagently - Add Location</title>
 
     <!-- Use the existing stylesheet -->
     <link
@@ -101,7 +101,8 @@ include "navbar.php";
     <br><br>
 
 
-    <input
+    <input 
+        class="button"
         type="submit"
         value="Add Location"
     >
@@ -111,9 +112,6 @@ include "navbar.php";
 
 <br>
 
-<a href="index.php">
-Back to home
-</a>
 
 
 </main>

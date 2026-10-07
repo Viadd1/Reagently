@@ -4,6 +4,11 @@
 Creates a new reagent lot and connects it to an existing reagent and storage location.
 */
 
+// Resume existing session
+session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 include 'db.php';
 
@@ -35,6 +40,24 @@ $expiry_date =
     ? $_POST['expiry_date']
     : null;
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Add Reagent Lot</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // SQL statement
 
@@ -79,6 +102,18 @@ $result =
     $stmt->execute();
 
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 // Check result
 
 if ($result) {
@@ -87,14 +122,8 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a href="add_lot.php">
+    echo '<a class="button" href="add_lot.php">
           Add another lot
-          </a>';
-
-    echo '<br>';
-
-    echo '<a href="index.php">
-          Back to home
           </a>';
 
 } else {
@@ -103,6 +132,15 @@ if ($result) {
          $stmt->error;
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close
 

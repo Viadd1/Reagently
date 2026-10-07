@@ -100,18 +100,18 @@ include "navbar.php";
                 <form action="add_nickname.php" method="POST">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
                     <input type="text" name="nickname" maxlength="100" required>
-                    <input type="submit" value="Add">
+                    <input class="button" type="submit" value="Add">
                 </form>
             </td>
             <td>
                 <form action="edit_reagent.php" method="POST">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
-                    <input type="submit" value="Edit">
+                    <input class="button" type="submit" value="Edit">
                 </form>
                 <form action="delete_reagent.php" method="POST"
                       onsubmit="return confirm('Delete this reagent?');">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
-                    <input type="submit" value="Delete">
+                    <input class="button" type="submit" value="Delete">
                 </form>
             </td>
         </tr>
@@ -136,7 +136,7 @@ include "navbar.php";
                     <input type="number" name="new_quantity" step="0.01" min="0" required>
                 </td>
                 <td><input type="text" name="note" placeholder="Reason"></td>
-                <td><input type="submit" value="Update"></td>
+                <td><input class="button" type="submit" value="Update"></td>
             </form>
         </tr>
         <?php endwhile; ?>

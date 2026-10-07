@@ -298,7 +298,7 @@ if ($result->num_rows > 0) {
 
             // Link to record the final usage
             echo
-            "<a href='record_usage.php?reservation_id=" .
+            "<a class='button' href='record_usage.php?reservation_id=" .
             $row["reservation_id"] .
             "'>
                 Record usage
@@ -310,7 +310,7 @@ if ($result->num_rows > 0) {
 
             // Link to cancel the reservation
             echo
-            "<a href='cancel_reservation.php?reservation_id=" .
+            "<a class='button' href='cancel_reservation.php?reservation_id=" .
             $row["reservation_id"] .
             "'>
                 Cancel

@@ -223,22 +223,20 @@ include "navbar.php";
                 // Button for editing users
                 echo "<td>" .
 
-                "<form 
-                    action='/edit_user.php' 
+                "<form action='/edit_user.php' 
                     method='POST'
                     style='display:inline;'
                     >
-                        <input 
-                        type='hidden' 
-                        name='user_id' 
-                        value='" . 
-                        htmlspecialchars($row['user_id']) . 
-                        "'>
-                        <button type='submit'
-                        class='button'>
-                        Edit user
-                        </button>
-                    </form>" .
+                    <input 
+                    type='hidden' 
+                    name='user_id' 
+                    value='" . 
+                    htmlspecialchars($row['user_id']) . 
+                    "'>
+                    <input class='button'
+                    type='submit'
+                    value='Edit user'>
+                </form>" .
                 
                 "</td>";
 

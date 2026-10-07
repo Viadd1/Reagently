@@ -180,6 +180,7 @@ include "navbar.php";
 
 
         <input
+            class="button"
             type="submit"
             value="Submit Request"
         >
@@ -188,10 +189,7 @@ include "navbar.php";
     </form>
 
 
-    <br><br>
-
-
-    <a href="view_reagents.php">
+    <a class="button" href="view_reagents.php">
         Back to reagents
     </a>
 

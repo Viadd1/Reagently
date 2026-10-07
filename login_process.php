@@ -17,6 +17,25 @@ $username =
 $password =
     $_POST['password'];
 
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Login</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 // SQL statement
 
 // Find the user whose username matches
@@ -64,6 +83,19 @@ $stmt->execute();
 $result =
     $stmt->get_result();
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
+
 // Check whether exactly one user was found
 
 if ($result->num_rows === 1) {
@@ -77,13 +109,6 @@ if ($result->num_rows === 1) {
         $user['approved'] === 0 && $user['role'] !== "admin"
     ) {
         echo "Account not approved by admin. Please try again later.";
-
-        echo "<br><br>";
-
-        echo
-        '<a href="login.php">
-            Try again
-        </a>';
     } 
     
     else { 
@@ -137,7 +162,7 @@ if ($result->num_rows === 1) {
             echo "<br><br>";
 
             echo
-            '<a href="login.php">
+            '<a class="button" href="login.php">
                 Try again
             </a>';
 
@@ -154,11 +179,21 @@ if ($result->num_rows === 1) {
     echo "<br><br>";
 
     echo
-    '<a href="login.php">
+    '<a class="button" href="login.php">
         Try again
     </a>';
 
 }
+
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close prepared statement
 

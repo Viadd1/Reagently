@@ -90,9 +90,7 @@ $result = $link->query($sql);
 
 <head>
 
-    <title>
-        Reagently - Admin
-    </title>
+    <title>Reagently - Approve Users</title>
 
     <link
         rel="stylesheet"

@@ -409,6 +409,7 @@ include "navbar.php";
 
     <!-- Submit usage -->
     <input
+        class="button"
         type="submit"
         value="Record Usage"
     >
@@ -420,7 +421,7 @@ include "navbar.php";
 <br>
 
 
-<a href="reservations.php">
+<a class="button" href="reservations.php">
 Back to reservations
 </a>
 

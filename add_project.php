@@ -101,22 +101,13 @@ include "navbar.php";
 
     <!-- Submit the form -->
     <input
+        class="button"
         type="submit"
         value="Create Project"
     >
 
 
 </form>
-
-
-<br>
-
-
-<!-- Return to the home page -->
-<a href="index.php">
-Back to home
-</a>
-
 
 </main>
 

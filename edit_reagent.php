@@ -70,9 +70,9 @@ include "navbar.php";
             <input type="text" name="storage_condition"
                    value="<?= htmlspecialchars($reagent['storage_condition'] ?? '') ?>"></label><br><br>
 
-        <input type="submit" value="Save changes">
+        <input class="button" type="submit" value="Save changes">
     </form>
-    <a href="manage_reagents.php">Cancel</a>
+    <a class="button" href="manage_reagents.php">Cancel</a>
 </main>
 </body>
 </html>

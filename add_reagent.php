@@ -114,19 +114,12 @@ include "navbar.php";
 
 
     <input
+        class="button"
         type="submit"
         value="Add Reagent"
     >
 
 </form>
-
-
-<br>
-
-<a href="index.php">
-Back to home
-</a>
-
 
 </main>
 

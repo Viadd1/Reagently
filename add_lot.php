@@ -241,21 +241,14 @@ include "navbar.php";
     <br><br>
 
 
-    <input
-        type="submit"
-        value="Add Lot"
+    <input 
+        class="button"
+        type="submit" 
+        value="Add Reagent Lot"
     >
 
 
 </form>
-
-
-<br>
-
-<a href="index.php">
-Back to home
-</a>
-
 
 </main>
 

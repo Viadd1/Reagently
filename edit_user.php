@@ -356,9 +356,11 @@ include "navbar.php";
 
         <br><br>
 
-
-
-        <input type="submit" value="Submit">
+        <input 
+            class="button"
+            type="submit"
+            value="Submit">
+        
     </form>
 
     <form action="delete_user.php" 
@@ -375,6 +377,7 @@ include "navbar.php";
         ?>
         
         <input
+        class="button"
         type="submit"
         value="Delete account">
     </form>

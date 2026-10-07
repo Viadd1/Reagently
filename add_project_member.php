@@ -206,22 +206,13 @@ include "navbar.php";
 
     <!-- Submit the selected project and user -->
     <input
+        class="button"
         type="submit"
         value="Add Member"
     >
 
 
 </form>
-
-
-<br>
-
-
-<!-- Return to home page -->
-<a href="index.php">
-Back to home
-</a>
-
 
 </main>
 

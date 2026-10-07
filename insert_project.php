@@ -4,6 +4,11 @@
 Creates a new project in the database using data submitted from add_project.php.
 */
 
+// Resume existing session
+session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 // Include database connection
 include 'db.php';
@@ -17,6 +22,24 @@ $project_name =
 $description =
     $_POST['description'];
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Create Project</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // SQL statement
 //
@@ -63,6 +86,18 @@ $stmt->bind_param(
 $result =
     $stmt->execute();
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 // Check whether the project was created successfully
 
@@ -72,14 +107,8 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a href="add_project.php">
+    echo '<a class="button" href="add_project.php">
           Create another project
-          </a>';
-
-    echo '<br>';
-
-    echo '<a href="index.php">
-          Back to home
           </a>';
 
 } else {
@@ -89,6 +118,15 @@ if ($result) {
          $stmt->error;
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close prepared statement
 $stmt->close();

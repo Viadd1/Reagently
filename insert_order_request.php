@@ -5,8 +5,11 @@ Saves a reagent order request submitted by a logged-in user.
 */
 
 
-// Start session
+// Resume existing session
 session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 
 // User must be logged in
@@ -34,6 +37,24 @@ $reagent_name = trim($_POST['reagent_name'] ?? '');
 $request_text = trim($_POST['request_text'] ?? '');
 
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Request Order</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 //Validate form data
 
@@ -130,6 +151,18 @@ $result =
     $stmt->execute();
 
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 //Result
 
@@ -146,22 +179,6 @@ if ($result) {
             $reagent_name
         );
 
-    echo
-        "<br><br>";
-
-    echo
-        '<a href="view_reagents.php">
-            Back to reagents
-        </a>';
-
-    echo
-        "<br>";
-
-    echo
-        '<a href="user.php">
-            Back to user page
-        </a>';
-
 } else {
 
     echo
@@ -170,6 +187,15 @@ if ($result) {
 
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close statement
 $stmt->close();

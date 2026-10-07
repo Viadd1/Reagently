@@ -282,10 +282,11 @@ include "navbar.php";
                 value='" . 
                 htmlspecialchars($user_id) . 
                 "'>
-                <button type='submit'
-                class='button'>
-                 Edit user information
-                </button>
+                <input
+                class='button'
+                type='submit'
+                value='Edit user information'>
+                 
             </form>";
     ?>
 
@@ -460,7 +461,7 @@ include "navbar.php";
             ) {
 
                 echo
-                "<a href='record_usage.php?reservation_id=" .
+                "<a class='button' href='record_usage.php?reservation_id=" .
                 $reservation["reservation_id"] .
                 "'>
                     Record usage
@@ -469,7 +470,7 @@ include "navbar.php";
                 echo "<br>";
 
                 echo
-                "<a href='cancel_reservation.php?reservation_id=" .
+                "<a class='button' href='cancel_reservation.php?reservation_id=" .
                 $reservation["reservation_id"] .
                 "'>
                     Cancel

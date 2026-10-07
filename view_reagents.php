@@ -195,8 +195,9 @@ include "navbar.php";
             placeholder="Search reagents...">
 
             <input
+            class="button"
             type="submit"
-            value="Submit">
+            value="Search">
 
             <br>
 

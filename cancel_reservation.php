@@ -110,8 +110,35 @@ $stmt->bind_param(
 // Execute the UPDATE statement
 $stmt->execute();
 
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Reservations</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
 
 
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 /* =========================
    Check result
    ========================= */
@@ -142,18 +169,8 @@ if ($stmt->affected_rows === 1) {
 
 
     echo
-        '<a href="reservations.php">
+        '<a class="button" href="reservations.php">
             Back to reservations
-        </a>';
-
-
-    echo
-        "<br>";
-
-
-    echo
-        '<a href="view_reagents.php">
-            View reagents
         </a>';
 
 
@@ -178,12 +195,21 @@ if ($stmt->affected_rows === 1) {
 
 
     echo
-        '<a href="reservations.php">
+        '<a class="button" href="reservations.php">
             Back to reservations
         </a>';
 
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close prepared statement
 $stmt->close();

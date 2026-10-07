@@ -6,9 +6,11 @@ It checks project membership and current stock availability before saving the re
 */
 
 
-// Start the session so that we can identify
-// the currently logged-in user
+// Resume existing session
 session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 
 // If the user is not logged in,
@@ -51,12 +53,33 @@ $quantity_reserved =
 $needed_date =
     $_POST['needed_date'];
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Make Reservation</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // Check that the reservation quantity is positive
 if ($quantity_reserved <= 0) {
 
     die(
-        "Reservation quantity must be greater than 0."
+        "Reservation quantity must be greater than 0.
+        <a class='button' href='make_reservation.php'>
+            Back to reservation
+        </a>"
     );
 }
 
@@ -313,7 +336,7 @@ if (
 
 
     echo
-        '<a href="make_reservation.php">
+        '<a class="button" href="make_reservation.php">
             Back to reservation
         </a>';
 
@@ -381,6 +404,18 @@ $result =
     $insert_stmt->execute();
 
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 /* =========================
    Finish transaction
@@ -401,27 +436,10 @@ if ($result) {
 
 
     echo
-        '<a href="make_reservation.php">
+        '<a class="button" href="make_reservation.php">
             Make another reservation
         </a>';
 
-    echo
-        "<br>";
-
-
-    echo
-        '<a href="view_reagents.php">
-            View reagents
-        </a>';
-
-    echo
-        "<br>";
-
-
-    echo
-        '<a href="user.php">
-            View my reservations
-        </a>';
 
 } else {
 
@@ -435,6 +453,15 @@ if ($result) {
         $insert_stmt->error;
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close prepared statement
 $insert_stmt->close();

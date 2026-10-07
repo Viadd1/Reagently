@@ -4,6 +4,11 @@
 Adds a user to a project by creating a new record in the project_members table.
 */
 
+// Resume existing session
+session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 // Include database connection
 include 'db.php';
@@ -20,6 +25,24 @@ $project_id =
 $user_id =
     $_POST['user_id'];
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Add Project Member</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // SQL statement
 //
@@ -61,6 +84,18 @@ $stmt->bind_param(
 $result =
     $stmt->execute();
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 // Check whether the member was added successfully
 
@@ -70,14 +105,8 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a href="add_project_member.php">
+    echo '<a class="button" href="add_project_member.php">
           Add another project member
-          </a>';
-
-    echo '<br>';
-
-    echo '<a href="index.php">
-          Back to home
           </a>';
 
 } else {
@@ -91,6 +120,15 @@ if ($result) {
          $stmt->error;
 }
 
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 // Close prepared statement
 

@@ -87,9 +87,9 @@ include "navbar.php";
     </form>
 
     <p>
-        Don't have an account?
-        <a href="register.php">
-            Register here
+        Forgotten password?
+        <a href="forgot_password.php">
+            Click here
         </a>
     </p>
 

@@ -5,10 +5,11 @@ Records the final reagent usage for a reservation.
 It updates the physical stock, creates an inventory transaction, and changes the reservation status to COMPLETED.
 */
 
-
-// Start the session so that we can identify
-// the currently logged-in user
+// Resume existing session
 session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 
 // If the user is not logged in,
@@ -44,6 +45,24 @@ $quantity_used =
 $note =
     $_POST['note'] ?? '';
 
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Record Usage</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // Basic validation
 //
@@ -252,7 +271,7 @@ if (
     echo "<br><br>";
 
     echo
-        '<a href="reservations.php">
+        '<a class="button" href="reservations.php">
             Back to reservations
         </a>';
 
@@ -296,7 +315,7 @@ if (
     echo "<br><br>";
 
     echo
-        '<a href="reservations.php">
+        '<a class="button" href="reservations.php">
             Back to reservations
         </a>';
 
@@ -533,6 +552,18 @@ $complete_stmt->close();
 
 $link->commit();
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 
 /* =========================
@@ -564,7 +595,7 @@ echo
 
 
 echo
-    '<a href="reservations.php">
+    '<a class="button" href="reservations.php">
         Back to reservations
     </a>';
 
@@ -572,12 +603,15 @@ echo
 echo
     "<br>";
 
+?>
 
-echo
-    '<a href="view_reagents.php">
-        View reagents
-    </a>';
+</main>
 
+</body>
+
+</html>
+
+<?php
 
 // Close database connection
 

@@ -93,7 +93,7 @@ include "navbar.php";
                           onsubmit="return confirm('Delete this announcement?');">
                         <input type="hidden" name="announcement_id"
                                value="<?= (int)$a['announcement_id'] ?>">
-                        <input type="submit" value="Delete">
+                        <input class="button" type="submit" value="Delete">
                     </form>
                 </td>
             </tr>
@@ -103,7 +103,6 @@ include "navbar.php";
         <?php endif; ?>
     </table>
 
-    <a href="admin.php">Back to admin page</a>
 </main>
 </body>
 </html>

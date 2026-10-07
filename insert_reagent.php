@@ -5,6 +5,11 @@ insert_reagent.php
 Adds a new reagent to the database using data submitted from add_reagent.php.
 */
 
+// Resume existing session
+session_start();
+
+// Ensure that page has been entered through a POST method form
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 include 'db.php';
 
@@ -27,6 +32,25 @@ $unit =
 $storage_condition =
     $_POST['storage_condition'];
 
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Add Reagent</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<?php
 
 // SQL statement
 
@@ -58,6 +82,18 @@ $stmt->bind_param(
     $storage_condition
 );
 
+?>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
+<main class="page">
+
+<?php
 
 // Try to insert the reagent
 try {
@@ -74,16 +110,15 @@ try {
         echo "<br><br>";
 
         echo
-        '<a href="add_reagent.php">
+        '<a class="button" href="add_reagent.php">
             Add another reagent
         </a>';
 
-        echo "<br>";
-
         echo
-        '<a href="admin.php">
-            Back to admin page
+        '<a class="button" href="add_lot.php">
+            Add Reagent Lot
         </a>';
+
 
     }
 
@@ -107,14 +142,12 @@ try {
         echo "<br><br>";
 
         echo
-            '<a href="add_lot.php">
+            '<a class="button" href="add_lot.php">
                 Add Reagent Lot
             </a>';
 
-        echo "<br>";
-
         echo
-            '<a href="add_reagent.php">
+            '<a class="button" href="add_reagent.php">
                 Back to Add Reagent
             </a>';
 
@@ -130,6 +163,16 @@ try {
     }
 
 }
+
+?>
+
+</main>
+
+</body>
+
+</html>
+
+<?php
 
 $stmt->close();
 $link->close();
