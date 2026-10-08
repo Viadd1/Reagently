@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 // Include database connection
 include 'db.php';
 
-
 // Fetch data submitted from add_project.php
 
 $project_name =
@@ -42,11 +41,9 @@ $description =
 <?php
 
 // SQL statement
-//
+
 // project_id is not included because it is AUTO_INCREMENT.
-//
-// created_at is not included because MySQL automatically
-// uses the current timestamp.
+// created_at is not included because MySQL automatically uses the current timestamp.
 
 $sql =
 "INSERT INTO projects
@@ -57,21 +54,17 @@ $sql =
 
 VALUES (?, ?)";
 
-
 // Prepare SQL statement
-//
+
 // Prepared statements are used so that user input
 // is not directly inserted into the SQL string.
 
 $stmt =
     $link->prepare($sql);
 
-
 // Bind variables
-//
 // project_name = string
 // description  = string
-//
 // Therefore the type definition is "ss".
 
 $stmt->bind_param(
@@ -79,7 +72,6 @@ $stmt->bind_param(
     $project_name,
     $description
 );
-
 
 // Execute the INSERT statement
 
@@ -100,7 +92,6 @@ include "navbar.php";
 <?php
 
 // Check whether the project was created successfully
-
 if ($result) {
 
     echo "Project created successfully.";
@@ -130,7 +121,6 @@ if ($result) {
 
 // Close prepared statement
 $stmt->close();
-
 
 // Close database connection
 $link->close();

@@ -50,8 +50,6 @@ if (
     exit;
 }
 
-
-
 ?>
 
 <!DOCTYPE html>
@@ -73,8 +71,7 @@ if (
 <?php
 // SQL statement
 
-// Find the user whose username matches
-// the username entered in the login form.
+// Find the user whose username matches the username entered in the login form.
 
 // We also retrieve:
 // user_id   -> used to identify the logged-in user

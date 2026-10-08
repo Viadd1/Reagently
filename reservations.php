@@ -144,7 +144,7 @@ include "navbar.php";
     <h3>Reservations from your projects are shown below!</h3>
 
 <!-- Reservation table -->
-<table border="1">
+<table class="table">
 
 <tr>
 
