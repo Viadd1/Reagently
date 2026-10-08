@@ -83,7 +83,7 @@ include "navbar.php";
         <p style="color:red;"><strong><?= htmlspecialchars($_GET['error']) ?></strong></p>
     <?php endif; ?>
 
-    <table border="1">
+    <table class="table">
         <tr>
             <th>Reagent</th><th>Catalog No.</th><th>Category</th><th>Unit</th>
             <th>Storage</th><th>Nicknames</th><th>Add nickname</th><th>Actions</th>
@@ -119,7 +119,7 @@ include "navbar.php";
     </table>
 
     <h3>Change Lot Quantity</h3>
-    <table border="1">
+    <table class="table">
         <tr>
             <th>Reagent</th><th>Lot</th><th>Physical</th><th>Reserved</th>
             <th>New quantity</th><th>Note</th><th></th>

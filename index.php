@@ -55,7 +55,7 @@ include "navbar.php";
         "<h2>
             Welcome " .
             htmlspecialchars(
-                $_SESSION["username"]
+                $_SESSION["firstname"]
             ) .
             "!
         </h2>";

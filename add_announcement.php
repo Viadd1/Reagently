@@ -72,7 +72,7 @@ include "navbar.php";
 
     <h3>Existing Announcements</h3>
 
-    <table border="1">
+    <table class="table">
         <tr>
             <th>Date</th>
             <th>Title</th>

@@ -48,7 +48,6 @@ if (
 
 <body>
 
-
 <?php
 // Main header and navigation bar
 include "navbar.php";
@@ -58,7 +57,6 @@ include "navbar.php";
 
 <!-- Main heading -->
 <h1>Create Project</h1>
-
 
 <!--
     Project creation form
@@ -71,9 +69,7 @@ include "navbar.php";
     method="POST"
 >
 
-
-    <!-- Project name is required because
-         project_name is NOT NULL in the database -->
+    <!-- Project name is required because project_name is NOT NULL in the database -->
     Project name:
 
     <input
@@ -84,11 +80,9 @@ include "navbar.php";
 
     <br><br>
 
-
     <!-- Optional description of the project -->
     Description:
-
-    <br>
+    <br><br>
 
     <textarea
         name="description"
@@ -98,14 +92,12 @@ include "navbar.php";
 
     <br><br>
 
-
     <!-- Submit the form -->
     <input
         class="button"
         type="submit"
         value="Create Project"
     >
-
 
 </form>
 

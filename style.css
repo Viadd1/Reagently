@@ -3,7 +3,7 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;}
+  box-sizing: border-box}
 
 body {
 background-color: white;
@@ -21,25 +21,18 @@ font-size: 36px;}
 
 /* Navigation bar */
 .navbar {
-
 /* Makes the navigation horizontal */
 display: flex;
-
 /* Centers the navigation buttons */
 justify-content: center;
-
 /* Aligns buttons vertically */
 align-items: center;
-
 /* Space between buttons */
 gap: 10px;
-
 /* Navigation background */
 background-color: #222;
-
 /* Space inside navigation bar */
 padding: 12px;}
-
 /* Navigation links */
 .navbar a {
 color: white;
@@ -47,35 +40,40 @@ text-decoration: none;
 font-size: 17px;
 padding: 10px 18px;
 border-radius: 5px;}
-
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
 background-color: #222;}
 
+.table {
+    border-collapse: collapse;
+    width: 95%;
+    margin: 20px auto;
+}
+
+.table th,
+.table td {
+    border: 1px solid #222;
+    padding: 8px 12px; /* Spacing in cells */
+    text-align: left;}
+
 /* Page content */
 .page {
-
 /* Makes the content fill the screen */
 min-height: calc(100vh - 115px);
-
 /* Centers content horizontally */
 display: flex;
-
 /* Allows content to stack vertically */
 flex-direction: column;
-
 /* Centers content vertically */
 justify-content: center;
-
 /* Centers content horizontally */
 align-items: center;
-
 /* Centers text */
 text-align: center;
-
 /* Space between elements */
 gap: 15px;
-padding: 30px;}
+padding: 30px;
+margin-top: 20px}
 
 .page h2 {
 font-size: 32px;}
@@ -88,7 +86,6 @@ font-size: 18px;}
 display: flex;
 gap: 15px;
 margin-top: 15px;
-
 /* Allows buttons to move to a new line on small screens */
 flex-wrap: wrap;
 justify-content: center;}
@@ -100,7 +97,6 @@ background-color: #222;
 color: white;
 text-decoration: none;
 border-radius: 5px;}
-
 .button:hover {
 background-color: #222;}
 
@@ -158,16 +154,3 @@ margin-bottom: 12px;}
 
 .news-item p {
 line-height: 1.6;}
-
-.table {
-    border-collapse: collapse;
-    width: 95%;
-    margin: 20px auto
-}
-
-.table th, 
-.table tr {
-    border: 5px solid #222;
-    padding: 8px 12px;
-    text-align: left;
-}
