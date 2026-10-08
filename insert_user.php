@@ -58,18 +58,25 @@ $confirm_password =
     $_POST['confirm_password'];
 
 /*
-Check that user has not entered username 'null' or email null@null
-This is not allowed because they are used as a dummy user for deleted accounts
+Check that user has not entered username 'null'
+This is not allowed as it is reserved for a dummy user for deleted accounts
 */
 
-if ($username === 'null' or $email === 'null@null') {
-    die("Invalid username or email.");
+if ($username === 'null') {
+    die("Invalid username.");
 }
 
+// Ensure that username consists of alphanumeric characters only
 if (!ctype_alnum($username)) {
     die("Username can only contain letters and numbers.");
 }
 
+// Ensure that email is of valid format
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    die("$email is not a valid email address.")
+}
+
+// Check that password is 8 or more characters
 if (strlen($password) < 8) {
     die("Password not long enough.");
 }
