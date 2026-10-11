@@ -321,6 +321,22 @@ $request_quantity =
 
 <html>
 
+<head>
+    <title>Reservation</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        p {
+            font-size: 16px;
+            line-height: 2; 
+        }
+    </style>
+
+</head>
+
+<main class="page">
+<body>
+
 <form method="POST" action="confirm_partial_reservation.php">
 
     <input type="hidden" name="project_id"
@@ -356,11 +372,11 @@ $request_quantity =
     </p>
 
     
-    <button type="submit" name="decision" value="confirm">
+    <button class="button" type="submit" name="decision" value="confirm">
         Yes, continue
     </button>
 
-    <button type="submit" name="decision" value="cancel">
+    <button class="button" type="submit" name="decision" value="cancel">
         No, cancel
     </button>
 

@@ -16,6 +16,10 @@ If the user chooses "confirm":
 */
 
 
+// Main header and navigation bar
+include "navbar.php";
+
+
 // Start the session so that we can identify
 // the currently logged-in user
 session_start();
@@ -452,8 +456,7 @@ $link->commit();
 <html>
 
 <head>
-
-    <title>Reservations </title>
+    <title>Reservations</title>
 
     <!-- Use the existing stylesheet -->
     <link
@@ -461,14 +464,17 @@ $link->commit();
         href="style.css"
     >
 
+    <style>
+        p {
+            font-size: 16px;
+            line-height: 2; 
+        }
+    </style>
+
 </head>
 
+<main class="page">
 <body>
-
-<?php
-// Main header and navigation bar
-include "navbar.php";
-?>
 
 <?php
 
@@ -498,28 +504,29 @@ echo
 echo
     "<br><br>";
 
+?>
+<a
+    class="button"
+    href="make_reservation.php"
+>
+    Make another reservation
+</a>
 
-echo
-    '<a href="make_reservation.php">
-        Make another reservation
-    </a>';
+<a
+    class="button"
+    href="user.php"
+>
+    View my reservations
+</a>
 
-echo
-    "<br>";
+<a
+    class="button"
+    href="index.php"
+>
+    Go to Home page
+</a>
 
-echo
-    '<a href="user.php">
-        View my reservations
-    </a>';
-
-echo
-    "<br>";
-
-echo
-    '<a href="index.php">
-        Go to Home page
-    </a>';
-
+<?php
 
 $link->close();
 
