@@ -96,18 +96,18 @@ include BASE_PATH . "/navbar.php";
             <td><?= htmlspecialchars($row['storage_condition'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['nicknames'] ?? '') ?></td>
             <td>
-                <form action="add_nickname.php" method="POST">
+                <form action="<?= BASE_URL ?>db_connections/add_nickname.php" method="POST">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
                     <input type="text" name="nickname" maxlength="100" required>
                     <input class="button" type="submit" value="Add">
                 </form>
             </td>
             <td>
-                <form action="edit_reagent.php" method="POST">
+                <form action="<?= BASE_URL ?>db_connections/edit_reagent.php" method="POST">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
                     <input class="button" type="submit" value="Edit">
                 </form>
-                <form action="delete_reagent.php" method="POST"
+                <form action="<?= BASE_URL ?>db_connections/delete_reagent.php" method="POST"
                       onsubmit="return confirm('Delete this reagent?');">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
                     <input class="button" type="submit" value="Delete">
@@ -125,7 +125,7 @@ include BASE_PATH . "/navbar.php";
         </tr>
         <?php while ($lot = $lots->fetch_assoc()): ?>
         <tr>
-            <form action="update_quantity.php" method="POST">
+            <form action="<?= BASE_URL ?>update_quantity.php" method="POST">
                 <td><?= htmlspecialchars($lot['name']) ?></td>
                 <td><?= htmlspecialchars($lot['lot_number'] ?? '') ?></td>
                 <td><?= htmlspecialchars($lot['current_quantity'] . ' ' . $lot['unit']) ?></td>

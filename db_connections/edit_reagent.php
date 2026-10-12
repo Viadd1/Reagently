@@ -1,14 +1,13 @@
 <?php
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -24,7 +23,7 @@ if (
     );
 }
 
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 $reagent_id = (int)($_POST['reagent_id'] ?? 0);
 if (!$reagent_id) { die("No reagent ID provided."); }
@@ -41,13 +40,13 @@ if (!$reagent) { die("Reagent not found."); }
 <html>
 <head>
     <title>Reagently - Edit Reagent</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>style.css">
 </head>
 <body>
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
     <h2>Edit Reagent</h2>
@@ -72,7 +71,7 @@ include "navbar.php";
 
         <input class="button" type="submit" value="Save changes">
     </form>
-    <a class="button" href="manage_reagents.php">Cancel</a>
+    <a class="button" href="<?= BASE_URL ?>admin/manage_reagents.php">Cancel</a>
 </main>
 </body>
 </html>
