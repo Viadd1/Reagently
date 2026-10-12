@@ -1,20 +1,19 @@
 <?php
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include "db.php";
+include BASE_PATH . "/db.php";
 
 // Ensure that user has entered the page by submitting a user ID
 $user_id = $_POST['user_id'] ?? '';
@@ -210,7 +209,7 @@ else {
     <!-- Use your existing website stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -219,7 +218,7 @@ else {
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -246,7 +245,7 @@ include "navbar.php";
     </h5>
 
     <form
-    action="/edit_user.php"
+    action="edit_user.php"
     method="POST"
     >
         

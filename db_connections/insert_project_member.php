@@ -4,14 +4,14 @@
 Adds a user to a project by creating a new record in the project_members table.
 */
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the selected project ID from the form
@@ -37,7 +37,7 @@ $user_id =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -90,7 +90,7 @@ $result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -105,7 +105,7 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a class="button" href="add_project_member.php">
+    echo '<a class="button" href=' . BASE_URL . 'admin/add_project_member.php>
           Add another project member
           </a>';
 

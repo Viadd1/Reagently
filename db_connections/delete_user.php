@@ -6,12 +6,12 @@ If the user is linked to other database records we want to keep,
 the user id is redirected to a null user created at the start of this script.
 --------------*/
 
-// Resume current session so that it can be destroyed in the end
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 
 // Include database connection
-include "db.php";
+include BASE_PATH . "/db.php";
 
 
 // Ensure user has gone to this page through a POST method form
@@ -244,7 +244,7 @@ elseif ($delete && $_SESSION['user_id'] == $user_id) {
     session_destroy();
 
     header(
-    "Location: login.php"
+    "Location: /login.php"
     );
 
     exit;
@@ -267,7 +267,7 @@ else {
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -276,7 +276,7 @@ else {
 
 <?php
 
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 
 echo "Account deleted successfully.";
 

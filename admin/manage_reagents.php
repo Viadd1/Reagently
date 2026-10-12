@@ -125,7 +125,7 @@ include BASE_PATH . "/navbar.php";
         </tr>
         <?php while ($lot = $lots->fetch_assoc()): ?>
         <tr>
-            <form action="<?= BASE_URL ?>update_quantity.php" method="POST">
+            <form action="<?= BASE_URL ?>db_connections/update_quantity.php" method="POST">
                 <td><?= htmlspecialchars($lot['name']) ?></td>
                 <td><?= htmlspecialchars($lot['lot_number'] ?? '') ?></td>
                 <td><?= htmlspecialchars($lot['current_quantity'] . ' ' . $lot['unit']) ?></td>

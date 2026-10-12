@@ -5,15 +5,14 @@ Displays a form for adding an existing user to an existing project.
 Users and projects are loaded from the database and shown in dropdown menus.
 */
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -30,7 +29,7 @@ if (
 }
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get all projects from the database
@@ -83,7 +82,7 @@ $user_result =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -93,7 +92,7 @@ $user_result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -110,7 +109,7 @@ include "navbar.php";
     will be sent to insert_project_member.php.
 -->
 <form
-    action="insert_project_member.php"
+    action="<?= BASE_URL ?>db_connections/insert_project_member.php"
     method="POST"
 >
 

@@ -4,13 +4,12 @@
 Allows administrators to view reagent order requests submitted by users.
 */
 
-
-// Start session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // User must be logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -29,7 +28,7 @@ if (
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 
@@ -69,7 +68,7 @@ $result = $link->query($sql);
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -79,7 +78,7 @@ $result = $link->query($sql);
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -231,7 +230,7 @@ include "navbar.php";
 
     <a
         class="button"
-        href="admin.php"
+        href="<?= BASE_URL ?>admin.php"
     >
         Back to Admin
     </a>

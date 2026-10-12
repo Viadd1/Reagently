@@ -5,9 +5,8 @@ Administration page for Reagently users, where
 Only users with the admin role can access this page.
 */
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
@@ -30,7 +29,7 @@ if (
 }
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 // Give search_query a default value
 // when the page is opened without a search
@@ -81,7 +80,7 @@ $result = $link->query($sql);
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -91,7 +90,7 @@ $result = $link->query($sql);
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -108,7 +107,7 @@ include "navbar.php";
 
     <search>
         <form 
-        action="/view_users.php"
+        action="view_users.php"
         method="GET"
         >
 
@@ -223,7 +222,7 @@ include "navbar.php";
                 // Button for editing users
                 echo "<td>" .
 
-                "<form action='/edit_user.php' 
+                "<form action=" . BASE_URL . "db_connections/edit_user.php
                     method='POST'
                     style='display:inline;'
                     >

@@ -4,14 +4,14 @@
 Creates a new project in the database using data submitted from add_project.php.
 */
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 // Fetch data submitted from add_project.php
 
@@ -33,7 +33,7 @@ $description =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -84,7 +84,7 @@ $result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -98,7 +98,7 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a class="button" href="add_project.php">
+    echo '<a class="button" href=' . BASE_URL . 'admin/add_project.php>
           Create another project
           </a>';
 

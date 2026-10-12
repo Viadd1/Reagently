@@ -1,5 +1,9 @@
 <?php
-include 'db.php';
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
+
+// Include database connection
+include BASE_PATH . '/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
@@ -9,7 +13,7 @@ $note         = trim($_POST['note'] ?? '') ?: 'Admin quantity adjustment';
 $admin_id     = $_SESSION['user_id'];
 
 function back($key, $text) {
-    header("Location: manage_reagents.php?$key=" . urlencode($text));
+    header("Location: /admin/manage_reagents.php?$key=" . urlencode($text));
     exit;
 }
 
