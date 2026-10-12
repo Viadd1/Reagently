@@ -15,27 +15,21 @@ If the user chooses "confirm":
 - Commit the transaction
 */
 
-
-// Main header and navigation bar
-include "navbar.php";
-
-
-// Start the session so that we can identify
-// the currently logged-in user
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the current logged-in user's ID
@@ -65,7 +59,7 @@ $decision =
 // do not create anything
 if ($decision === 'cancel') {
 
-    header("Location: make_reservation.php");
+    header("Location: user/make_reservation.php");
     exit;
 }
 
@@ -461,7 +455,7 @@ $link->commit();
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
     <style>
@@ -474,6 +468,12 @@ $link->commit();
 </head>
 
 <main class="page">
+
+<?php
+// Main header and navigation bar
+include BASE_PATH . "/navbar.php";
+?>
+
 <body>
 
 <?php
@@ -507,21 +507,21 @@ echo
 ?>
 <a
     class="button"
-    href="make_reservation.php"
+    href="<?= BASE_URL ?>user/make_reservation.php"
 >
     Make another reservation
 </a>
 
 <a
     class="button"
-    href="user.php"
+    href="<?= BASE_URL ?>user/reservations.php"
 >
     View my reservations
 </a>
 
 <a
     class="button"
-    href="index.php"
+    href="<?= BASE_URL ?>index.php"
 >
     Go to Home page
 </a>

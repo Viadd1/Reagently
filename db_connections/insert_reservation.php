@@ -1,26 +1,3 @@
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-    <title>Reservations</title>
-
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-</head>
-
-<body>
-
-<?php
-// Main header and navigation bar
-include "navbar.php";
-?>
-
 <?php
 
 /*
@@ -336,23 +313,6 @@ $request_quantity =
 // if not, reservation is canceled
 
 ?>
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-    <title>Reservation</title>
-    <link rel="stylesheet" href="style.css">
-
-    <style>
-        p {
-            font-size: 16px;
-            line-height: 2; 
-        }
-    </style>
-
-</head>
 
 <main class="page">
 <body>
