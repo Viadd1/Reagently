@@ -5,9 +5,8 @@ Main administration page for Reagently.
 Only users with the admin role can access this page and use the available reagent, project and inventory management functions.
 */
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start the session so that we can check the currently logged-in user's role
+require_once "init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
@@ -52,7 +51,7 @@ if (
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -73,7 +72,7 @@ include "navbar.php";
 
     <a 
         class="button" 
-        href="add_announcement.php"
+        href="/admin/add_announcement.php"
     >
         Add Announcement
     </a>
@@ -86,7 +85,7 @@ include "navbar.php";
 
     <a
         class="button"
-        href="add_reagent.php"
+        href="/admin/add_reagent.php"
     >
         Add Reagent
     </a>
@@ -94,21 +93,21 @@ include "navbar.php";
 
     <a
         class="button"
-        href="add_location.php"
+        href="/admin/add_location.php"
     >
         Add Location
     </a>
 
     <a
         class="button"
-        href="add_lot.php"
+        href="/admin/add_lot.php"
     >
         Add Reagent Lot
     </a>
 
     <a 
         class="button" 
-        href="manage_reagents.php"
+        href="/admin/manage_reagents.php"
         
     >
         Manage Reagents
@@ -120,14 +119,14 @@ include "navbar.php";
 
     <a
         class="button"
-        href="add_project.php"
+        href="/admin/add_project.php"
     >
         Create Project
     </a>
 
     <a
         class="button"
-        href="add_project_member.php"
+        href="/admin/add_project_member.php"
     >
         Add Project Member
     </a>
@@ -138,7 +137,7 @@ include "navbar.php";
 
     <a
         class="button"
-        href="transactions.php"
+        href="/user/transactions.php"
     >
         Inventory History
     </a>
@@ -146,7 +145,7 @@ include "navbar.php";
     
     <a
         class="button"
-        href="view_order_requests.php"
+        href="/admin/view_order_requests.php"
     >
         View Order Requests
     </a>
@@ -157,14 +156,14 @@ include "navbar.php";
 
     <a
         class="button"
-        href="approve_users.php"
+        href="/admin/approve_users.php"
     >
         Approve New Users
     </a>
 
     <a
         class="button"
-        href="view_users.php"
+        href="/admin/view_users.php"
     >
         Administer Users
     </a>
