@@ -1,3 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reservations</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<?php
+// Main header and navigation bar
+include "navbar.php";
+?>
+
 <?php
 
 /*
@@ -76,27 +99,13 @@ $needed_date =
 if ($quantity_reserved <= 0) {
 
     die(
-        "Reservation quantity must be greater than 0.
-        <a class='button' href=" . BASE_URL . "user/make_reservation.php>
-            Back to reservation
-        </a>"
+        "Reservation quantity must be greater than 0."
     );
 }
 
-
-
-/* =========================
-   Start database transaction
-   ========================= */
-
-// A transaction keeps the availability check
-// and reservation insertion together.
-//
-// Either everything succeeds,
-// or nothing is saved.
-$link->begin_transaction();
-
-
+// IMPORTANT: this file now only checks if we want to reserve and order
+// the actual orer and reserve is done by confirm_partial_reservation
+// that is why we don't have a database link in this script
 
 /* =========================
    Check project membership
@@ -303,171 +312,103 @@ $available_quantity =
    Check requested quantity
    ========================= */
 
-// Reject the reservation if the requested
-// quantity is larger than the latest
-// available quantity.
+// Reserve as much as is currently available, 
+// but never more than the user requested. 
 
-if (
-    $quantity_reserved
-    >
-    $available_quantity
-) {
+$reservation_quantity = 
+    min( 
+        $quantity_reserved, 
+        $available_quantity 
+    ); 
 
-    // Cancel the database transaction
-    $link->rollback();
+// Anything that cannot be reserved becomes 
+// an order request. 
 
-
-    echo
-        "Not enough reagent available.";
-
-    echo
-        "<br><br>";
-
-
-    echo
-        "Available quantity: " .
-        htmlspecialchars(
-            $available_quantity
-        );
-
-
-    echo
-        "<br><br>";
-
-
-    echo
-        '<a class="button" href=' . BASE_URL . 'user/make_reservation.php>
-            Back to reservation
-        </a>';
-
-
-    $link->close();
-
-    exit;
-}
-
-
+$request_quantity = 
+    $quantity_reserved - $reservation_quantity;
 
 /* =========================
-   Insert reservation
+   HTML form
    ========================= */
 
-// The availability check has passed.
-//
-// Create the reservation.
-//
-// status is not included because the database
-// automatically uses the default value 'ACTIVE'.
-//
-// created_at is also generated automatically.
-
-$insert_sql =
-"INSERT INTO reservations
-(
-    user_id,
-    project_id,
-    lot_id,
-    quantity_reserved,
-    needed_date
-)
-
-VALUES (?, ?, ?, ?, ?)";
-
-
-$insert_stmt =
-    $link->prepare($insert_sql);
-
-
-// Data types:
-//
-// user_id            = integer
-// project_id         = integer
-// lot_id             = integer
-// quantity_reserved  = decimal/double
-// needed_date        = string
-//
-// Therefore:
-// i i i d s
-
-$insert_stmt->bind_param(
-    "iiids",
-    $user_id,
-    $project_id,
-    $lot_id,
-    $quantity_reserved,
-    $needed_date
-);
-
-
-// Execute the reservation INSERT
-$result =
-    $insert_stmt->execute();
-
+// display to the user what the stock is and ask for an input Yes or No
+// if yes, a reservation and order will be made
+// if not, reservation is canceled
 
 ?>
 
-<body>
+<!DOCTYPE html>
 
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
+<html>
+
+<head>
+    <title>Reservation</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        p {
+            font-size: 16px;
+            line-height: 2; 
+        }
+    </style>
+
+</head>
 
 <main class="page">
+<body>
 
-<?php
+<form method="POST" action="confirm_partial_reservation.php">
 
-/* =========================
-   Finish transaction
-   ========================= */
+    <input type="hidden" name="project_id"
+           value="<?= htmlspecialchars($project_id) ?>">
 
-if ($result) {
+    <input type="hidden" name="lot_id"
+           value="<?= htmlspecialchars($lot_id) ?>">
 
-    // Everything was successful,
-    // so permanently save the transaction
-    $link->commit();
+    <input type="hidden" name="quantity_reserved"
+           value="<?= htmlspecialchars($quantity_reserved) ?>">
 
+    <input type="hidden" name="needed_date"
+           value="<?= htmlspecialchars($needed_date) ?>">
 
-    echo
-        "Reservation created successfully.";
+    <p>
+        You requested:
+        <?= htmlspecialchars($quantity_reserved) ?>
+    </p>
 
-    echo
-        "<br><br>";
+    <p>
+        Available quantity:
+        <?= htmlspecialchars($available_quantity) ?>
+    </p>
 
+    <p>
+        Quantity to reserve:
+        <?= htmlspecialchars($reservation_quantity) ?>
+    </p>
 
-    echo
-        '<a class="button" href=' . BASE_URL . 'user/make_reservation.php>
-            Make another reservation
-        </a>';
+    <p>
+        Quantity to order:
+        <?= htmlspecialchars($request_quantity) ?>
+    </p>
 
+    
+    <button class="button" type="submit" name="decision" value="confirm">
+        Yes, continue
+    </button>
 
-} else {
+    <button class="button" type="submit" name="decision" value="cancel">
+        No, cancel
+    </button>
 
-    // Something failed,
-    // so cancel all changes in this transaction
-    $link->rollback();
-
-
-    echo
-        "Error: " .
-        $insert_stmt->error;
-}
-
-?>
-
-</main>
-
-</body>
+</form>
 
 </html>
 
 <?php
 
-// Close prepared statement
-$insert_stmt->close();
+// The reservation and order request will only be created by 
+// confirm_partial_reservation.php after the user clicks "Yes". 
 
-
-// Close database connection
-$link->close();
+exit; 
 
 ?>
