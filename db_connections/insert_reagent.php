@@ -5,13 +5,13 @@ insert_reagent.php
 Adds a new reagent to the database using data submitted from add_reagent.php.
 */
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Fetch data from POST request
@@ -45,7 +45,7 @@ $storage_condition =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL?>style.css"
     >
 
 </head>
@@ -88,7 +88,7 @@ $stmt->bind_param(
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -110,12 +110,12 @@ try {
         echo "<br><br>";
 
         echo
-        '<a class="button" href="add_reagent.php">
+        '<a class="button" href=' . BASE_URL . 'admin/add_reagent.php>
             Add another reagent
         </a>';
 
         echo
-        '<a class="button" href="add_lot.php">
+        '<a class="button" href=' . BASE_URL . 'admin/add_lot.php>
             Add Reagent Lot
         </a>';
 
@@ -142,12 +142,12 @@ try {
         echo "<br><br>";
 
         echo
-            '<a class="button" href="add_lot.php">
+            '<a class="button" href=' . BASE_URL . 'admin/add_lot.php>
                 Add Reagent Lot
             </a>';
 
         echo
-            '<a class="button" href="add_reagent.php">
+            '<a class="button" href=' . BASE_URL . 'admin/add_reagent.php>
                 Back to Add Reagent
             </a>';
 

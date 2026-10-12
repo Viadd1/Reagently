@@ -4,13 +4,13 @@
 Creates a new reagent lot and connects it to an existing reagent and storage location.
 */
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Fetch data from POST request
@@ -52,7 +52,7 @@ $expiry_date =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -108,7 +108,7 @@ $result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -122,7 +122,7 @@ if ($result) {
 
     echo '<br><br>';
 
-    echo '<a class="button" href="add_lot.php">
+    echo '<a class="button" href=' . BASE_URL . 'admin/add_lot.php>
           Add another lot
           </a>';
 

@@ -1,13 +1,12 @@
 <?php
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -23,7 +22,7 @@ if (
     );
 }
 
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 // Reagents with their nicknames (deleted reagents are hidden)
 $reagents = $link->query(
@@ -60,7 +59,7 @@ $lots = $link->query(
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -70,7 +69,7 @@ $lots = $link->query(
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">

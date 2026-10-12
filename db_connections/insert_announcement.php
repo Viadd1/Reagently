@@ -1,5 +1,9 @@
 <?php
-include 'db.php';
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
+
+// Connect to database
+include BASE_PATH . '/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
@@ -11,7 +15,7 @@ $message = trim($_POST['message'] ?? '');
 $author_name = $_SESSION['username'] ?? 'Admin';
 
 if ($title === '' || $message === '') {
-    header("Location: add_announcement.php?error=" . urlencode("Title and message are required."));
+    header("Location: /admin/add_announcement.php?error=" . urlencode("Title and message are required."));
     exit;
 }
 
@@ -23,4 +27,4 @@ $stmt->execute();
 $stmt->close();
 $link->close();
 
-header("Location: add_announcement.php?msg=" . urlencode("Announcement posted."));
+header("Location: /admin/add_announcement.php?msg=" . urlencode("Announcement posted."));

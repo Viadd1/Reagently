@@ -1,3 +1,7 @@
+<?php
+require_once "init.php";
+?>
+
 <!-- Website title -->
  
 <header>
@@ -8,7 +12,7 @@
 
 <nav class="navbar">
 
-    <a href="index.php">
+    <a href="<?= BASE_URL ?>index.php">
         Home
     </a>
 
@@ -19,11 +23,11 @@
 
     ?>
 
-        <a href="view_reagents.php">
+        <a href="<?= BASE_URL ?>view_reagents.php">
             View reagents
         </a>
 
-        <a href="user.php">
+        <a href="<?= BASE_URL ?>user.php">
             User
         </a>
 
@@ -38,7 +42,7 @@
 
         ?>
 
-            <a href="admin.php">
+            <a href="<?= BASE_URL ?>admin.php">
                 Admin
             </a>
 
@@ -48,7 +52,7 @@
 
         ?>
 
-        <a href="logout.php">
+        <a href="<?= BASE_URL ?>logout.php">
             Log out
         </a>
 
@@ -60,11 +64,11 @@
 
         <!-- Show Login and Register when nobody is logged in -->
 
-        <a href="login.php">
+        <a href="<?= BASE_URL ?>login.php">
             Login
         </a>
 
-        <a href="register.php">
+        <a href="<?= BASE_URL ?>register.php">
             Register
         </a>
 

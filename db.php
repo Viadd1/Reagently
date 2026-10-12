@@ -25,4 +25,5 @@ if (mysqli_connect_error()) {
     );
 }
 
+echo "<br>Test2"
 ?>

@@ -5,14 +5,13 @@ Page where the requests for new user accounts appear and can be approved.
 Only users with the admin role can access this page.
 */
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -29,7 +28,7 @@ if (
 }
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 // Give default values when the page is opened if no user has been approved yet
 $_GET['user_id'] =
@@ -93,7 +92,7 @@ $result = $link->query($sql);
 
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -102,7 +101,7 @@ $result = $link->query($sql);
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">

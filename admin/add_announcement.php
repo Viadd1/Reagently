@@ -1,14 +1,13 @@
 <?php
 
-// Start the session so that we can check
-// the currently logged-in user's role
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -25,7 +24,7 @@ if (
 }
 
 // Include database link
-include 'db.php';
+include BASE_PATH . "/db.php";
 
 // All announcements, newest first
 $announcements = $link->query(
@@ -39,13 +38,13 @@ $announcements = $link->query(
 <html>
 <head>
     <title>Reagently - Announcements</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>style.css">
 </head>
 <body>
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php"; 
 ?>
 
 <main class="page">
@@ -58,7 +57,7 @@ include "navbar.php";
         <p style="color:red;"><strong><?= htmlspecialchars($_GET['error']) ?></strong></p>
     <?php endif; ?>
 
-    <form action="insert_announcement.php" method="POST">
+    <form action="<?= BASE_URL ?>db_connections/insert_announcement.php" method="POST">
         <label>Title:
             <input type="text" name="title" maxlength="150" required>
         </label>
@@ -89,7 +88,7 @@ include "navbar.php";
                 <td><?= nl2br(htmlspecialchars($a['message'])) ?></td>
                 <td><?= htmlspecialchars($a['author_name']) ?></td>
                 <td>
-                    <form action="delete_announcement.php" method="POST"
+                    <form action="<?= BASE_URL ?>db_connections/delete_announcement.php" method="POST"
                           onsubmit="return confirm('Delete this announcement?');">
                         <input type="hidden" name="announcement_id"
                                value="<?= (int)$a['announcement_id'] ?>">
