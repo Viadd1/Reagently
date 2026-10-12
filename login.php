@@ -34,7 +34,7 @@ include "navbar.php";
     <!-- Login form -->
     <form
         class="form-card"
-        action="login_process.php"
+        action="authentication/login_process.php"
         method="POST"
     >
 
@@ -82,7 +82,7 @@ include "navbar.php";
         </label>
         <br><br>
         <img
-            src="captcha.php"
+            src="authentication/captcha.php"
             id="captchaImage"
             alt="CAPTCHA"
         >
@@ -117,7 +117,7 @@ include "navbar.php";
 
     <p>
         Forgot password?
-        <a href="forgot_password.php">
+        <a href="authentication/forgot_password.php">
             Reset password
         </a>
     </p>

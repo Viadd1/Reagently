@@ -3,12 +3,11 @@
 // Checks the username and password submitted from login.php.
 // If the login is successful, the user ID, username, role and lab are stored in the session.
 
-// Start or resume a session.
-// This must be placed before any HTML or echo output.
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 // Get username and password submitted from login.php
 $username = $_POST['username'];
@@ -42,7 +41,7 @@ if (
     echo "<br><br>";
 
     echo
-    '<a href="login.php">
+    '<a href=' . BASE_URL . 'login.php>
         Try again
     </a>';
 
@@ -63,7 +62,7 @@ if (
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -123,7 +122,7 @@ $result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -182,7 +181,7 @@ if ($result->num_rows === 1) {
             // Redirect the user to the home page
 
             header(
-                "Location: index.php"
+                "Location: /index.php"
             );
 
             exit;
@@ -199,7 +198,7 @@ if ($result->num_rows === 1) {
             echo "<br><br>";
 
             echo
-            '<a class="button" href="login.php">
+            '<a class="button" href=' . BASE_URL . 'login.php">
                 Try again
             </a>';
 
@@ -216,7 +215,7 @@ if ($result->num_rows === 1) {
     echo "<br><br>";
 
     echo
-    '<a class="button" href="login.php">
+    '<a class="button" href=' . BASE_URL . 'login.php">
         Try again
     </a>';
 
