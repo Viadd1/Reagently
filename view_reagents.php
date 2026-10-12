@@ -15,14 +15,12 @@ if (!isset($_SESSION['user_id'])) {
 // Include database connection
 include 'db.php';
 
-// Give default values when the page is opened
-// before any search or filter has been submitted
+// Give default values when the page is opened before any search or filter has been submitted
 $_GET['search_query'] =
     $_GET['search_query'] ?? '';
 
 $_GET['stock_filter'] =
     $_GET['stock_filter'] ?? 'show_all';
-
 
 // If user has searched for something, save in variable
 if ($_GET['search_query']) {
@@ -33,7 +31,6 @@ else {
 }
 
 // Check if the user has filled in a stock filter and alter the WHERE condition accordingly
-
 if ($_GET['stock_filter']==='in_stock') {
     $stock_filter = '`reagent_lots`.`current_quantity` > 0';
 }
@@ -43,6 +40,9 @@ elseif ($_GET['stock_filter']==='not_in_stock') {
 else {
     $stock_filter = '`reagent_lots`.`current_quantity` >= 0';
 }
+
+$_GET['category_filter'] =
+    $_GET['category_filter'] ?? '';
 
 // Get reagent inventory
 
@@ -60,6 +60,15 @@ $sql =
     reagents.reagent_id,
 
     reagents.name,
+    (
+    SELECT GROUP_CONCAT(
+        rn.nickname
+        ORDER BY rn.nickname
+        SEPARATOR ', '
+    )
+    FROM reagent_nicknames rn
+    WHERE rn.reagent_id = reagents.reagent_id
+) AS nicknames,
     reagents.catalog_number,
     reagents.category,
     reagents.unit,
@@ -130,29 +139,29 @@ AND (
 
 AND $stock_filter
 
+AND (reagents.category = ?
+    OR ? = '')
+
 -- Sort reagents alphabetically
 ORDER BY
-
     reagents.name,
     reagent_lots.expiry_date";
 
 // Execute the SQL query
 $like = '%' . $search_query . '%';
+$category_filter = $_GET['category_filter'] ?? '';
 $stmt = $link->prepare($sql);
-$stmt->bind_param("ss", $like, $like);
+$stmt->bind_param("ssss", $like, $like, $category_filter, $category_filter);
 $stmt->execute();
 $result = $stmt->get_result();
 
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - View Reagents</title>
-
     <!-- Use existing website stylesheet -->
     <link
         rel="stylesheet"
@@ -160,35 +169,30 @@ $result = $stmt->get_result();
     >
 
 </head>
-
 <body>
 
-
 <?php
+
 // Main header and navigation bar
 include "navbar.php";
+
 ?>
 
 <!-- Main page -->
-
 <main class="page">
 
     <h2>View Reagents</h2>
-
     <p>
         Current reagent inventory and availability.
     </p>
-    
     <br>
 
 <!-- Search bar and filters -->
-
     <search>
         <form 
         action="/view_reagents.php"
         method="GET"
         >
-
             <input
             type="text"
             name="search_query"
@@ -201,12 +205,49 @@ include "navbar.php";
 
             <br><br>
 
+        Category:
+        <select name="category_filter" id="category_filter">
+            <option value="">All categories</option>
+
+            <option value="organic"
+                <?= (($_GET['category_filter'] ?? '') === 'organic')
+                    ? 'selected' : '' ?>>
+                Organic
+            </option>
+
+            <option value="inorganic"
+                <?= (($_GET['category_filter'] ?? '') === 'inorganic')
+                    ? 'selected' : '' ?>>
+                Inorganic
+            </option>
+
+            <option value="biochemical"
+                <?= (($_GET['category_filter'] ?? '') === 'biochemical')
+                    ? 'selected' : '' ?>>
+                Biochemical
+            </option>
+
+            <option value="other"
+                <?= (($_GET['category_filter'] ?? '') === 'other')
+                    ? 'selected' : '' ?>>
+                Other
+            </option>
+        </select>
+
+            <input 
+            type="submit" 
+            class="button" 
+            value="Filter">
+
+            <br><br>
+
             <input
             type="radio"
             id="all"
             name="stock_filter"
             value="show_all"
-            checked>
+            <?= ($_GET['stock_filter'] ?? 'show_all') === 'show_all'
+                ? 'checked' : '' ?>
             <label
             for="all">Show all
             </label>
@@ -216,6 +257,8 @@ include "navbar.php";
             id="in_stock"
             name="stock_filter"
             value="in_stock"
+            <?= ($_GET['stock_filter'] ?? 'show_all') === 'in_stock'
+                ? 'checked' : '' ?>
             >
             <label
             for="in_stock">In stock
@@ -226,6 +269,8 @@ include "navbar.php";
             id="not_in_stock"
             name="stock_filter"
             value="not_in_stock"
+            <?= ($_GET['stock_filter'] ?? 'show_all') === 'not_in_stock'
+                ? 'checked' : '' ?>
             >
             <label
             for="not_in_stock">Not in stock
@@ -236,12 +281,10 @@ include "navbar.php";
         </form>
     </search>
 
-
     <!-- Inventory table -->
     <table class="table">
 
         <tr>
-
             <th>Reagent</th>
 
             <th>Catalog No.</th>
@@ -262,11 +305,11 @@ include "navbar.php";
 
             <th>Location</th>
 
+            <th>Opened Date</th>
+
             <th>Expiry Date</th>
 
             <th>Action</th>
-
-            
 
         </tr>
 
@@ -288,7 +331,14 @@ include "navbar.php";
 
                 htmlspecialchars(
                     $row["name"]
-                ) .
+                );
+
+                // Nickname
+                if (!empty($row["nicknames"])) {
+                    echo " <span class='reagent-nicknames'>(" .
+                        htmlspecialchars($row["nicknames"]) .
+                        ")</span>";
+                }
 
                 "</td>";
 
@@ -460,10 +510,8 @@ include "navbar.php";
         } else {
 
             // Display this if there are no reagent lots in the database and request order
-
             echo
             "<tr>
-
                 <td colspan='12'>
                     No reagents found.";
             // if a reagent was searched but does not exist, user can request it
@@ -504,14 +552,10 @@ include "navbar.php";
     </a>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 // Close database connection
 $link->close();
-
 ?>

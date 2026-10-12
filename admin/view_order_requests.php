@@ -83,23 +83,16 @@ include BASE_PATH . "/navbar.php";
 
 <main class="page">
 
-
     <h2>Requests of Orders</h2>
-
 
     <p>
         Reagent order requests submitted by users.
     </p>
 
-
     <br>
 
-
-
     <!-- Order request table -->
-
-    <table border="1">
-
+    <table class="table">
 
         <tr>
 
@@ -117,24 +110,17 @@ include BASE_PATH . "/navbar.php";
 
         </tr>
 
-
-
         <?php
-
 
         // Check whether any order requests exist
         if ($result->num_rows > 0) {
-
 
             // Display one row for each request
             while (
                 $row =
                 $result->fetch_assoc()
             ) {
-
-
                 echo "<tr>";
-
 
                 // Username
                 echo "<td>" .
@@ -144,7 +130,6 @@ include BASE_PATH . "/navbar.php";
                 ) .
 
                 "</td>";
-
 
                 // Full name
                 echo "<td>" .
@@ -157,7 +142,6 @@ include BASE_PATH . "/navbar.php";
 
                 "</td>";
 
-
                 // Lab group
                 echo "<td>" .
 
@@ -166,7 +150,6 @@ include BASE_PATH . "/navbar.php";
                 ) .
 
                 "</td>";
-
 
                 // Requested reagent
                 echo "<td>" .
@@ -177,7 +160,6 @@ include BASE_PATH . "/navbar.php";
 
                 "</td>";
 
-
                 // Request message
                 echo "<td>" .
 
@@ -186,7 +168,6 @@ include BASE_PATH . "/navbar.php";
                 ) .
 
                 "</td>";
-
 
                 // Date submitted
                 echo "<td>" .
@@ -197,14 +178,11 @@ include BASE_PATH . "/navbar.php";
 
                 "</td>";
 
-
                 echo "</tr>";
 
             }
 
-
         } else {
-
 
             // No order requests have been submitted yet
             echo
@@ -215,18 +193,13 @@ include BASE_PATH . "/navbar.php";
                 </td>
 
             </tr>";
-
         }
-
 
         ?>
 
-
     </table>
 
-
     <br><br>
-
 
     <a
         class="button"
@@ -235,14 +208,9 @@ include BASE_PATH . "/navbar.php";
         Back to Admin
     </a>
 
-
 </main>
-
-
 </body>
-
 </html>
-
 
 <?php
 

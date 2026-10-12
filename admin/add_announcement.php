@@ -3,8 +3,7 @@
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /login.php");

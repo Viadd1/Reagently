@@ -1,9 +1,7 @@
-<?php
+<!-- Insert reagent -->
+ <!-- Adds a new reagent to the database using data submitted from add_reagent.php. -->
 
-/*
-insert_reagent.php
-Adds a new reagent to the database using data submitted from add_reagent.php.
-*/
+<?php
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
@@ -13,12 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 include BASE_PATH . '/db.php';
 
-
 // Fetch data from POST request
-
 $name =
     $_POST['name'];
-
 
 $catalog_number =
     $_POST['catalog_number'];
@@ -35,25 +30,20 @@ $storage_condition =
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Add Reagent</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL?>style.css"
     >
-
 </head>
 
 <?php
 
 // SQL statement
-
 $sql =
 "INSERT INTO reagents
 (
@@ -66,10 +56,8 @@ $sql =
 
 VALUES (?, ?, ?, ?, ?)";
 
-
 $stmt =
     $link->prepare($sql);
-
 
 // First five variables are strings, last two are numbers
 
@@ -87,6 +75,7 @@ $stmt->bind_param(
 <body>
 
 <?php
+
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
@@ -100,7 +89,6 @@ try {
 
     $result =
         $stmt->execute();
-
 
     // Reagent was created successfully
     if ($result) {
@@ -118,16 +106,11 @@ try {
         '<a class="button" href=' . BASE_URL . 'admin/add_lot.php>
             Add Reagent Lot
         </a>';
-
-
     }
 
 
 } catch (mysqli_sql_exception $e) {
-
-
-    // Error code 1062 means a UNIQUE value
-    // already exists in the database
+    // Error code 1062 means a UNIQUE value already exists in the database
     if ($e->getCode() == 1062) {
 
         echo
@@ -150,26 +133,19 @@ try {
             '<a class="button" href=' . BASE_URL . 'admin/add_reagent.php>
                 Back to Add Reagent
             </a>';
-
-
     } else {
-
 
         // Show other database errors
         echo
             "Database error: " .
             $e->getMessage();
-
     }
-
 }
 
 ?>
 
 </main>
-
 </body>
-
 </html>
 
 <?php

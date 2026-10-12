@@ -1,14 +1,13 @@
-<!--
-Displays a form for adding a new reagent.
-The form sends the reagent information to insert_reagent.php.
--->
+<!-- Add regents -->
+
+<!-- Displays a form for adding a new reagent.
+The form sends the reagent information to insert_reagent.php -->
 
 <?php
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /login.php");
@@ -21,7 +20,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -30,13 +28,10 @@ if (
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Add Reagent</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
@@ -44,11 +39,10 @@ if (
     >
 
 </head>
-
 <body>
 
-
 <?php
+
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
@@ -61,7 +55,6 @@ include BASE_PATH . "/navbar.php";
     action="<?= BASE_URL ?>db_connections/insert_reagent.php"
     method="POST"
 >
-
     Name:
     <input
         type="text"
@@ -71,8 +64,6 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-
-
     Catalog number:
     <input
         type="text"
@@ -81,15 +72,16 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-
     Category:
-    <input
-        type="text"
-        name="category"
-    >
+    <select name="category" id="category">
+        <option value="">Select a category</option>
+        <option value="organic">Organic</option>
+        <option value="inorganic">Inorganic</option>
+        <option value="biochemical">Biochemical</option>
+        <option value="other">Other</option>
+    </select>
 
     <br><br>
-
 
     Unit:
     <input
@@ -101,7 +93,6 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-
     Storage condition:
     <input
         type="text"
@@ -111,7 +102,6 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-
     <input
         class="button"
         type="submit"
@@ -119,9 +109,6 @@ include BASE_PATH . "/navbar.php";
     >
 
 </form>
-
 </main>
-
 </body>
-
 </html>
