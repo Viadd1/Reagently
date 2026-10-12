@@ -2,8 +2,8 @@
 
 // Displays information for the currently logged-in user, including personal details, project memberships and reservations.
 
-// Start session so that we know which user is currently logged in
-session_start();
+// Start session and set base path variable
+require_once "init.php";
 
 // If the user is not logged in redirect to login page
 if (!isset($_SESSION['user_id'])) {
@@ -184,7 +184,7 @@ $reservation_result =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -194,7 +194,7 @@ $reservation_result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <!-- Main user page -->
@@ -272,7 +272,7 @@ include "navbar.php";
         );
 
         echo "<form 
-            action='/edit_user.php' 
+            action=" . BASE_URL . "db_connections/edit_user.php
             method='POST'
             style='display:inline;'
             >
@@ -461,7 +461,7 @@ include "navbar.php";
             ) {
 
                 echo
-                "<a class='button' href='record_usage.php?reservation_id=" .
+                "<a class='button' href=" . BASE_URL . "user/record_usage.php?reservation_id=" .
                 $reservation["reservation_id"] .
                 "'>
                     Record usage
@@ -470,7 +470,7 @@ include "navbar.php";
                 echo "<br>";
 
                 echo
-                "<a class='button' href='cancel_reservation.php?reservation_id=" .
+                "<a class='button' href=" . BASE_URL . "db_connections/cancel_reservation.php?reservation_id=" .
                 $reservation["reservation_id"] .
                 "'>
                     Cancel
@@ -506,7 +506,7 @@ include "navbar.php";
     <!-- View reservations from all projects that the user belongs to -->
     <a
         class="button"
-        href="reservations.php"
+        href="<?= BASE_URL ?>user/reservations.php"
     >
         Project Reservations
     </a>
@@ -514,7 +514,7 @@ include "navbar.php";
     <!-- View user's Usage history -->
     <a
         class="button"
-        href="transactions.php"
+        href="<?= BASE_URL ?>user/transactions.php"
     >
         Usage History
     </a>

@@ -6,22 +6,21 @@ Cancelling a reservation releases the reserved quantity without changing the phy
 */
 
 
-// Start the session so that we can identify
-// the currently logged-in user
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the currently logged-in user's ID
@@ -123,7 +122,7 @@ $stmt->execute();
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -133,7 +132,7 @@ $stmt->execute();
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -169,7 +168,7 @@ if ($stmt->affected_rows === 1) {
 
 
     echo
-        '<a class="button" href="reservations.php">
+        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
             Back to reservations
         </a>';
 
@@ -195,7 +194,7 @@ if ($stmt->affected_rows === 1) {
 
 
     echo
-        '<a class="button" href="reservations.php">
+        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
             Back to reservations
         </a>';
 

@@ -2,20 +2,20 @@
 Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations. -->
 
 <?php
-// Start the session so that we can identify the currently logged-in user
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the ID of the currently logged-in user
@@ -148,7 +148,7 @@ $lot_result =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -158,7 +158,7 @@ $lot_result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -173,7 +173,7 @@ include "navbar.php";
     to insert_reservation.php.
 -->
 <form
-    action="insert_reservation.php"
+    action="<?= BASE_URL ?>db_connections/insert_reservation.php"
     method="POST"
 >
 

@@ -4,8 +4,8 @@
 Allows a logged-in user to submit a text request for a reagent that is out of stock or not currently registered.
 */
 
-// Start session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // User must be logged in
 if (!isset($_SESSION['user_id'])) {
@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id'])) {
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Default values
@@ -83,7 +83,7 @@ elseif (isset($_GET['search_query'])) {
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -94,7 +94,7 @@ elseif (isset($_GET['search_query'])) {
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 
@@ -114,7 +114,7 @@ include "navbar.php";
 
 
     <form
-        action="insert_order_request.php"
+        action="<?= BASE_URL ?>db_connections/insert_order_request.php"
         method="POST"
     >
 
@@ -189,7 +189,7 @@ include "navbar.php";
     </form>
 
 
-    <a class="button" href="view_reagents.php">
+    <a class="button" href="<?= BASE_URL ?>view_reagents.php">
         Back to reagents
     </a>
 

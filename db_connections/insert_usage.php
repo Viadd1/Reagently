@@ -5,8 +5,8 @@ Records the final reagent usage for a reservation.
 It updates the physical stock, creates an inventory transaction, and changes the reservation status to COMPLETED.
 */
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
@@ -22,7 +22,7 @@ if (!isset($_SESSION['user_id'])) {
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the currently logged-in user's ID.
@@ -57,7 +57,7 @@ $note =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -271,7 +271,7 @@ if (
     echo "<br><br>";
 
     echo
-        '<a class="button" href="reservations.php">
+        '<a class="button" href=' . BASE_URL .'user/reservations.php>
             Back to reservations
         </a>';
 
@@ -315,7 +315,7 @@ if (
     echo "<br><br>";
 
     echo
-        '<a class="button" href="reservations.php">
+        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
             Back to reservations
         </a>';
 
@@ -595,7 +595,7 @@ echo
 
 
 echo
-    '<a class="button" href="reservations.php">
+    '<a class="button" href=' . BASE_URL . 'user/reservations.php>
         Back to reservations
     </a>';
 

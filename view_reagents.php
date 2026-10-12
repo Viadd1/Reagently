@@ -2,8 +2,8 @@
 
 // Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
 
-// Start the session so that we can check whether the user is logged in
-session_start();
+// Start session and set base path variable
+require_once "init.php";
 
 // If the user is not logged in then redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
@@ -434,7 +434,7 @@ include "navbar.php";
                     echo
                     "<a
                          class='button'
-                         href='make_reservation.php?lot_id=" .
+                         href=" . BASE_URL . "user/make_reservation.php?lot_id=" .
                          $row["lot_id"] .
                          "'>
                          Reserve
@@ -444,7 +444,7 @@ include "navbar.php";
                     echo
                     "<a
                         class='button'
-                        href='request_order.php?reagent_id=" .
+                        href=" . BASE_URL . "user/request_order.php?reagent_id=" .
                         $row["reagent_id"] .
                         "'>
                         Request Order
@@ -474,7 +474,7 @@ include "navbar.php";
 
                 <a
                     class='button'
-                    href='request_order.php?search_query=" .
+                    href=" . BASE_URL . "user/request_order.php?search_query=" .
                     urlencode($search_query) .
                     "'>
                     Request Order
@@ -498,7 +498,7 @@ include "navbar.php";
     <!-- Go to reservation page -->
     <a
         class="button"
-        href="make_reservation.php"
+        href="<?= BASE_URL ?>user/make_reservation.php"
     >
         Make Reservation
     </a>

@@ -6,8 +6,8 @@ It checks project membership and current stock availability before saving the re
 */
 
 
-// Resume existing session
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
@@ -17,13 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the current logged-in user's ID
@@ -65,7 +65,7 @@ $needed_date =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -77,7 +77,7 @@ if ($quantity_reserved <= 0) {
 
     die(
         "Reservation quantity must be greater than 0.
-        <a class='button' href='make_reservation.php'>
+        <a class='button' href=" . BASE_URL . "user/make_reservation.php>
             Back to reservation
         </a>"
     );
@@ -336,7 +336,7 @@ if (
 
 
     echo
-        '<a class="button" href="make_reservation.php">
+        '<a class="button" href=' . BASE_URL . 'user/make_reservation.php>
             Back to reservation
         </a>';
 
@@ -410,7 +410,7 @@ $result =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -436,7 +436,7 @@ if ($result) {
 
 
     echo
-        '<a class="button" href="make_reservation.php">
+        '<a class="button" href=' . BASE_URL . 'user/make_reservation.php>
             Make another reservation
         </a>';
 

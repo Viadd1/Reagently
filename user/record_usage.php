@@ -5,22 +5,21 @@ Displays an active reservation and allows the user to enter the actual quantity 
 */
 
 
-// Start the session so that we can identify
-// the currently logged-in user
-session_start();
+// Start session and set base path variable
+require_once __DIR__ . "/../init.php";
 
 
 // If the user is not logged in,
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /login.php");
     exit;
 }
 
 
 // Include database connection
-include 'db.php';
+include BASE_PATH . '/db.php';
 
 
 // Get the currently logged-in user's ID
@@ -188,7 +187,7 @@ $reservation =
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 
 </head>
@@ -199,7 +198,7 @@ $reservation =
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -327,7 +326,7 @@ include "navbar.php";
 
 
 <form
-    action="insert_usage.php"
+    action="<?= BASE_URL ?>db_connections/insert_usage.php"
     method="POST"
 >
 
