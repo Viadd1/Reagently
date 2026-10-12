@@ -1,4 +1,9 @@
+<!-- Insert announcments -->
+
 <?php
+
+session_start();
+
 include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
@@ -6,9 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 $title   = trim($_POST['title'] ?? '');
 $message = trim($_POST['message'] ?? '');
 
-// The author comes from the session, NOT from the form,
-// so an admin can't post under someone else's name.
-$author_name = $_SESSION['username'] ?? 'Admin';
+// The author comes from the session, NOT from the form, so an admin can't post under someone else's name.
+$author_name = ($_SESSION['firstname'] ?? 'Admin') . ' (' . ($_SESSION['username'] ?? '') . ')';
 
 if ($title === '' || $message === '') {
     header("Location: add_announcement.php?error=" . urlencode("Title and message are required."));

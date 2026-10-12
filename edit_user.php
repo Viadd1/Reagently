@@ -1,17 +1,14 @@
 <?php
 
-// Start the session so that we can check
-// the currently logged-in user's role
+// Start the session so that we can check the currently logged-in user's role
 session_start();
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: login.php");
     exit;
 }
-
 
 // Include database connection
 include "db.php";
@@ -23,9 +20,7 @@ if (!$user_id) {
     die("No user ID provided.");
 }
 
-// If the user has submitted new user information,
-// save variables and prepare SQL statement
-
+// If the user has submitted new user information, save variables and prepare SQL statement
 if (isset($_POST['uname'])) {
     
     $uname = 
@@ -69,8 +64,7 @@ if (isset($_POST['uname'])) {
     
     $stmt->execute();
 
-    // Check whether the user has changed password
-    // and that the passwords match
+    // Check whether the user has changed password and that the passwords match
     $password = 
         $_POST['password'] ?? '';
 

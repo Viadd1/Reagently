@@ -1,17 +1,14 @@
-<!--
-Displays a form for adding a new reagent.
-The form sends the reagent information to insert_reagent.php.
--->
+<!-- Add regents -->
+
+<!-- Displays a form for adding a new reagent.
+The form sends the reagent information to insert_reagent.php -->
 
 <?php
-// Start the session so that we can check
-// the currently logged-in user's role
+// Start the session so that we can check the currently logged-in user's role
 session_start();
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: login.php");
     exit;
 }
@@ -22,7 +19,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -31,13 +27,10 @@ if (
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Add Reagent</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
@@ -45,11 +38,10 @@ if (
     >
 
 </head>
-
 <body>
 
-
 <?php
+
 // Main header and navigation bar
 include "navbar.php";
 ?>
@@ -62,7 +54,6 @@ include "navbar.php";
     action="insert_reagent.php"
     method="POST"
 >
-
     Name:
     <input
         type="text"
@@ -72,8 +63,6 @@ include "navbar.php";
 
     <br><br>
 
-
-
     Catalog number:
     <input
         type="text"
@@ -82,15 +71,16 @@ include "navbar.php";
 
     <br><br>
 
-
     Category:
-    <input
-        type="text"
-        name="category"
-    >
+    <select name="category" id="category">
+        <option value="">Select a category</option>
+        <option value="organic">Organic</option>
+        <option value="inorganic">Inorganic</option>
+        <option value="biochemical">Biochemical</option>
+        <option value="other">Other</option>
+    </select>
 
     <br><br>
-
 
     Unit:
     <input
@@ -102,7 +92,6 @@ include "navbar.php";
 
     <br><br>
 
-
     Storage condition:
     <input
         type="text"
@@ -112,7 +101,6 @@ include "navbar.php";
 
     <br><br>
 
-
     <input
         class="button"
         type="submit"
@@ -120,9 +108,6 @@ include "navbar.php";
     >
 
 </form>
-
 </main>
-
 </body>
-
 </html>
