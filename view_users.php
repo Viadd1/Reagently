@@ -71,13 +71,10 @@ $result = $link->query($sql);
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Administer Users</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
@@ -85,9 +82,7 @@ $result = $link->query($sql);
     >
 
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -97,7 +92,6 @@ include "navbar.php";
 <main class="page">
 
     <h2>View Users</h2>
-
     <p>
         Search and administer users.
     </p>
@@ -105,7 +99,6 @@ include "navbar.php";
     <br>
 
     <!-- Search bar and filters -->
-
     <search>
         <form 
         action="/view_users.php"
@@ -119,7 +112,9 @@ include "navbar.php";
 
             <input
             type="submit"
-            value="Submit">
+            value="Submit"
+            class="button"
+            >
 
         </form
         >
@@ -127,7 +122,7 @@ include "navbar.php";
 
 
     <!-- Inventory table -->
-    <table border="1">
+    <table class="table">
 
         <tr>
 

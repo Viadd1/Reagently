@@ -60,6 +60,15 @@ $sql =
     reagents.reagent_id,
 
     reagents.name,
+    (
+    SELECT GROUP_CONCAT(
+        rn.nickname
+        ORDER BY rn.nickname
+        SEPARATOR ', '
+    )
+    FROM reagent_nicknames rn
+    WHERE rn.reagent_id = reagents.reagent_id
+) AS nicknames,
     reagents.catalog_number,
     reagents.category,
     reagents.unit,
@@ -322,7 +331,14 @@ include "navbar.php";
 
                 htmlspecialchars(
                     $row["name"]
-                ) .
+                );
+
+                // Nickname
+                if (!empty($row["nicknames"])) {
+                    echo " <span class='reagent-nicknames'>(" .
+                        htmlspecialchars($row["nicknames"]) .
+                        ")</span>";
+                }
 
                 "</td>";
 
