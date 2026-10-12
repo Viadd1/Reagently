@@ -310,7 +310,7 @@ if ($result->num_rows > 0) {
 
             // Link to cancel the reservation
             echo
-            "<a class='button' href='cancel_reservation.php?reservation_id=" .
+            "<a class='button' href=" . BASE_URL . "db_connections/cancel_reservation.php?reservation_id=" .
             $row["reservation_id"] .
             "'>
                 Cancel

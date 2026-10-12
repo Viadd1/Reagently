@@ -137,7 +137,7 @@ include BASE_PATH . "/navbar.php";
 
     <a
         class="button"
-        href="transactions.php"
+        href="/user/transactions.php"
     >
         Inventory History
     </a>

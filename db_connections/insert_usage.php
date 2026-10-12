@@ -423,7 +423,7 @@ $link->commit();
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
