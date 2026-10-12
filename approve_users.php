@@ -128,7 +128,7 @@ include "navbar.php";
         
 
     <!-- Inventory table -->
-    <table border="1">
+    <table class="table">
 
         <tr>
 
@@ -253,4 +253,3 @@ include "navbar.php";
 $link->close();
 
 ?>
-
