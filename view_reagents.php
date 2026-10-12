@@ -305,8 +305,6 @@ include "navbar.php";
 
             <th>Location</th>
 
-            <th>Opened Date</th>
-
             <th>Expiry Date</th>
 
             <th>Action</th>
