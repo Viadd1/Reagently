@@ -2,7 +2,9 @@
 Displays the login form where users enter their username and password.
 The form sends the login information to login_process.php.
 -->
-
+<?php
+require_once __DIR__ . '/../init.php';
+?>
 <!DOCTYPE html>
 
 <html>
@@ -14,7 +16,7 @@ The form sends the login information to login_process.php.
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?=BASE_URL?>style.css"
     >
 
 </head>
@@ -23,7 +25,7 @@ The form sends the login information to login_process.php.
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <!-- Main page content -->
@@ -34,7 +36,7 @@ include "navbar.php";
     <!-- Login form -->
     <form
         class="form-card"
-        action="authentication/login_process.php"
+        action="login_process.php"
         method="POST"
     >
 
@@ -82,7 +84,7 @@ include "navbar.php";
         </label>
         <br><br>
         <img
-            src="authentication/captcha.php"
+            src="captcha.php"
             id="captchaImage"
             alt="CAPTCHA"
         >
@@ -117,7 +119,7 @@ include "navbar.php";
 
     <p>
         Forgot password?
-        <a href="authentication/forgot_password.php">
+        <a href="forgot_password.php">
             Reset password
         </a>
     </p>

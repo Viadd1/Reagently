@@ -5,11 +5,46 @@ Creates a new user account using information submitted from register.php.
 The password is checked and hashed before the user is added to the database.
 */
 
+require_once __DIR__ . "/../init.php";
+
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
-// Include database connection
-include 'db.php';
+// Include database connection and send email function
+include BASE_PATH . '/db.php';
+require_once BASE_PATH . '/send_email.php';
+use function Email\sendEmail;
+
+function sendVerificationEmail(string $username, string $userEmail, mysqli $db): bool {
+    // 1. Create token
+    $token = bin2hex(random_bytes(32));
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+    // 2. Save token
+    $sql = 'UPDATE users 
+            SET verification_token = ?, token_expires_at = ? 
+            WHERE username = ?';
+
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('sss', $token, $expiresAt, $username);
+    $stmt->execute();
+
+    // 3. Build link
+    $link = "http://localhost/authentication/verify_email.php?token=" . $token;
+
+    // 4. Send email
+    $subject = "Please verify your email address";
+    $body = "
+        <h2>Welcome!</h2>
+        <p>Click the button below to verify your email address.</p>
+        <p><a href=\"$link\" style=\"background:#222;color:white;padding:12px 24px;
+        text-decoration:none;border-radius:4px;\">Verify Email</a></p>
+        <p>This link expires in 24 hours.</p>
+        <p>If you did not register, ignore this email.</p>
+    ";
+
+    return sendEmail($userEmail, $username, $subject, $body);
+}
 
 ?>
 
@@ -24,7 +59,7 @@ include 'db.php';
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?=BASE_URL?>style.css"
     >
 
 </head>
@@ -32,7 +67,7 @@ include 'db.php';
 <body>
 
 <?php
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 
 
 // Fetch data submitted from register.php
@@ -73,7 +108,7 @@ if (!ctype_alnum($username)) {
 
 // Ensure that email is of valid format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    die("$email is not a valid email address.")
+    die("$email is not a valid email address.");
 }
 
 // Check that password is 8 or more characters
@@ -182,8 +217,14 @@ $result =
 
 // Check whether registration was successful
 if ($result) {
-    echo "Account requested successfully.";
+    echo "Account requested successfully.<br>";
 
+    if (!sendVerificationEmail($username, $email, $link)) {
+        echo "Failed to send verification email.";
+        exit;
+    }
+
+    echo "Verification email sent to " . $email . ".";
 } else {
 
     // Display database error
@@ -192,6 +233,8 @@ if ($result) {
     echo "Error: " .
          $stmt->error;
 }
+
+session_destroy();
 
 // Close prepared statement
 

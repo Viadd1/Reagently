@@ -3,6 +3,10 @@ Displays the registration form for new Reagently users.
 The entered information is sent to insert_user.php.
 -->
 
+<?php
+require_once __DIR__ . '/../init.php';
+?>
+
 <!DOCTYPE html>
 
 <html>
@@ -14,7 +18,7 @@ The entered information is sent to insert_user.php.
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?=BASE_URL?>style.css"
     >
 
 </head>
@@ -24,7 +28,7 @@ The entered information is sent to insert_user.php.
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <!-- Main heading -->
@@ -39,7 +43,7 @@ include "navbar.php";
     insert_user.php using the POST method.
 -->
     <form
-    action="insert_user.php"
+    action="<?=BASE_URL?>db_connections/insert_user.php"
     method="POST"
     >
 

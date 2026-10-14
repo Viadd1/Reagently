@@ -15,7 +15,9 @@ To use this file, the following prerequisites are required:
     SMTP_USER = (user@gmail.com)
     SMTP_PASS - (App password to the Gmail account)
 
-4.  require email.php
+4.  Include the following lines at the top of any files using the mail function:
+    require_once BASE_PATH . '/send_email.php';
+    use function Email\sendEmail;
 
 */
 
@@ -26,10 +28,11 @@ use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 
 // Load utilities from Composer
-require 'vendor/autoload.php';
+require_once 'init.php';
+require BASE_PATH . '/vendor/autoload.php';
 
 // Load variables from .env
-$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv = Dotenv::createImmutable(BASE_PATH);
 $dotenv->load();
 
 // Function for sending email

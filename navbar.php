@@ -52,7 +52,7 @@ require_once "init.php";
 
         ?>
 
-        <a href="<?= BASE_URL ?>logout.php">
+        <a href="<?= BASE_URL ?>authentication/logout.php">
             Log out
         </a>
 
@@ -64,11 +64,11 @@ require_once "init.php";
 
         <!-- Show Login and Register when nobody is logged in -->
 
-        <a href="<?= BASE_URL ?>login.php">
+        <a href="<?= BASE_URL ?>authentication/login.php">
             Login
         </a>
 
-        <a href="<?= BASE_URL ?>register.php">
+        <a href="<?= BASE_URL ?>authentication/register.php">
             Register
         </a>
 
