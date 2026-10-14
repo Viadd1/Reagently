@@ -1,15 +1,13 @@
-<?php
-
-/*
+<!-- Admin 
 Main administration page for Reagently.
-Only users with the admin role can access this page and use the available reagent, project and inventory management functions.
-*/
+Only users with the admin role can access this page and use the available reagent, project and inventory management functions. -->
+
+<?php
 
 // Start the session so that we can check the currently logged-in user's role
 require_once "init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /authentication/login.php");
@@ -22,32 +20,23 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
 }
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Admin</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -61,12 +50,10 @@ include BASE_PATH . "/navbar.php";
 
     <h2>Admin Functions</h2>
 
-
     <p>
         Manage reagents, storage locations,
         projects and users.
     </p>
-
 
     <br>
 
@@ -81,9 +68,7 @@ include BASE_PATH . "/navbar.php";
 
 <br><br>
 
-
     <h3>Reagent Management</h3>
-
 
     <a
         class="button"
@@ -91,7 +76,6 @@ include BASE_PATH . "/navbar.php";
     >
         Add Reagent
     </a>
-
 
     <a
         class="button"
@@ -151,7 +135,6 @@ include BASE_PATH . "/navbar.php";
         Inventory History
     </a>
 
-    
     <a
         class="button"
         href="/admin/view_order_requests.php"
@@ -185,9 +168,6 @@ include BASE_PATH . "/navbar.php";
         Administer Users
     </a>
 
-
 </main>
-
 </body>
-
 </html>

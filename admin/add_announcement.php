@@ -1,3 +1,5 @@
+<!-- Add announcment -->
+
 <?php
 
 // Start session and set base path variable
@@ -16,7 +18,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );

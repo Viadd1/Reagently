@@ -1,13 +1,12 @@
+<!-- Navbar -->
+
 <?php
 require_once "init.php";
 ?>
 
 <!-- Website title -->
- 
 <header>
-
     <h1>Reagently</h1>
-
 </header>
 
 <nav class="navbar">
@@ -17,10 +16,8 @@ require_once "init.php";
     </a>
 
     <?php
-
     // Show these links only when a user is logged in
     if (isset($_SESSION['user_id'])) {
-
     ?>
 
         <a href="<?= BASE_URL ?>view_reagents.php">
@@ -47,9 +44,7 @@ require_once "init.php";
             </a>
 
         <?php
-
         }
-
         ?>
 
         <a href="<?= BASE_URL ?>authentication/logout.php">
@@ -57,9 +52,7 @@ require_once "init.php";
         </a>
 
     <?php
-
     } else {
-
     ?>
 
         <!-- Show Login and Register when nobody is logged in -->
@@ -73,9 +66,7 @@ require_once "init.php";
         </a>
 
     <?php
-
     }
-
     ?>
 
 </nav>

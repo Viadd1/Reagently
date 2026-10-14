@@ -1,30 +1,22 @@
-<!--
+<!-- Register 
 Displays the registration form for new Reagently users.
-The entered information is sent to insert_user.php.
--->
+The entered information is sent to insert_user.php. -->
 
 <?php
 require_once __DIR__ . '/../init.php';
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Register</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?=BASE_URL?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -36,12 +28,8 @@ include BASE_PATH . "/navbar.php";
     <h2>Register to Reagently here!</h2>
     <h3>Create an account</h3>
 
-<!--
-    Registration form
-
-    The entered information will be sent to
-    insert_user.php using the POST method.
--->
+<!-- Registration form
+    The entered information will be sent to insert_user.php using the POST method. -->
     <form
     action="<?=BASE_URL?>db_connections/insert_user.php"
     method="POST"
@@ -88,12 +76,8 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-    <!--
-        Email address
-
-        type="email" allows the browser to perform
-        basic email-format validation.
-    -->
+    <!-- Email address
+        type="email" allows the browser to perform basic email-format validation. -->
     Email:
 
     <input
@@ -104,13 +88,9 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-    <!--
-        Password field
-
+    <!-- Password field
         type="password" hides the entered characters.
-        The password will later be hashed in insert_user.php
-        before being stored in the database.
-    -->
+        The password will later be hashed in insert_user.php before being stored in the database. -->
     Password:
 
     <input
@@ -122,12 +102,9 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
-    <!--
-        Confirmation field
-
+    <!-- Confirmation field
         This value is not stored in the database.
-        insert_user.php will check that both passwords match.
-    -->
+        insert_user.php will check that both passwords match. -->
     Confirm password:
 
     <input
@@ -165,7 +142,5 @@ Log in
 </p>
 
 </main>
-
 </body>
-
 </html>

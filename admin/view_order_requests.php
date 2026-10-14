@@ -1,8 +1,7 @@
-<?php
+<!-- View Order Requests 
+ Allows administrators to view reagent order requests submitted by users. -->
 
-/*
-Allows administrators to view reagent order requests submitted by users.
-*/
+<?php
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
@@ -13,14 +12,12 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-
 // Only admins can access this page
 if (
     !isset($_SESSION['role'])
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -31,7 +28,6 @@ include BASE_PATH . '/db.php';
 
 // Get order requests
 // Get all submitted order requests. JOIN users is used so that the admin can see who submitted each request.
-
 $sql =
 "SELECT
 
@@ -56,9 +52,7 @@ $result = $link->query($sql);
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Order Requests</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
@@ -170,7 +164,6 @@ include BASE_PATH . "/navbar.php";
                 "</td>";
 
                 echo "</tr>";
-
             }
 
         } else {
@@ -185,7 +178,6 @@ include BASE_PATH . "/navbar.php";
 
             </tr>";
         }
-
         ?>
 
     </table>
@@ -204,8 +196,6 @@ include BASE_PATH . "/navbar.php";
 </html>
 
 <?php
-
 // Close database connection
 $link->close();
-
 ?>

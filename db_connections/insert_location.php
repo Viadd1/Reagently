@@ -1,53 +1,40 @@
-<?php
+<!-- DB connection - Insert Location 
+Adds a new storage location to the database using data submitted from add_location.php. -->
 
-/*
-Adds a new storage location to the database using data submitted from add_location.php.
-*/
+<?php
 
 // Start session and define base path variable
 require_once __DIR__ . "/../init.php";
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
 include BASE_PATH . '/db.php';
 
 // Fetch data from POST request
-
 $room =
     $_POST['room'];
-
 $storage_unit =
     $_POST['storage_unit'];
-
 $shelf =
     $_POST['shelf'];
-
 $box_name =
     $_POST['box_name'];
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Add Location</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL?>style.css"
     >
-
 </head>
 
 <?php
 
 // SQL statement
-
 $sql =
 "INSERT INTO locations
 (
@@ -59,15 +46,11 @@ $sql =
 
 VALUES (?, ?, ?, ?)";
 
-
 // Prepare statement
-
 $stmt =
     $link->prepare($sql);
 
-
 // Bind variables
-
 $stmt->bind_param(
     "ssss",
     $room,
@@ -76,12 +59,9 @@ $stmt->bind_param(
     $box_name
 );
 
-
 // Execute
-
 $result =
     $stmt->execute();
-
 
 ?>
 
@@ -95,8 +75,8 @@ include BASE_PATH . "/navbar.php";
 <main class="page">
 
 <?php
-// Check result
 
+// Check result
 if ($result) {
 
     echo "New location created successfully.";
@@ -112,19 +92,14 @@ if ($result) {
     echo "Error: " .
          $stmt->error;
 }
-
 ?>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
 // Close
-
 $stmt->close();
 $link->close();
-
 ?>

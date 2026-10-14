@@ -1,10 +1,11 @@
-<!-- Displays the reservation form for the logged-in user.
+<!-- Make Reservation 
+Displays the reservation form for the logged-in user.
 Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations. -->
 
 <?php
+
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
-
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
@@ -21,7 +22,6 @@ $user_id =
     $_SESSION['user_id'];
 
 //Get user's projects
-
 // Only show projects that the current user belongs to. project_members connects users and projects.
 $project_sql =
 "SELECT
@@ -52,13 +52,11 @@ $project_stmt->execute();
 $project_result = $project_stmt->get_result();
 
 //Get reagent lots
-
 // This query retrieves all reagent lots together with their available quantity.
 // Physical quantity = reagent_lots.current_quantity
 // Reserved quantity = total quantity from all ACTIVE reservations
 // Available quantity = Physical - Reserved
 // Reserved quantity is calculated from ALL ACTIVE reservations, regardless of which project made them.
-
 $lot_sql =
 "SELECT
 
@@ -119,9 +117,7 @@ $lot_result =
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Make Reservation</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
@@ -139,37 +135,24 @@ include BASE_PATH . "/navbar.php";
     <h2>Make Reservation</h2>
     <h3>Reserve your reagents here!</h3>
 
-<!--
-    Reservation form
-
-    The selected project, reagent lot,
-    quantity and needed date will be sent
-    to insert_reservation.php.
--->
+<!-- Reservation form
+The selected project, reagent lot, quantity and needed date will be sent to insert_reservation.php.-->
 <form
     action="<?= BASE_URL ?>db_connections/insert_reservation.php"
     method="POST"
 >
-
-
     <!--Project selection-->
-
     Project:
-
     <select
         name="project_id"
         required
     >
-
         <?php
 
         // Check whether the user belongs to at least one project
-
         if ($project_result->num_rows > 0) {
 
-            // Create one option for each project
-            // that the current user belongs to
-
+            // Create one option for each project that the current user belongs to
             while (
                 $project =
                 $project_result->fetch_assoc()
@@ -185,52 +168,38 @@ include BASE_PATH . "/navbar.php";
                 ) .
 
                 "</option>";
-
             }
-
         } else {
 
             // The user cannot make a reservation without being a member of a project
-
             echo
             "<option value='' disabled>
                 No projects available
             </option>";
-
         }
-
         ?>
 
     </select>
 
     <br><br>
 
-    <!-- =========================
-         Reagent lot selection
-         ========================= -->
-
+    <!-- Reagent lot selection -->
     Reagent lot:
-
     <select
         name="lot_id"
         required
     >
-
         <?php
 
         // Check whether there are reagent lots with available quantity
-
         if ($lot_result->num_rows > 0) {
-
 
             while (
                 $lot =
                 $lot_result->fetch_assoc()
             ) {
 
-
                 // The user sees useful reagent information, but the submitted value is only lot_id.
-
                 echo
                 "<option value='" .
                 $lot["lot_id"] .
@@ -249,18 +218,13 @@ include BASE_PATH . "/navbar.php";
                 ) .
 
                 "</option>";
-
             }
-
         } else {
-
             echo
             "<option value='' disabled>
                 No reagent lots available
             </option>";
-
         }
-
         ?>
 
     </select>
@@ -268,9 +232,7 @@ include BASE_PATH . "/navbar.php";
     <br><br>
 
     <!-- Quantity that the user wants to reserve -->
-
     Quantity:
-
     <input
         type="number"
         name="quantity_reserved"
@@ -282,9 +244,7 @@ include BASE_PATH . "/navbar.php";
     <br><br>
 
     <!-- Date when the reagent is needed -->
-
     Needed by:
-
     <input
         type="date"
         name="needed_date"
@@ -294,7 +254,6 @@ include BASE_PATH . "/navbar.php";
     <br><br>
 
     <!-- Submit the reservation -->
-
     <input
         class="button"
         type="submit"
@@ -313,17 +272,11 @@ include BASE_PATH . "/navbar.php";
 </a>
 
 </body>
-
 </html>
 
-
 <?php
-
 // Close the prepared project query
 $project_stmt->close();
-
-
 // Close database connection
 $link->close();
-
 ?>

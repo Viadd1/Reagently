@@ -1,10 +1,11 @@
+<!-- DB connection - Edit Reagent -->
+
 <?php
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /authentication/login.php");
@@ -17,7 +18,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -45,6 +45,7 @@ if (!$reagent) { die("Reagent not found."); }
 <body>
 
 <?php
+
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
@@ -72,7 +73,9 @@ include BASE_PATH . "/navbar.php";
         <input class="button" type="submit" value="Save changes">
     </form>
     <a class="button" href="<?= BASE_URL ?>admin/manage_reagents.php">Cancel</a>
+
 </main>
 </body>
 </html>
+
 <?php $stmt->close(); $link->close(); ?>

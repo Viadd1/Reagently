@@ -1,4 +1,4 @@
-<!--
+<!-- Login 
 Displays the login form where users enter their username and password.
 The form sends the login information to login_process.php.
 -->
@@ -6,21 +6,15 @@ The form sends the login information to login_process.php.
 require_once __DIR__ . '/../init.php';
 ?>
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Login</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?=BASE_URL?>style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -89,6 +83,7 @@ include BASE_PATH . "/navbar.php";
             alt="CAPTCHA"
         >
         <br><br>
+        
         <!-- Refresh CAPTCHA without refreshing the whole page -->
          <button
                 class=button
@@ -125,7 +120,5 @@ include BASE_PATH . "/navbar.php";
     </p>
 
 </main>
-
 </body>
-
 </html>

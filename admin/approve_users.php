@@ -1,9 +1,7 @@
-<?php
+<!-- Page where the requests for new user accounts appear and can be approved.
+Only users with the admin role can access this page. -->
 
-/*
-Page where the requests for new user accounts appear and can be approved.
-Only users with the admin role can access this page.
-*/
+<?php
 
 // Start session, set base path variable and load email
 require_once __DIR__ . "/../init.php";
@@ -23,7 +21,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -113,20 +110,14 @@ $result = $link->query($sql);
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Approve Users</title>
-
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -138,7 +129,6 @@ include BASE_PATH . "/navbar.php";
 
     <h2>Approve Users</h2>
     
-
     <h5 style="color:darkgreen">
 
         <?php
@@ -152,10 +142,7 @@ include BASE_PATH . "/navbar.php";
             echo "<br>";
         }
         ?>
-
     </h5>
-
-        
 
     <!-- Inventory table -->
     <table class="table">
@@ -247,15 +234,11 @@ include BASE_PATH . "/navbar.php";
                 echo "</td>";
 
                 echo "</tr>";
-
-
-
             }
 
         } else {
 
             // Display this if there are no users in the database yet.
-
             echo
             "<tr>
 
@@ -264,7 +247,6 @@ include BASE_PATH . "/navbar.php";
                 </td>
 
             </tr>";
-
         }
         ?>
 
@@ -278,14 +260,10 @@ include BASE_PATH . "/navbar.php";
     </a>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 // Close database connection
 $link->close();
-
 ?>

@@ -1,4 +1,7 @@
+<!-- DB connection - Delete Announcments -->
+
 <?php
+
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 

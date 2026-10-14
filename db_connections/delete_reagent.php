@@ -1,3 +1,5 @@
+<!-- DB connection - Delete Reagent -->
+
 <?php
 
 // Start session and set base path variable

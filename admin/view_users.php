@@ -1,15 +1,12 @@
-<?php
+<!-- Administration page for Reagently users, where 
+Only users with the admin role can access this page. -->
 
-/*
-Administration page for Reagently users, where 
-Only users with the admin role can access this page.
-*/
+<?php
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /authentication/login.php");
@@ -22,7 +19,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -31,9 +27,7 @@ if (
 // Include database connection
 include BASE_PATH . '/db.php';
 
-// Give search_query a default value
-// when the page is opened without a search
-
+// Give search_query a default value when the page is opened without a search
 $_GET['search_query'] =
     $_GET['search_query'] ?? '';
 
@@ -44,7 +38,6 @@ if ($_GET['search_query']) {
 else {
     $search_query = "";
 }
-
 
 $sql = 
 " SELECT
@@ -72,14 +65,12 @@ $result = $link->query($sql);
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Administer Users</title>
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
 <body>
 
@@ -103,7 +94,6 @@ include BASE_PATH . "/navbar.php";
         action="view_users.php"
         method="GET"
         >
-
             <input
             type="text"
             name="search_query"
@@ -114,11 +104,9 @@ include BASE_PATH . "/navbar.php";
             value="Submit"
             class="button"
             >
-
         </form
         >
     </search>
-
 
     <!-- Inventory table -->
     <table class="table">
@@ -200,7 +188,6 @@ include BASE_PATH . "/navbar.php";
                 "</td>";
 
                 // Approved or not
-
                 echo "<td>";
 
                 if ($row["approved"] == 0) {
@@ -235,13 +222,11 @@ include BASE_PATH . "/navbar.php";
                 "</td>";
 
                 echo "</tr>";
-
             }
 
         } else {
 
             // Display this if there are no users in the database yet.
-
             echo
             "<tr>
 
@@ -250,10 +235,8 @@ include BASE_PATH . "/navbar.php";
                 </td>
 
             </tr>";
-
         }
         ?>
-
     </table>
 
 <a
@@ -264,14 +247,10 @@ include BASE_PATH . "/navbar.php";
 </a>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 // Close database connection
 $link->close();
-
 ?>

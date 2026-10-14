@@ -1,9 +1,10 @@
+<!-- Manage Reagents -->
+
 <?php
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
     header("Location: /authentication/login.php");
@@ -16,7 +17,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -49,23 +49,16 @@ $lots = $link->query(
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Manage reagents</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -107,6 +100,9 @@ include BASE_PATH . "/navbar.php";
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
                     <input class="button" type="submit" value="Edit">
                 </form>
+
+                <br>
+                
                 <form action="<?= BASE_URL ?>db_connections/delete_reagent.php" method="POST"
                       onsubmit="return confirm('Delete this reagent?');">
                     <input type="hidden" name="reagent_id" value="<?= (int)$row['reagent_id'] ?>">
@@ -151,4 +147,7 @@ include BASE_PATH . "/navbar.php";
 </main>
 </body>
 </html>
-<?php $link->close(); ?>
+
+<?php 
+$link->close(); 
+?>

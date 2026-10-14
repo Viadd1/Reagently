@@ -1,3 +1,5 @@
+<!-- Forgot Password -->
+
 <?php
 
 require_once __DIR__ . "/../init.php";
@@ -8,25 +10,18 @@ use function Email\sendEmail;
 include BASE_PATH . "/db.php";
 
 $email = $_POST['email'] ?? '';
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Login</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?=BASE_URL?>style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -38,10 +33,7 @@ include BASE_PATH . "/navbar.php";
 
 <?php
 
-    /*-----------
-    If user has not entered page through a POST form,
-    they entered from the login page, so we display the form.
-    -----------*/
+/* If user has not entered page through a POST form, they entered from the login page, so we display the form. */
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -129,9 +121,7 @@ include BASE_PATH . "/navbar.php";
     } ?>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
@@ -139,5 +129,4 @@ include BASE_PATH . "/navbar.php";
 session_destroy();
 
 $link->close();
-
 ?>

@@ -1,6 +1,7 @@
-<?php
+<!-- User
+Displays information for the currently logged-in user, including personal details, project memberships and reservations. -->
 
-// Displays information for the currently logged-in user, including personal details, project memberships and reservations.
+<?php
 
 // Start session and set base path variable
 require_once "init.php";
@@ -20,9 +21,7 @@ $user_id =
     $_SESSION['user_id'];
 
 // Get user information:
-
 // Get personal information about the currently logged-in user
-
 $user_sql =
 "SELECT
 
@@ -67,10 +66,8 @@ $user =
     $user_result->fetch_assoc();
 
 // Get user's projects:
-
 // Get all projects that the current user belongs to.
 // project_members connects users and projects.
-
 $project_sql =
 "SELECT
 
@@ -104,11 +101,9 @@ $project_result =
     $project_stmt->get_result();
 
 // Get user's reservations
-
 // Get reservations created by the currently logged-in user.
 // This section shows only the user's own reservations.
 // reservations.php can separately show reservations from all projects that the user belongs to.
-
 $reservation_sql =
 "SELECT
 
@@ -174,23 +169,16 @@ $reservation_result =
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - User Page</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -204,69 +192,51 @@ include BASE_PATH . "/navbar.php";
     <h2>User Information</h2>
 
     <p>
-
         <strong>Username:</strong>
 
         <?php
-
         echo htmlspecialchars(
             $user["username"]
         );
-
         ?>
-
     </p>
 
     <p>
-
         <strong>Name:</strong>
 
         <?php
-
         echo htmlspecialchars(
             ($user["firstname"] ?? "") .
             " " .
             ($user["lastname"] ?? "")
         );
-
         ?>
-
     </p>
 
     <p>
-
         <strong>Lab / Group:</strong>
 
         <?php
-
         echo htmlspecialchars(
             $user["lab"] ?? ""
         );
-
         ?>
-
     </p>
 
     <p>
-
         <strong>Email:</strong>
 
         <?php
-
         echo htmlspecialchars(
             $user["email"]
         );
-
         ?>
-
     </p>
 
     <p>
-
         <strong>Role:</strong>
 
         <?php
-
         echo htmlspecialchars(
             $user["role"]
         );
@@ -289,19 +259,16 @@ include BASE_PATH . "/navbar.php";
                  
             </form>";
     ?>
-
     </p>
 
     <br><br>
 
     <!-- My Projects -->
-
     <h2>My Projects</h2>
 
     <?php
 
     // Check whether the user belongs to any projects
-
     if ($project_result->num_rows > 0) {
 
         echo "<table class='table'>";
@@ -348,21 +315,17 @@ include BASE_PATH . "/navbar.php";
             You are not currently a member
             of any projects.
         </p>";
-
     }
-
     ?>
 
     <br><br>
 
     <!-- My Reservations -->
-
     <h2>My Reservations</h2>
 
     <?php
 
     // Check whether the current user has created any reservations
-
     if ($reservation_result->num_rows > 0) {
 
         echo "<table class='table'>";
@@ -496,9 +459,7 @@ include BASE_PATH . "/navbar.php";
         "<p>
             You have no reservations.
         </p>";
-
     }
-
     ?>
 
     <br><br>
@@ -520,23 +481,15 @@ include BASE_PATH . "/navbar.php";
     </a>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 // Close SQL statements
-
 $user_stmt->close();
-
 $project_stmt->close();
-
 $reservation_stmt->close();
 
 // Close database connection
-
 $link->close();
-
 ?>

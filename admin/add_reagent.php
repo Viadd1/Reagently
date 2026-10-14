@@ -1,4 +1,4 @@
-<!-- Add regents -->
+<!-- Add reagents -->
 
 <!-- Displays a form for adding a new reagent.
 The form sends the reagent information to insert_reagent.php -->
@@ -24,20 +24,17 @@ if (
         "Access denied. Admin permission is required."
     );
 }
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Add Reagent</title>
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
 <body>
 
