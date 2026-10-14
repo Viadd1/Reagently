@@ -53,25 +53,6 @@ $quantity_reserved =
 $needed_date =
     $_POST['needed_date'];
 
-?>
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-    <title>Reagently - Make Reservation</title>
-
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
-
-</head>
-
-<?php
-
 // Check that the reservation quantity is positive
 if ($quantity_reserved <= 0) {
 
@@ -314,12 +295,32 @@ $request_quantity =
 
 ?>
 
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Reagently - Make Reservation</title>
+
+    <!-- Use the existing stylesheet -->
+    <link
+        rel="stylesheet"
+        href="<?= BASE_URL ?>style.css"
+    >
+
+</head>
+
 <?php
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
+
+<h2> Make Reservation </h2>
+
+<br><br>
 
 <form method="POST" action="confirm_partial_reservation.php">
 
@@ -340,28 +341,28 @@ include BASE_PATH . "/navbar.php";
         <?= htmlspecialchars($quantity_reserved) ?>
     </p>
 
-    <br></br>
+    <br><br>
 
     <p class="reagent-text">
         Available quantity:
         <?= htmlspecialchars($available_quantity) ?>
     </p>
     
-    <br></br>
+    <br><br>
 
     <p class="reagent-text">
         Quantity to reserve:
         <?= htmlspecialchars($reservation_quantity) ?>
     </p>
 
-    <br></br>
+    <br><br>
 
     <p class="reagent-text">
         Quantity to order:
         <?= htmlspecialchars($request_quantity) ?>
     </p>
 
-    <br></br>
+    <br><br>
     
     <button class="button" type="submit" name="decision" value="confirm">
         Yes, continue
