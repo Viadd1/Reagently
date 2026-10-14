@@ -101,6 +101,13 @@ include BASE_PATH . "/navbar.php";
         <?php endif; ?>
     </table>
 
+<a
+    class="button"
+    href="<?= BASE_URL ?>admin.php"
+>
+    Back to Admin
+</a>
+
 </main>
 </body>
 </html>

@@ -256,6 +256,12 @@ include BASE_PATH . "/navbar.php";
 
     </table>
 
+<a
+    class="button"
+    href="<?= BASE_URL ?>admin.php"
+>
+    Back to Admin
+</a>
 
 </main>
 
