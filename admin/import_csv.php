@@ -36,7 +36,7 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 
     <h3>1. Import reagents</h3>
     <p>
-        Required columns: <strong>name, catalog_number, category, unit</strong><br>
+        Required columns: <strong>name, catalog_number, category, unit, storage_condition</strong><br>
         Optional columns: <strong> nicknames</strong>
         (separate several nicknames with <strong>|</strong>)<br>
     </p>
