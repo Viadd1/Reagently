@@ -26,11 +26,8 @@ if (
     );
 }
 
-
 // Include database connection
 include BASE_PATH . '/db.php';
-
-
 
 // Get order requests
 // Get all submitted order requests. JOIN users is used so that the admin can see who submitted each request.
@@ -56,11 +53,8 @@ $result = $link->query($sql);
 
 ?>
 
-
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Order Requests</title>
@@ -70,11 +64,8 @@ $result = $link->query($sql);
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar

@@ -140,6 +140,14 @@ include BASE_PATH . "/navbar.php";
         </tr>
         <?php endwhile; ?>
     </table>
+
+    <a
+        class="button"
+        href="<?= BASE_URL ?>admin.php"
+    >
+        Back to Admin
+    </a>
+    
 </main>
 </body>
 </html>

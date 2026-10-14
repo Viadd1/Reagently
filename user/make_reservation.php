@@ -13,22 +13,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-
 // Include database connection
 include BASE_PATH . '/db.php';
-
 
 // Get the ID of the currently logged-in user
 $user_id =
     $_SESSION['user_id'];
 
-
-
 //Get user's projects
 
-
 // Only show projects that the current user belongs to. project_members connects users and projects.
-
 $project_sql =
 "SELECT
     projects.project_id,
@@ -42,33 +36,22 @@ $project_sql =
 
  ORDER BY projects.project_name";
 
-
 // Prepare the query
-
 $project_stmt = $link->prepare($project_sql);
 
-
 // Bind the current user's ID
-
 $project_stmt->bind_param(
     "i",
     $user_id
 );
 
-
 // Execute the query
-
 $project_stmt->execute();
 
-
 // Get project query result
-
 $project_result = $project_stmt->get_result();
 
-
-
 //Get reagent lots
-
 
 // This query retrieves all reagent lots together with their available quantity.
 // Physical quantity = reagent_lots.current_quantity
@@ -98,7 +81,6 @@ $lot_sql =
 
     reagent_lots.current_quantity - COALESCE(reservation_totals.reserved_quantity,0) AS available_quantity
 
-
 FROM reagent_lots
 JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 JOIN locations ON reagent_lots.location_id = locations.location_id
@@ -117,7 +99,6 @@ LEFT JOIN (
 
 ) AS reservation_totals
 
-
 ON reagent_lots.lot_id = reservation_totals.lot_id
 
 WHERE
@@ -129,18 +110,14 @@ ORDER BY
     reagents.name,
     reagent_lots.expiry_date";
 
-
 // Execute the reagent lot query
-
 $lot_result =
     $link->query($lot_sql);
 
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
 
     <title>Reagently - Make Reservation</title>
@@ -150,11 +127,8 @@ $lot_result =
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -328,6 +302,15 @@ include BASE_PATH . "/navbar.php";
     >
 
 </form>
+
+<br>
+
+<a
+    class="button"
+    href="<?= BASE_URL ?>view_reagents.php"
+>
+    Back to Reagents
+</a>
 
 </body>
 

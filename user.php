@@ -304,7 +304,7 @@ include BASE_PATH . "/navbar.php";
 
     if ($project_result->num_rows > 0) {
 
-        echo "<table border='1'>";
+        echo "<table class='table'>";
 
         echo
         "<tr>
@@ -365,7 +365,7 @@ include BASE_PATH . "/navbar.php";
 
     if ($reservation_result->num_rows > 0) {
 
-        echo "<table border='1'>";
+        echo "<table class='table'>";
 
         echo
         "<tr>
@@ -467,7 +467,7 @@ include BASE_PATH . "/navbar.php";
                     Record usage
                 </a>";
 
-                echo "<br>";
+                echo "<br><br>";
 
                 echo
                 "<a class='button' href=" . BASE_URL . "db_connections/cancel_reservation.php?reservation_id=" .

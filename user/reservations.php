@@ -305,7 +305,7 @@ if ($result->num_rows > 0) {
             </a>";
 
 
-            echo "<br>";
+            echo "<br><br>";
 
 
             // Link to cancel the reservation
@@ -357,14 +357,19 @@ if ($result->num_rows > 0) {
 
 </table>
 
-<br><br>
-
 <!-- Create a new reservation -->
 <a href="make_reservation.php" class="button">
 Make a reservation
 </a>
 
-<br><br>
+<br>
+
+<a
+    class="button"
+    href="<?= BASE_URL ?>user.php"
+>
+    Back to User
+</a>
 
 </body>
 

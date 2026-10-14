@@ -337,6 +337,13 @@ if ($result->num_rows > 0) {
 
 </table>
 
+<a
+    class="button"
+    href="<?= BASE_URL ?>user.php"
+>
+    Back to User
+</a>
+
 </body>
 
 </html>
