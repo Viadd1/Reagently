@@ -105,6 +105,13 @@ include BASE_PATH . "/navbar.php";
         Add Reagent Lot
     </a>
 
+    <a
+        class="button"
+        href="/admin/import_csv.php"
+    >
+        Import from CSV
+    </a>
+
     <a 
         class="button" 
         href="/admin/manage_reagents.php"
