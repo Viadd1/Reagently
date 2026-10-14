@@ -154,3 +154,14 @@ margin-bottom: 12px;}
 
 .news-item p {
 line-height: 1.6;}
+
+.reagent-page {
+text-align: center;
+padding: 50px 20px 30px;}
+
+.reagent-text p {
+text-align: center;
+font-size: 18px;
+max-width: 700px;
+margin: 0 auto 15;
+line-height: 1.6;}

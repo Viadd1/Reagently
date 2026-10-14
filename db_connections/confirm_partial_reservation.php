@@ -59,7 +59,7 @@ $decision =
 // do not create anything
 if ($decision === 'cancel') {
 
-    header("Location: user/make_reservation.php");
+    header("Location: " . BASE_URL . "user/make_reservation.php");
     exit;
 }
 
@@ -449,6 +449,13 @@ $link->commit();
 
 <html>
 
+<?php
+// Main header and navigation bar
+include BASE_PATH . "/navbar.php";
+?>
+
+<main class="page">
+
 <head>
     <title>Reservations</title>
 
@@ -458,21 +465,7 @@ $link->commit();
         href="<?= BASE_URL ?>style.css"
     >
 
-    <style>
-        p {
-            font-size: 16px;
-            line-height: 2; 
-        }
-    </style>
-
 </head>
-
-<main class="page">
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
 
 <body>
 

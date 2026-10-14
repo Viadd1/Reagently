@@ -314,8 +314,12 @@ $request_quantity =
 
 ?>
 
+<?php
+// Main header and navigation bar
+include BASE_PATH . "/navbar.php";
+?>
+
 <main class="page">
-<body>
 
 <form method="POST" action="confirm_partial_reservation.php">
 
@@ -331,26 +335,33 @@ $request_quantity =
     <input type="hidden" name="needed_date"
            value="<?= htmlspecialchars($needed_date) ?>">
 
-    <p>
+    <p class="reagent-text">
         You requested:
         <?= htmlspecialchars($quantity_reserved) ?>
     </p>
 
-    <p>
+    <br></br>
+
+    <p class="reagent-text">
         Available quantity:
         <?= htmlspecialchars($available_quantity) ?>
     </p>
+    
+    <br></br>
 
-    <p>
+    <p class="reagent-text">
         Quantity to reserve:
         <?= htmlspecialchars($reservation_quantity) ?>
     </p>
 
-    <p>
+    <br></br>
+
+    <p class="reagent-text">
         Quantity to order:
         <?= htmlspecialchars($request_quantity) ?>
     </p>
 
+    <br></br>
     
     <button class="button" type="submit" name="decision" value="confirm">
         Yes, continue
@@ -361,6 +372,8 @@ $request_quantity =
     </button>
 
 </form>
+
+</main>
 
 </html>
 
