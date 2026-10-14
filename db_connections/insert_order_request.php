@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 // User must be logged in
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: /login.php");
+    header("Location: /authentication/login.php");
     exit;
 }
 

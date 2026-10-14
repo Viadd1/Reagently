@@ -8,7 +8,7 @@ require_once "init.php";
 // If the user is not logged in then redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /authentication/login.php");
     exit;
 }
 

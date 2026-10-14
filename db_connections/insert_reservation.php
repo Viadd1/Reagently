@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 // redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: /login.php");
+    header("Location: /authentication/login.php");
     exit;
 }
 

@@ -243,9 +243,7 @@ elseif ($delete && $_SESSION['user_id'] == $user_id) {
 
     session_destroy();
 
-    header(
-    "Location: /login.php"
-    );
+    header("Location: /authentication/login.php");
 
     exit;
 } 

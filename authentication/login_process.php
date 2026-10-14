@@ -41,7 +41,7 @@ if (
     echo "<br><br>";
 
     echo
-    '<a href=' . BASE_URL . 'login.php>
+    '<a href=' . BASE_URL . 'authentication/login.php>
         Try again
     </a>';
 
@@ -198,7 +198,7 @@ if ($result->num_rows === 1) {
             echo "<br><br>";
 
             echo
-            '<a class="button" href=' . BASE_URL . 'login.php">
+            '<a class="button" href=' . BASE_URL . 'authentication/login.php">
                 Try again
             </a>';
 
@@ -215,7 +215,7 @@ if ($result->num_rows === 1) {
     echo "<br><br>";
 
     echo
-    '<a class="button" href=' . BASE_URL . 'login.php">
+    '<a class="button" href=' . BASE_URL . 'authentication/login.php">
         Try again
     </a>';
 

@@ -10,7 +10,7 @@ require_once __DIR__ . "/../init.php";
 // User must be logged in
 if (!isset($_SESSION['user_id'])) {
 
-    header("Location: login.php");
+    header("Location: /authentication/login.php");
     exit;
 }
 

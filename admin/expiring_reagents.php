@@ -12,7 +12,7 @@ include BASE_PATH . "/db.php";
 
 // Only logged-in admins may open this page
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /login.php");
+    header("Location: /authentication/login.php");
     exit;
 }
 if (($_SESSION['role'] ?? '') !== 'admin') {
