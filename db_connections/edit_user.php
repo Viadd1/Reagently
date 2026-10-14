@@ -376,6 +376,15 @@ include BASE_PATH . "/navbar.php";
         value="Delete account">
     </form>
 
+    <br>
+    
+<a
+    class="button"
+    href="<?= BASE_URL ?>user.php"
+>
+    Back to User
+</a>
+
 <?php
 // Close prepared statement
 
