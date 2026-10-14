@@ -1,16 +1,13 @@
+<!-- Generate a CAPTCHA image containing random letters and numbers. -->
+ 
 <?php
 
-//Generate a CAPTCHA image containing random letters and numbers.
-
-
 session_start();
-
 
 // Characters that can appear in the CAPTCHA.
 // 0, O, 1, I are removed because they can easily be confused.
 $characters =
     "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
 
 // Generate a 5-character CAPTCHA
 $captcha_code = "";
@@ -27,18 +24,13 @@ for ($i = 0; $i < 5; $i++) {
         $characters[$random_index];
 }
 
-
 // Save the correct CAPTCHA in the session
 $_SESSION['captcha_code'] =
     $captcha_code;
 
-
-
 //Create CAPTCHA image
-
 $width = 180;
 $height = 60;
-
 
 // Create image
 $image =
@@ -46,7 +38,6 @@ $image =
         $width,
         $height
     );
-
 
 // Background colour
 $background =
@@ -57,7 +48,6 @@ $background =
         220
     );
 
-
 // Text colour
 $text_color =
     imagecolorallocate(
@@ -67,7 +57,6 @@ $text_color =
         30
     );
 
-
 // Noise colours
 $noise_color =
     imagecolorallocate(
@@ -76,7 +65,6 @@ $noise_color =
         100,
         90
     );
-
 
 // Fill background
 imagefilledrectangle(
@@ -88,10 +76,7 @@ imagefilledrectangle(
     $background
 );
 
-
-
 //Add noise lines
-
 for ($i = 0; $i < 8; $i++) {
 
     imageline(
@@ -104,10 +89,7 @@ for ($i = 0; $i < 8; $i++) {
     );
 }
 
-
-
 //Add random dots
-
 for ($i = 0; $i < 80; $i++) {
 
     imagesetpixel(
@@ -118,10 +100,7 @@ for ($i = 0; $i < 80; $i++) {
     );
 }
 
-
-
 //Draw CAPTCHA characters
-
 $x = 20;
 
 for ($i = 0; $i < strlen($captcha_code); $i++) {
@@ -132,7 +111,6 @@ for ($i = 0; $i < strlen($captcha_code); $i++) {
             28
         );
 
-
     imagestring(
         $image,
         5,
@@ -142,7 +120,6 @@ for ($i = 0; $i < strlen($captcha_code); $i++) {
         $text_color
     );
 
-
     $x +=
         random_int(
             25,
@@ -150,10 +127,7 @@ for ($i = 0; $i < strlen($captcha_code); $i++) {
         );
 }
 
-
-
-//Output image
-// Prevent browser caching
+// Output image. Prevent browser caching
 header(
     "Cache-Control: no-store, no-cache, must-revalidate"
 );
@@ -162,10 +136,8 @@ header(
     "Content-Type: image/png"
 );
 
-
 // Send image to browser
 imagepng($image);
-
 
 // Remove image from memory
 imagedestroy($image);

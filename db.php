@@ -1,8 +1,7 @@
-<?php
+<!-- DB 
+Creates the connection. Other PHP files include this file when database access is needed. -->
 
-/*
-Creates the connection. Other PHP files include this file when database access is needed.
-*/
+<?php
 
 $servername = "localhost";
 $username = "root";
@@ -24,5 +23,4 @@ if (mysqli_connect_error()) {
         mysqli_connect_error()
     );
 }
-
 ?>

@@ -1,13 +1,13 @@
-<?php
+<!-- View Reagents 
+Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot. -->
 
-// Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot.
+<?php
 
 // Start session and set base path variable
 require_once "init.php";
 
 // If the user is not logged in then redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: login.php");
     exit;
 }
@@ -45,14 +45,12 @@ $_GET['category_filter'] =
     $_GET['category_filter'] ?? '';
 
 // Get reagent inventory
-
 // Retrieve reagent lot information.
 // Physical quantity = reagent_lots.current_quantity
 // Reserved quantity = total quantity from ALL ACTIVE reservations
 // Available quantity = Physical quantity - Reserved quantity
 // The reserved quantity is calculated using ALL active reservations from ALL projects.
 // Users do not need to see reservation details from other projects, but those reservations still affect the available stock.
-
 $sql =
 "SELECT
 
@@ -95,7 +93,6 @@ $sql =
         reservation_totals.reserved_quantity,
         0
     ) AS available_quantity
-
 
 FROM reagent_lots
 
@@ -160,22 +157,18 @@ $result = $stmt->get_result();
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - View Reagents</title>
     <!-- Use existing website stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 <body>
 
 <?php
-
 // Main header and navigation bar
 include "navbar.php";
-
 ?>
 
 <!-- Main page -->
@@ -249,7 +242,7 @@ include "navbar.php";
             <?= ($_GET['stock_filter'] ?? 'show_all') === 'show_all'
                 ? 'checked' : '' ?>
             <label
-            for="all">Show all
+            for="all">Show all  
             </label>
 
             <input
@@ -261,7 +254,7 @@ include "navbar.php";
                 ? 'checked' : '' ?>
             >
             <label
-            for="in_stock">In stock
+            for="in_stock">In stock  
             </label>
 
             <input
@@ -273,7 +266,7 @@ include "navbar.php";
                 ? 'checked' : '' ?>
             >
             <label
-            for="not_in_stock">Not in stock
+            for="not_in_stock">Not in stock  
             </label>
 
             <br><br>
@@ -377,9 +370,7 @@ include "navbar.php";
                 "</td>";
 
                 /* Physical quantity */
-
                 // Physical quantity is the quantity actually present in the laboratory.
-
                 echo "<td>" .
 
                 htmlspecialchars(
@@ -395,9 +386,7 @@ include "navbar.php";
                 "</td>";
 
                 /* Reserved quantity */
-
                 // Reserved quantity is the sum of all ACTIVE reservations for this lot.
-
                 echo "<td>" .
 
                 htmlspecialchars(
@@ -413,9 +402,7 @@ include "navbar.php";
                 "</td>";
 
                 /* Available quantity */
-
                 // Available quantity is calculated: Available = Physical - Reserved
-
                 echo "<td>" .
 
                 htmlspecialchars(
@@ -440,9 +427,7 @@ include "navbar.php";
                 "</td>";
 
                 /* Physical location */
-
                 // Build the full storage location: Room / Storage unit / Shelf / Box
-
                 echo "<td>" .
 
                 htmlspecialchars(
@@ -475,7 +460,6 @@ include "navbar.php";
                 "</td>";
 
                 // Action button
-
                 echo "<td>";
 
                 if ($row["available_quantity"] > 0) {
@@ -531,9 +515,7 @@ include "navbar.php";
                 "</td>
 
             </tr>";
-
         }
-
         ?>
 
     </table>

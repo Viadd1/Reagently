@@ -1,4 +1,7 @@
+<!-- DB Connection - Update Quantity -->
+
 <?php
+
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 

@@ -1,4 +1,7 @@
+<!-- Email Test -->
+
 <?php
+
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function
 require 'PHPMailer-master/src/PHPMailer.php';

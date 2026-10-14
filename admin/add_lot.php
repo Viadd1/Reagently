@@ -1,17 +1,13 @@
-<?php
+<!-- Displays a form for adding a new lot of an existing reagent.
+Existing reagents and storage locations are loaded from the database and shown in dropdown menus. -->
 
-/*
-Displays a form for adding a new lot of an existing reagent.
-Existing reagents and storage locations are loaded from the database and shown in dropdown menus.
-*/
+<?php
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
-// If the user is not logged in,
-// redirect them to the login page
+// If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: /login.php");
     exit;
 }
@@ -22,7 +18,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );
@@ -33,23 +28,16 @@ include BASE_PATH . '/db.php';
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Add Reagent Lot</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -60,20 +48,16 @@ include BASE_PATH . "/navbar.php";
 
 <h1>Add Reagent Lot</h1>
 
-
 <form
     action="<?= BASE_URL ?>db_connections/insert_lot.php"
     method="POST"
 >
 
-
     Reagent:
-
     <select
         name="reagent_id"
         required
     >
-
         <?php
 
         $sql =
@@ -89,16 +73,13 @@ include BASE_PATH . "/navbar.php";
 
          ORDER BY name";
 
-
         $result =
             $link->query($sql);
-
 
         while (
             $row =
             $result->fetch_assoc()
         ) {
-
             echo
             "<option value='" .
             $row["reagent_id"] .
@@ -114,41 +95,30 @@ include BASE_PATH . "/navbar.php";
             ) .
 
             "</option>";
-
         }
-
         ?>
 
     </select>
 
-
     <br><br>
 
-
     Supplier:
-
     <input
         type="text"
         name="supplier"
     >
 
-
     <br><br>
 
-
     Lot number:
-
     <input
         type="text"
         name="lot_number"
     >
 
-
     <br><br>
 
-
     Current quantity:
-
     <input
         type="number"
         step="0.01"
@@ -157,17 +127,13 @@ include BASE_PATH . "/navbar.php";
         required
     >
 
-
     <br><br>
 
-
     Location:
-
     <select
         name="location_id"
         required
     >
-
         <?php
 
         $sql =
@@ -182,10 +148,8 @@ include BASE_PATH . "/navbar.php";
 
          ORDER BY room";
 
-
         $result =
             $link->query($sql);
-
 
         while (
             $row =
@@ -209,44 +173,33 @@ include BASE_PATH . "/navbar.php";
 
             "</option>";
         }
-
         ?>
 
     </select>
 
-
     <br><br>
 
-
     Received date:
-
     <input
         type="date"
         name="received_date"
     >
 
-
     <br><br>
 
-
     Expiry date:
-
     <input
         type="date"
         name="expiry_date"
     >
 
-
     <br><br>
-
 
     <input 
         class="button"
         type="submit" 
         value="Add Reagent Lot"
     >
-
-
 </form>
 
 <br>
@@ -259,13 +212,9 @@ include BASE_PATH . "/navbar.php";
 </a>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 $link->close();
-
 ?>

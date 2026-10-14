@@ -1,5 +1,5 @@
-<!-- Insert Usage -->
-<!-- Records the final reagent usage for a reservation.
+<!-- DB Connection - Insert Usage 
+Records the final reagent usage for a reservation.
 It updates the physical stock, creates an inventory transaction, and changes the reservation status to COMPLETED. -->
 
 <?php
@@ -40,14 +40,12 @@ $note =
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Insert Usage</title>
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
 
 <?php
@@ -55,27 +53,21 @@ $note =
 // Basic validation
 // quantity_used may be 0, but it cannot be negative.
 if ($quantity_used < 0) {
-
     die(
         "Usage quantity cannot be negative."
     );
 }
 
 /* Start database transaction */
-
 // The following operations belong together:
 // 1. Update physical stock
 // 2. Create usage transaction
 // 3. Complete reservation
-
 // If one step fails, all changes should be cancelled.
-
 $link->begin_transaction();
 
 /* Get and lock reservation */
-
 // Retrieve the ACTIVE reservation.
-
 // We also retrieve lot information because physical stock is stored in reagent_lots.
 // IMPORTANT:
 // user_id = ?
@@ -83,7 +75,6 @@ $link->begin_transaction();
 // status = 'ACTIVE'
 // ensures that the same reservation cannot be completed twice.
 // FOR UPDATE locks the reservation and lot while the usage is being processed.
-
 $reservation_sql =
 "SELECT
 
@@ -169,14 +160,12 @@ $unit =
 $reservation_stmt->close();
 
 /* Validate actual usage */
-
 // Actual usage cannot be larger than the originally reserved quantity.
 // Example:
 // Reserved = 10 mL
 // Used = 6 mL   -> allowed
 // Used = 10 mL  -> allowed
 // Used = 12 mL  -> NOT allowed
-
 if (
     $quantity_used
     >
@@ -214,7 +203,6 @@ if (
 
 // Also check physical stock.
 // Normally there should be enough stock, but stock may have changed because of an adjustment or other inventory operation.
-
 if (
     $quantity_used
     >
@@ -251,7 +239,6 @@ if (
 }
 
 /* Update physical stock */
-
 // Physical stock is reduced ONLY by the quantity actually used.
 // Example:
 // Physical = 100 mL
@@ -259,7 +246,6 @@ if (
 // Used     = 6 mL
 // New physical stock:
 // 100 - 6 = 94 mL
-
 $stock_sql =
 "UPDATE reagent_lots
 
@@ -274,7 +260,6 @@ $stock_stmt =
 // quantity_used = decimal
 // lot_id        = integer
 // Therefore: "di"
-
 $stock_stmt->bind_param(
     "di",
     $quantity_used,
@@ -294,13 +279,11 @@ if (!$stock_stmt->execute()) {
 $stock_stmt->close();
 
 /* Create inventory transaction */
-
 // Store the physical stock change in inventory_transactions.
 // USAGE is a negative change.
 // Example:
 // quantity_used = 6
 // quantity_change = -6
-
 $transaction_type =
     "USAGE";
 
@@ -356,7 +339,6 @@ if (!$transaction_stmt->execute()) {
 $transaction_stmt->close();
 
 /* Complete reservation */
-
 // The reservation has now been used.
 // Change its status:
 // ACTIVE
@@ -364,7 +346,6 @@ $transaction_stmt->close();
 // COMPLETED
 // Once completed, the entire reserved quantity is released from the reservation system.
 // Any amount that was reserved but not used simply becomes available again.
-
 $complete_sql =
 "UPDATE reservations
 
@@ -408,12 +389,10 @@ if ($complete_stmt->affected_rows !== 1) {
 $complete_stmt->close();
 
 /* Commit transaction */
-
 // All three operations were successful:
 // physical stock updated
 // usage transaction created
 // reservation completed
-
 // Save all changes permanently.
 $link->commit();
 
@@ -465,8 +444,6 @@ echo
 </html>
 
 <?php
-
 // Close database connection
 $link->close();
-
 ?>

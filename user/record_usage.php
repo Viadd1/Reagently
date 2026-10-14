@@ -1,26 +1,19 @@
-<!-- Record usage -->
-<!-- Displays an active reservation and allows the user to enter the actual quantity of reagent used and an optional note. -->
+<!-- Record usage
+Displays an active reservation and allows the user to enter the actual quantity of reagent used and an optional note. -->
 
 <?php
-
-/*
-Displays an active reservation and allows the user to enter the actual quantity of reagent used and an optional note.
-*/
-
 
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: /login.php");
     exit;
 }
 
 // Include database connection
 include BASE_PATH . '/db.php';
-
 
 // Get the currently logged-in user's ID
 $user_id =
@@ -46,14 +39,12 @@ if ($reservation_id <= 0) {
 }
 
 /* Get reservation information */
-
 // Retrieve the reservation together with reagent and lot information.
 // IMPORTANT:
 // user_id = ?
 // ensures that the logged-in user can only record usage for their own reservation.
 // status = 'ACTIVE'
 // ensures that usage cannot be recorded for an already completed or cancelled reservation.
-
 $sql =
 "SELECT
 
@@ -104,7 +95,6 @@ $stmt =
 // Bind variables
 // reservation_id = integer
 // user_id        = integer
-
 $stmt->bind_param(
     "ii",
     $reservation_id,
@@ -119,7 +109,6 @@ $result =
     $stmt->get_result();
 
 // Check whether exactly one valid ACTIVE reservation was found
-
 if ($result->num_rows !== 1) {
 
     $stmt->close();
@@ -146,8 +135,8 @@ $reservation =
     >
 </head>
 <body>
-
 <?php
+
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
@@ -159,51 +148,42 @@ include BASE_PATH . "/navbar.php";
 <!-- Display reservation information -->
 <p>
     <strong>Project:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["project_name"]
     );
     ?>
-
 </p>
 
 <p>
     <strong>Reagent:</strong>
-    
     <?php
     echo htmlspecialchars(
         $reservation["reagent_name"]
     );
     ?>
-
 </p>
 
 <p>
     <strong>Catalog number:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["catalog_number"]
     );
     ?>
-
 </p>
 
 <p>
     <strong>Lot:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["lot_number"] ?? ""
     );
     ?>
-
 </p>
 
 <p>
     <strong>Reserved quantity:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["quantity_reserved"]
@@ -213,12 +193,10 @@ include BASE_PATH . "/navbar.php";
         $reservation["unit"]
     );
     ?>
-
 </p>
 
 <p>
     <strong>Current physical stock:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["current_quantity"]
@@ -228,33 +206,24 @@ include BASE_PATH . "/navbar.php";
         $reservation["unit"]
     );
     ?>
-
 </p>
 
 <p>
     <strong>Needed date:</strong>
-
     <?php
     echo htmlspecialchars(
         $reservation["needed_date"]
     );
     ?>
-
 </p>
 
 <!-- Usage form -->
-
 <form
     action="<?= BASE_URL ?>db_connections/insert_usage.php"
     method="POST"
 >
-
     <!-- Hidden reservation ID
-
-        The user does not need to type this value,
-        but insert_usage.php needs to know which
-        reservation is being completed. -->
-
+The user does not need to type this value, but insert_usage.php needs to know which reservation is being completed. -->
     <input
         type="hidden"
         name="reservation_id"
@@ -270,8 +239,7 @@ include BASE_PATH . "/navbar.php";
         Example:
         Reserved = 10 mL
         Used     = 6 mL
-        The unused 4 mL is automatically released
-        when the reservation becomes COMPLETED.-->
+        The unused 4 mL is automatically released when the reservation becomes COMPLETED.-->
     
     Actual quantity used:
 
@@ -316,7 +284,6 @@ include BASE_PATH . "/navbar.php";
         type="submit"
         value="Record Usage"
     >
-
 </form>
 
 <br>
@@ -330,11 +297,8 @@ Back to reservations
 </html>
 
 <?php
-
 // Close prepared statement
 $stmt->close();
-
 // Close database connection
 $link->close();
-
 ?>

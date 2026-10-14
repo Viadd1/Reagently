@@ -1,3 +1,5 @@
+<!-- DB connection - Add nickname -->
+
 <?php
 
 // Start session and set base path variable
@@ -30,5 +32,6 @@ try {
         : "Database error.";
     header("Location: /admin/manage_reagents.php?error=" . urlencode($msg));
 }
+
 $stmt->close();
 $link->close();

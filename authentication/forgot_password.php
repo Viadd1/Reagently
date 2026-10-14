@@ -1,27 +1,22 @@
+<!-- Forgot Password -->
+
 <?php
+
 // Include database connection to check if email address exists in database
 include "db.php";
-
 $email = $_POST['email'] ?? '';
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Login</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -33,10 +28,7 @@ include "navbar.php";
 
 <?php
 
-    /*-----------
-    If user has not entered page through a POST form,
-    they entered from the login page, so we display the form.
-    -----------*/
+/* If user has not entered page through a POST form, they entered from the login page, so we display the form. */
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -69,7 +61,6 @@ include "navbar.php";
         }
 
         // Check that email address exists in database
-
         $sql = "SELECT email
                 FROM users
                 WHERE email = ?";
@@ -91,12 +82,9 @@ include "navbar.php";
     } ?>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
 $link->close();
-
 ?>

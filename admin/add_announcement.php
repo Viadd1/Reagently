@@ -1,3 +1,5 @@
+<!-- Add announcment -->
+
 <?php
 
 // Start session and set base path variable
@@ -5,7 +7,6 @@ require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: /login.php");
     exit;
 }
@@ -16,7 +17,6 @@ if (
     ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     die(
         "Access denied. Admin permission is required."
     );

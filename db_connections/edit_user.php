@@ -1,3 +1,5 @@
+<!-- DB connection - Edit User --> 
+
 <?php
 
 // Start session and set base path variable
@@ -5,7 +7,6 @@ require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: /login.php");
     exit;
 }
@@ -15,7 +16,6 @@ include BASE_PATH . "/db.php";
 
 // Ensure that user has entered the page by submitting a user ID
 $user_id = $_POST['user_id'] ?? '';
-
 if (!$user_id) {
     die("No user ID provided.");
 }
@@ -71,7 +71,6 @@ if (isset($_POST['uname'])) {
     $confirm_password = 
         $_POST['password'] ?? '';
 
-
     if ($password &&
         $confirm_password) {
         
@@ -86,7 +85,6 @@ if (isset($_POST['uname'])) {
             die(
                 "Passwords do not match."
             );
-
         }
 
         $hashed_password =
@@ -96,7 +94,6 @@ if (isset($_POST['uname'])) {
         );
 
         // If the user changed password, create new statement
-
         $stmt->close();
 
         $sql = "UPDATE users
@@ -115,7 +112,6 @@ if (isset($_POST['uname'])) {
         );
         
         $stmt->execute();
-    
     }
 
     // Check if an admin has changed the role of the user
@@ -141,10 +137,8 @@ if (isset($_POST['uname'])) {
 
         $stmt->execute();
     }
-
     $success_message = "User information updated successfully.";
 }
-
 
 // SQL query for fetching current user information
 $sql = 
@@ -187,28 +181,20 @@ else {
         echo "No user found";
     }
 
-
     ?>
 
-
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>
         Reagently - Edit User
     </title>
-
     <!-- Use your existing website stylesheet -->
     <link
         rel="stylesheet"
         href="<?= BASE_URL ?>style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -243,7 +229,6 @@ include BASE_PATH . "/navbar.php";
     action="edit_user.php"
     method="POST"
     >
-        
         <?php
         
         echo '<input type="hidden"
@@ -387,11 +372,7 @@ include BASE_PATH . "/navbar.php";
 
 <?php
 // Close prepared statement
-
 $stmt->close();
-
 // Close database connection
-
 $link->close();
-
 ?>

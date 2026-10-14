@@ -1,24 +1,17 @@
-<!--
+<!-- Login 
 Displays the login form where users enter their username and password.
-The form sends the login information to login_process.php.
--->
+The form sends the login information to login_process.php. -->
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Login</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 <body>
 
 <?php
@@ -87,6 +80,7 @@ include "navbar.php";
             alt="CAPTCHA"
         >
         <br><br>
+        
         <!-- Refresh CAPTCHA without refreshing the whole page -->
          <button
                 class=button
@@ -123,7 +117,5 @@ include "navbar.php";
     </p>
 
 </main>
-
 </body>
-
 </html>

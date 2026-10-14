@@ -1,14 +1,13 @@
+<!-- Logout
+Logs the current user out by clearing and destroying the session, then redirects the user to the login page. -->
+
 <?php 
-// Logs the current user out by clearing and destroying the session, then redirects the user to the login page. -->
 
 // Start the existing session
-
-// We need to access the current session
-// before we can remove it.
+// We need to access the current session before we can remove it.
 session_start();
 
 // Remove all session variables
-
 // This clears values such as:
 // $_SESSION['user_id']
 // $_SESSION['username']
@@ -25,5 +24,4 @@ header(
 
 // Stop the script after redirecting
 exit;
-
 ?>

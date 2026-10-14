@@ -1,5 +1,5 @@
-<!-- Insert reagent -->
- <!-- Adds a new reagent to the database using data submitted from add_reagent.php. -->
+<!-- DB Connection - Insert reagent
+Adds a new reagent to the database using data submitted from add_reagent.php. -->
 
 <?php
 
@@ -26,13 +26,11 @@ $unit =
 
 $storage_condition =
     $_POST['storage_condition'];
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-
     <title>Reagently - Add Reagent</title>
     <!-- Use the existing stylesheet -->
     <link
@@ -60,7 +58,6 @@ $stmt =
     $link->prepare($sql);
 
 // First five variables are strings, last two are numbers
-
 $stmt->bind_param(
     "sssss",
     $name,
@@ -79,9 +76,7 @@ $stmt->bind_param(
 // Main header and navigation bar
 include BASE_PATH . "/navbar.php";
 ?>
-
 <main class="page">
-
 <?php
 
 // Try to insert the reagent
@@ -107,7 +102,6 @@ try {
             Add Reagent Lot
         </a>';
     }
-
 
 } catch (mysqli_sql_exception $e) {
     // Error code 1062 means a UNIQUE value already exists in the database
@@ -141,7 +135,6 @@ try {
             $e->getMessage();
     }
 }
-
 ?>
 
 </main>
@@ -149,8 +142,6 @@ try {
 </html>
 
 <?php
-
 $stmt->close();
 $link->close();
-
 ?>

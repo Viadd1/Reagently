@@ -1,39 +1,30 @@
-<?php
-
-/*
+<!-- DB Connection - Insert user 
 Creates a new user account using information submitted from register.php.
-The password is checked and hashed before the user is added to the database.
-*/
+The password is checked and hashed before the user is added to the database. -->
+
+<?php
 
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
 // Include database connection
 include 'db.php';
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Registration</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 <body>
 
 <?php
 include "navbar.php";
-
 
 // Fetch data submitted from register.php
 $username =
@@ -57,11 +48,8 @@ $password =
 $confirm_password =
     $_POST['confirm_password'];
 
-/*
-Check that user has not entered username 'null'
-This is not allowed as it is reserved for a dummy user for deleted accounts
-*/
-
+/* Check that user has not entered username 'null'
+This is not allowed as it is reserved for a dummy user for deleted accounts */
 if ($username === 'null') {
     die("Invalid username.");
 }
@@ -88,20 +76,16 @@ if ($password !== $confirm_password) {
 
 // Hash the password before storing it in the database
 // The original password should never be stored directly
-
 $hashed_password =
     password_hash(
         $password,
         PASSWORD_DEFAULT
     );
 
-/*---------------
-Before constructing and executing the SQL query for inserting users,
+/* Before constructing and executing the SQL query for inserting users,
 check if any users exist already in the database.
 If no users exist, the first user becomes the admin.
-Otherwise, the role is automatically assigned as user and approved=0.
----------------*/
-
+Otherwise, the role is automatically assigned as user and approved=0. */
 $sql_check_users = "SELECT *
                     FROM users";
 
@@ -130,7 +114,6 @@ if ($users->num_rows == 0) {
     // Prepare SQL statement
     $stmt =
         $link->prepare($sql);
-
 
     $stmt->bind_param(
         "sssssssi",
@@ -163,7 +146,6 @@ if ($users->num_rows == 0) {
     $stmt =
         $link->prepare($sql);
 
-
     $stmt->bind_param(
         "ssssss",
         $username,
@@ -179,7 +161,6 @@ if ($users->num_rows == 0) {
 $result =
     $stmt->execute();
 
-
 // Check whether registration was successful
 if ($result) {
     echo "Account requested successfully.";
@@ -188,17 +169,12 @@ if ($result) {
 
     // Display database error
     // For example, this may happen when an email address already exists because email is UNIQUE.
-
     echo "Error: " .
          $stmt->error;
 }
 
 // Close prepared statement
-
 $stmt->close();
-
 // Close database connection
-
 $link->close();
-
 ?>

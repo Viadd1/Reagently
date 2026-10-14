@@ -1,7 +1,7 @@
-<?php
+<!-- Main homepage of Reagently.
+It shows navigation options, a welcome message, quick links, and recent department updates.-->
 
-// Main homepage of Reagently.
-// It shows navigation options, a welcome message, quick links, and recent department updates.
+<?php
 
 // Start session so that the homepage knows whether a user is logged in
 session_start();
@@ -15,27 +15,19 @@ $announcements = $link->query(
      ORDER BY created_at DESC
      LIMIT 10"
 );
-
 ?>
 
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
     <title>Reagently - Home</title>
-
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 <body>
-
 
 <?php
 // Main header and navigation bar
@@ -43,7 +35,6 @@ include "navbar.php";
 ?>
 
 <!-- Welcome section -->
-
 <section class="welcome">
 
     <?php
@@ -71,7 +62,6 @@ include "navbar.php";
         <h3>
         Please log in to access the Reagently web.
         </h3>";
-
     }
 
     ?>
@@ -91,7 +81,6 @@ include "navbar.php";
 </section>
 
 <!-- Department news -->
-
 <?php 
 if (isset($_SESSION['user_id'])) { 
 ?>
@@ -157,7 +146,6 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 </body>
-
 </html>
 
 <?php $link->close(); ?>
