@@ -3,6 +3,7 @@
 /*
 Creates a new user account using information submitted from register.php.
 The password is checked and hashed before the user is added to the database.
+Afterwards, a verification email is sent to the user's email address.
 */
 
 require_once __DIR__ . "/../init.php";
@@ -18,7 +19,10 @@ use function Email\sendEmail;
 function sendVerificationEmail(string $username, string $userEmail, mysqli $db): bool {
     // 1. Create token
     $token = bin2hex(random_bytes(32));
-    $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+    // The token is only valid for 24 hours,
+    // but we write +26 hours due to time zone difference
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+26 hours'));
 
     // 2. Save token
     $sql = 'UPDATE users 
@@ -30,7 +34,7 @@ function sendVerificationEmail(string $username, string $userEmail, mysqli $db):
     $stmt->execute();
 
     // 3. Build link
-    $link = "http://localhost/authentication/verify_email.php?token=" . $token;
+    $link = BASE_URL . "/localhost/authentication/verify_email.php?token=" . $token;
 
     // 4. Send email
     $subject = "Please verify your email address";

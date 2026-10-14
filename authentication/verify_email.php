@@ -17,12 +17,16 @@ $sql = 'SELECT user_id FROM users
 $stmt = $link->prepare($sql);
 $stmt->bind_param('s', $token);
 $stmt->execute();
+$result = $stmt->get_result();
 
-$user = $stmt->fetch();
-if (!$user) {
+if (!$result) {
     die('This link is invalid or has expired. Please request a new one.');
+    
+} else {
+    while ($row = $result->fetch_assoc()) {
+        $user_id = $row["user_id"];
+    }
 }
-$user_id = $user['user_id'];
 
 $stmt->close();
 

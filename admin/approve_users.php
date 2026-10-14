@@ -5,8 +5,10 @@ Page where the requests for new user accounts appear and can be approved.
 Only users with the admin role can access this page.
 */
 
-// Start session and set base path variable
+// Start session, set base path variable and load email
 require_once __DIR__ . "/../init.php";
+require_once BASE_PATH . '/send_email.php';
+use function Email\sendEmail;
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
@@ -37,30 +39,56 @@ $_GET['user_id'] =
 // If an account has been approved by the admin, update the user
 if ($_GET['user_id']) {
 
-    $approved_user = $_GET['user_id'];
+    $user_id = $_GET['user_id'];
 
     $sql_upd = 
     "UPDATE users
-    
     SET approved = 1
-    
     WHERE user_id = ?";
 
     $stmt = $link->prepare($sql_upd);
-
-    $stmt->bind_param(
-    "i",
-    $approved_user
-    );
-
-    // Execute query
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
-
-    // Get query result
-    $result =
-        $stmt->get_result();
     
     $success_message = "User approved successfully.";
+
+    $stmt->close();
+
+    $sql_email = "SELECT username, email
+                  FROM users
+                  WHERE user_id = ?";
+    
+    $stmt = $link->prepare($sql_email);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows == 1) {
+        while ($row = $res->fetch_assoc()) {
+            $username = $row["username"];
+            $email = $row["email"];
+        }
+    }
+
+    $stmt->close();
+
+    $subject = "Account approved";
+
+    $url = BASE_URL . "/localhost/authentication/login.php";
+
+    $body = "
+        <h2>Hi \"$username\",</h2>
+        <p>An admin has just approved your account at Reagently!
+        <p>Click the button below to log in:</p>
+        <p><a href=\"$url\" style=\"background:#222;color:white;padding:12px 24px;
+        text-decoration:none;border-radius:4px;\">To Login page</a></p>
+    ";
+
+    if (sendEmail($email, $username, $subject, $body)) {
+        $email_message = "Confirmation email sent to user.";
+    } else {
+        $email_message = "Unable to send confirmation email.";
+    }
 }
 
 // SQL query that selects all users not yet approved by the admin.
@@ -76,6 +104,8 @@ $sql =
     FROM users
     
     WHERE approved = 0
+
+    AND is_verified = 1
     
     ORDER BY lastname";
 
@@ -114,7 +144,8 @@ include BASE_PATH . "/navbar.php";
         <?php
         if ($_GET['user_id']) {
 
-            echo $success_message;
+            echo $success_message . "<br>" .
+            $email_message;
 
         } else {
 
