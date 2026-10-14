@@ -456,6 +456,10 @@ include BASE_PATH . "/navbar.php";
 
 <main class="page">
 
+<h2> Make Reservation </h2>
+
+<br><br>
+
 <head>
     <title>Reservations</title>
 
@@ -485,7 +489,7 @@ echo
     );
 
 echo
-    "<br>";
+    "<br><br>";
 
 echo
     "Requested from supplier: "
@@ -514,9 +518,9 @@ echo
 
 <a
     class="button"
-    href="<?= BASE_URL ?>index.php"
+    href="<?= BASE_URL ?>view_reagents.php"
 >
-    Go to Home page
+    Back to View Reagents
 </a>
 
 <?php

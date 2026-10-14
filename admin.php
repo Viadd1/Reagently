@@ -56,6 +56,8 @@ include BASE_PATH . "/navbar.php";
 
 <main class="page">
 
+<?php include BASE_PATH . "/expiry_notice.php"; ?>
+
 
     <h2>Admin Functions</h2>
 
@@ -105,6 +107,13 @@ include BASE_PATH . "/navbar.php";
         Add Reagent Lot
     </a>
 
+    <a
+        class="button"
+        href="/admin/import_csv.php"
+    >
+        Import from CSV
+    </a>
+
     <a 
         class="button" 
         href="/admin/manage_reagents.php"
@@ -148,6 +157,14 @@ include BASE_PATH . "/navbar.php";
         href="/admin/view_order_requests.php"
     >
         View Order Requests
+    </a>
+    
+
+    <a
+        class="button"
+        href="/admin/expiring_reagents.php"
+    >
+        Expiring Reagents
     </a>
 
     <br><br>
