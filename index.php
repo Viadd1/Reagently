@@ -90,6 +90,8 @@ include "navbar.php";
 
 </section>
 
+<?php include BASE_PATH . "/expiry_notice.php"; ?>
+
 <!-- Department news -->
 
 <?php 
