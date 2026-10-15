@@ -117,6 +117,10 @@ $result = $stmt->get_result();
 <!DOCTYPE html>
 <html>
 <head>
+
+<!-- For usability on larger and smaller screens: -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reagently - Usage History</title>
     <!-- Use the existing stylesheet -->
     <link

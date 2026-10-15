@@ -132,7 +132,7 @@ padding: 20px 0 60px;}
 .news-list { /*container that holds all news items*/
 display: flex;
 flex-wrap:wrap; /*allows wrapping on smaller screens*/
-gap: 20px;/*spacing between boxes*/
+gap: 20px; /*spacing between boxes*/
 justify-content: flex-start;} /*aligns left*/
 
 .news-item { /*each news box*/
@@ -168,5 +168,83 @@ padding: 50px 20px 30px;}
 text-align: center;
 font-size: 18px;
 max-width: 700px;
-margin: 0 auto 15;
+margin: 0 auto 15px;
 line-height: 1.6;}
+
+
+/* Small screen settings */
+/* Making fonts and side padding smaller and other functions for smal ler screens*/ 
+@media (max-width: 600px) {
+    
+    /* Website title */
+    header {
+        padding: 18px 10px;}
+    header h1 {
+        font-size: 28px;}
+
+    /* Navigation bar */
+    .navbar {
+        flex-wrap: wrap; /* Lets nav links move to new line instead of dissapearing of screen */
+        gap: 5px;
+        padding: 8px;} /* Smaller padding makes manu more compact*/
+    .navbar a {
+        font-size: 15px;
+        padding: 10px;}
+
+    /* Main page content */
+    .page {
+        min-height: auto;
+        padding: 25px 15px;
+        margin-top: 10px;}
+    .page h2 {
+        font-size: 26px;}
+    .page p {
+        font-size: 16px;}
+
+    /* Buttons */
+    .buttons {
+        flex-direction: column; /* Vertical stacking */
+        align-items: stretch;
+        width: 100%;
+        max-width: 300px;}
+    .button {
+        text-align: center;
+        width: 100%;}
+
+    /* Welcome section */
+    .welcome {
+        padding: 30px 15px;}
+    .welcome h2 {
+        font-size: 26px;}
+    .welcome p {
+        font-size: 16px;}
+
+    /* News section */
+    .news {
+        width: 100%; /* One box takes up the entire screen */
+        padding: 15px 15px 35px;}
+    .news-list {
+        flex-direction: column;}
+    .news-item {
+        width: 100%;
+        padding: 18px;
+        margin-bottom: 0;}
+    .news-item h3 {
+        font-size: 20px;}
+
+    /* Reagent page */
+    .reagent-page {
+        padding: 30px 15px;}
+    .reagent-text p {
+        font-size: 16px;
+        overflow-wrap: anywhere;}
+
+    /* Tables */
+    .table {
+        width: 100%;
+        font-size: 14px;}
+    .table th,
+    .table td {
+        padding: 6px;
+        overflow-wrap: anywhere;}
+}

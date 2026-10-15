@@ -330,8 +330,13 @@ run_import($link, $admin_id, $errors, $summary);
 <!DOCTYPE html>
 <html>
 <head>
+
+<!-- For usability on larger and smaller screens: -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reagently - Import result</title>
     <link rel="stylesheet" href="/style.css">
+    
 </head>
 <body>
 

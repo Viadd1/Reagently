@@ -19,6 +19,10 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 <!DOCTYPE html>
 <html>
 <head>
+
+<!-- For usability on larger and smaller screens: -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reagently - Import CSV</title>
     <link rel="stylesheet" href="/style.css">
 </head>
