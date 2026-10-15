@@ -61,7 +61,10 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
         <input class="button" type="submit" value="Import lots">
     </form>
 
-    <a href="/admin.php">Back to admin page</a>
+    <a 
+    href="/admin.php"
+    class ="button"
+    >Back to admin page</a>
 </main>
 </body>
 </html>
