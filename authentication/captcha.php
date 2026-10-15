@@ -2,7 +2,7 @@
  
 <?php
 
-session_start();
+require_once __DIR__ . "/../init.php";
 
 // Characters that can appear in the CAPTCHA.
 // 0, O, 1, I are removed because they can easily be confused.

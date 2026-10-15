@@ -4,8 +4,7 @@ It shows navigation options, a welcome message, quick links, and recent departme
 <?php
 
 // Start session so that the homepage knows whether a user is logged in
-session_start();
-
+require_once "init.php";
 include 'db.php';
 
 // Latest 10 announcements, newest first
@@ -80,7 +79,7 @@ include "navbar.php";
 
 </section>
 
-<?php include BASE_PATH . "/expiry_notice.php"; ?>
+<?php include BASE_PATH . "/admin/expiry_notice.php"; ?>
 
 <!-- Department news -->
 <?php 

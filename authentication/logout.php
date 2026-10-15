@@ -5,7 +5,7 @@ Logs the current user out by clearing and destroying the session, then redirects
 
 // Start the existing session
 // We need to access the current session before we can remove it.
-session_start();
+require_once __DIR__ . "/../init.php";
 
 // Remove all session variables
 // This clears values such as:
