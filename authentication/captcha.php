@@ -1,8 +1,8 @@
-<!-- Generate a CAPTCHA image containing random letters and numbers. -->
- 
 <?php
-
 require_once __DIR__ . "/../init.php";
+
+// Remove white space that may cause bugged CAPTCHA image
+// ob_clean();
 
 // Characters that can appear in the CAPTCHA.
 // 0, O, 1, I are removed because they can easily be confused.

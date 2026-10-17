@@ -1,7 +1,7 @@
 <?php
 /*
-This is a template function for sending emails that can be called in other files.
-To use this file, the following prerequisites are required:
+This is a template function for sending emails that is called in other files.
+To set up the email sending functionality, the following prerequisites are required:
 
 1.  Download the Composer file manager for PHP: 
     https://getcomposer.org/download/
@@ -10,14 +10,10 @@ To use this file, the following prerequisites are required:
     composer require phpmailer/phpmailer
     composer require vlucas/phpdotenv
 
-3.  Create a file .env in the root folder, with the following content:
+3.  Create a file .env in the root folder, with the following content (if using a Gmail account):
     SMTP_HOST = (smtp.gmail.com)
     SMTP_USER = (user@gmail.com)
     SMTP_PASS - (App password to the Gmail account)
-
-4.  Include the following lines at the top of any files using the mail function:
-    require_once BASE_PATH . '/send_email.php';
-    use function Email\sendEmail;
 
 */
 
