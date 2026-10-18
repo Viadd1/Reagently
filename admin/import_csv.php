@@ -63,7 +63,7 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 
     <a 
     href="/admin.php"
-    class ="button"
+    class="button"
     >Back to admin page</a>
 </main>
 </body>

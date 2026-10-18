@@ -81,7 +81,7 @@ function days_text($days) {
 }
 
 function render_table($rows) {
-    echo '<table border="1">';
+    echo '<table class="table">';
     echo '<tr>
             <th>Reagent</th><th>Catalog No.</th><th>Supplier</th><th>Lot</th>
             <th>Quantity</th><th>Location</th><th>Expiry date</th><th>Status</th>
@@ -138,7 +138,7 @@ function render_table($rows) {
         and it disappears from this list.
     </p>
 
-    <a href="/admin.php">Back to admin page</a>
+    <a class="button" href="/admin.php">Back to admin page</a>
 </main>
 </body>
 </html>
