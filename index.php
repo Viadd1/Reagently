@@ -4,8 +4,9 @@ It shows navigation options, a welcome message, quick links, and recent departme
 <?php
 
 // Start session so that the homepage knows whether a user is logged in
-include "cookies_consent.php";
+
 require_once "init.php";
+include BASE_PATH . "/authentication/cookies_consent.php";
 include 'db.php';
 
 // Latest 10 announcements, newest first
