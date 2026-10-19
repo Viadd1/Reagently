@@ -4,6 +4,7 @@ It shows navigation options, a welcome message, quick links, and recent departme
 <?php
 
 // Start session so that the homepage knows whether a user is logged in
+include "cookies_consent.php";
 require_once "init.php";
 include 'db.php';
 
@@ -149,6 +150,43 @@ if (isset($_SESSION['user_id'])) {
 
 <?php } 
 ?>
+
+<?php if ($show_cookie_banner): ?>
+    <!-- Cookie consent banner -->
+    <section id="cookie-banner">
+
+        <h2>Cookie preferences</h2>
+
+        <p>
+            Reagently uses essential cookies to
+            keep the website working. You can
+            accept or reject optional cookies.
+        </p>
+
+        <form method="post">
+
+            <button
+                type="submit"
+                name="cookie_consent"
+                value="accepted"
+                id="accept-cookies">
+
+                Accept cookies
+
+            </button>
+
+            <button
+                type="submit"
+                name="cookie_consent"
+                value="rejected"
+                id="reject-cookies">
+
+                Reject optional cookies
+
+            </button>
+        </form>
+    </section>
+<?php endif; ?>
 
 </body>
 </html>
