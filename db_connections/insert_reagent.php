@@ -9,6 +9,24 @@ require_once __DIR__ . "/../init.php";
 // Ensure that page has been entered through a POST method form
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
+// If the user is not logged in redirect to login page
+if (!isset($_SESSION['user_id'])) {
+
+    header("Location: /authentication/login.php");
+    exit;
+}
+
+// Only admins can access this page
+if (
+    !isset($_SESSION['role'])
+    ||
+    $_SESSION['role'] !== 'admin'
+) {
+    die(
+        "Access denied. Admin permission is required."
+    );
+}
+
 include BASE_PATH . '/db.php';
 
 // Fetch data from POST request
