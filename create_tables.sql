@@ -9,9 +9,14 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     approved BOOL DEFAULT 0,
-    is_verified TINYINT(1) DEFAULT 0,
-    verification_token VARCHAR(64),
-    token_expires_at DATETIME
+    is_verified TINYINT(1) NOT NULL DEFAULT 0,
+    verification_token VARCHAR(64) NULL,
+    token_expires_at DATETIME NULL,
+    supervisor_id INT NULL,
+
+    FOREIGN KEY (supervisor_id)
+        REFERENCES users(user_id)
+        ON DELETE SET NULL
 );
 
 
@@ -155,3 +160,5 @@ CREATE TABLE password_resets (
     used TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+

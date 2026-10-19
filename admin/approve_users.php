@@ -1,126 +1,128 @@
-<!-- Page where the requests for new user accounts appear and can be approved.
-Only users with the admin role can access this page. -->
-
 <?php
+/*
+Approve New Users
+Lets an admin approve or reject the accounts of users who chose that admin
+when they registered. An admin only sees and handles their own pending users.
+*/
 
-// Start session, set base path variable and load email
+// Start session and set base path variable
 require_once __DIR__ . "/../init.php";
-require_once BASE_PATH . '/send_email.php';
-use function Email\sendEmail;
 
-// If the user is not logged in, redirect them to the login page
+// Include database connection
+include BASE_PATH . "/db.php";
+
+// Only logged-in admins may open this page
 if (!isset($_SESSION['user_id'])) {
+    header("Location: /login.php");
+    exit;
+}
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    http_response_code(403);
+    die("Access denied. Admin permission is required.");
+}
 
-    header("Location: /authentication/login.php");
+// The admin id comes from the session, never from the form
+$admin_id = (int)$_SESSION['user_id'];
+
+
+/* =========================
+   Approve or reject a user
+   ========================= */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $user_id = (int)($_POST['user_id'] ?? 0);
+    $action  = $_POST['action'] ?? '';
+    $msg     = '';
+    $error   = '';
+
+    // The WHERE clause is the safety check: the user must be a pending,
+    // normal account that chose THIS admin. Otherwise nothing is changed.
+    if ($action === 'approve') {
+
+        $stmt = $link->prepare(
+            "UPDATE users SET approved = 1
+             WHERE user_id = ? AND supervisor_id = ?
+             AND approved = 0 AND role = 'user'");
+        $stmt->bind_param("ii", $user_id, $admin_id);
+        $stmt->execute();
+
+        if ($stmt->affected_rows === 1) {
+            $msg = "User approved.";
+        } else {
+            $error = "This user could not be approved (not your pending user).";
+        }
+        $stmt->close();
+
+    } elseif ($action === 'reject') {
+
+        try {
+            $stmt = $link->prepare(
+                "DELETE FROM users
+                 WHERE user_id = ? AND supervisor_id = ?
+                 AND approved = 0 AND role = 'user'");
+            $stmt->bind_param("ii", $user_id, $admin_id);
+            $stmt->execute();
+
+            if ($stmt->affected_rows === 1) {
+                $msg = "Registration rejected and removed.";
+            } else {
+                $error = "This user could not be rejected (not your pending user).";
+            }
+            $stmt->close();
+        } catch (mysqli_sql_exception $e) {
+            $error = "Database error. The user could not be removed.";
+        }
+
+    } else {
+        $error = "Unknown action.";
+    }
+
+    // Redirect so that refreshing the page does not resend the form
+    $query = $error !== '' ? "error=" . urlencode($error) : "msg=" . urlencode($msg);
+    header("Location: " . BASE_URL . "admin/approve_users.php?" . $query);
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
+$msg   = $_GET['msg']   ?? '';
+$error = $_GET['error'] ?? '';
 
-// Include database connection
-include BASE_PATH . '/db.php';
 
-// Give default values when the page is opened if no user has been approved yet
-$_GET['user_id'] =
-    $_GET['user_id'] ?? '';
+/* =========================
+   Pending users of this admin
+   ========================= */
 
-// If an account has been approved by the admin, update the user
-if ($_GET['user_id']) {
+$sql =
+"SELECT
+    user_id,
+    username,
+    firstname,
+    lastname,
+    lab,
+    email,
+    created_at
 
-    $user_id = $_GET['user_id'];
+ FROM users
 
-    $sql_upd = 
-    "UPDATE users
-    SET approved = 1
-    WHERE user_id = ?";
+ WHERE supervisor_id = ?
+ AND approved = 0
+ AND role = 'user'
 
-    $stmt = $link->prepare($sql_upd);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    
-    $success_message = "User approved successfully.";
+ ORDER BY created_at";
 
-    $stmt->close();
-
-    $sql_email = "SELECT username, email
-                  FROM users
-                  WHERE user_id = ?";
-    
-    $stmt = $link->prepare($sql_email);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-
-    if ($res->num_rows == 1) {
-        while ($row = $res->fetch_assoc()) {
-            $username = $row["username"];
-            $email = $row["email"];
-        }
-    }
-
-    $stmt->close();
-
-    $subject = "Account approved";
-
-    $url = BASE_URL . "/localhost/authentication/login.php";
-
-    $body = "
-        <h2>Hi \"$username\",</h2>
-        <p>An admin has just approved your account at Reagently!
-        <p>Click the button below to log in:</p>
-        <p><a href=\"$url\" style=\"background:#222;color:white;padding:12px 24px;
-        text-decoration:none;border-radius:4px;\">To Login page</a></p>
-    ";
-
-    if (sendEmail($email, $username, $subject, $body)) {
-        $email_message = "Confirmation email sent to user.";
-    } else {
-        $email_message = "Unable to send confirmation email.";
-    }
-}
-
-// SQL query that selects all users not yet approved by the admin.
-$sql = 
-" SELECT
-        user_id,
-        username,
-        lab,
-        firstname,
-        lastname,
-        email
-
-    FROM users
-    
-    WHERE approved = 0
-
-    AND is_verified = 1
-    
-    ORDER BY lastname";
-
-$result = $link->query($sql);
+$stmt = $link->prepare($sql);
+$stmt->bind_param("i", $admin_id);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
 
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reagently - Approve New Users</title>
 
-    <title>Reagently - Approve Users</title>
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
+    <!-- Use the existing stylesheet -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>style.css">
 </head>
 <body>
 
@@ -131,143 +133,76 @@ include BASE_PATH . "/navbar.php";
 
 <main class="page">
 
-    <h2>Approve Users</h2>
-    
-    <h5 style="color:darkgreen">
+    <h2>Approve New Users</h2>
 
-        <?php
-        if ($_GET['user_id']) {
+    <p>
+        Registrations from users who chose you as their admin.
+        Check the name, email and lab before approving.
+    </p>
 
-            echo $success_message . "<br>" .
-            $email_message;
+    <?php if ($msg !== ''): ?>
+        <h5 style="color:darkgreen"><?= htmlspecialchars($msg) ?></h5>
+    <?php elseif ($error !== ''): ?>
+        <h5 style="color:red"><?= htmlspecialchars($error) ?></h5>
+    <?php else: ?>
+        <br>
+    <?php endif; ?>
 
-        } else {
-
-            echo "<br>";
-        }
-        ?>
-    </h5>
-
-    <!-- Inventory table -->
-    <table class="table">
+    <table border="1">
 
         <tr>
-
-            <th>First name</th>
-
-            <th>Last name</th>
-
-            <th>Lab group</th>
-
             <th>Username</th>
-
+            <th>Name</th>
+            <th>Lab</th>
             <th>Email</th>
-
+            <th>Registered</th>
+            <th>Action</th>
         </tr>
 
-        <?php
+        <?php if ($result->num_rows > 0): ?>
 
-        // Check whether any users exist
-        if ($result->num_rows > 0) {
+            <?php while ($u = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?= htmlspecialchars($u['username']) ?></td>
+                <td><?= htmlspecialchars(trim(($u['firstname'] ?? '') . ' ' . ($u['lastname'] ?? ''))) ?></td>
+                <td><?= htmlspecialchars($u['lab'] ?? '') ?></td>
+                <td><?= htmlspecialchars($u['email']) ?></td>
+                <td><?= htmlspecialchars($u['created_at']) ?></td>
+                <td>
+                    <form action="<?= BASE_URL ?>admin/approve_users.php"
+                          method="POST" style="display:inline;">
+                        <input type="hidden" name="user_id" value="<?= (int)$u['user_id'] ?>">
+                        <input type="hidden" name="action" value="approve">
+                        <input class="button" type="submit" value="Approve">
+                    </form>
 
-            // Display one row for each reagent lot
-            while (
-                $row =
-                $result->fetch_assoc()
-            ) {
-
-                echo "<tr>";
-
-                // First name
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["firstname"]
-                ) .
-
-                "</td>";
-
-                // Last name
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["lastname"]
-                ) .
-
-                "</td>";
-
-                // Lab group
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["lab"] ?? ""
-                ) .
-
-                "</td>";
-
-                // Username
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["username"] ?? ""
-                ) .
-
-                "</td>";
-
-                // Email address
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["email"] ?? ""
-                ) . 
-
-                "</td>";
-
-                // Approve user button
-                echo "<td>";
-
-                echo
-                "<a
-                    class='button'
-                    href='approve_users.php?user_id=" .
-                    $row["user_id"] .
-                    "'>
-                    Approve user
-                    </a>";
-                
-                echo "</td>";
-
-                echo "</tr>";
-            }
-
-        } else {
-
-            // Display this if there are no users in the database yet.
-            echo
-            "<tr>
-
-                <td colspan='11'>
-                    No new registered users.
+                    <form action="<?= BASE_URL ?>admin/approve_users.php"
+                          method="POST" style="display:inline;"
+                          onsubmit="return confirm('Reject and remove this registration?');">
+                        <input type="hidden" name="user_id" value="<?= (int)$u['user_id'] ?>">
+                        <input type="hidden" name="action" value="reject">
+                        <input class="button" type="submit" value="Reject">
+                    </form>
                 </td>
+            </tr>
+            <?php endwhile; ?>
 
-            </tr>";
-        }
-        ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="6">No users are waiting for your approval.</td>
+            </tr>
+        <?php endif; ?>
 
     </table>
 
-    <a
-        class="button"
-        href="<?= BASE_URL ?>admin.php"
-    >
-        Back to Admin
-    </a>
+    <br><br>
+
+    <a class="button" href="<?= BASE_URL ?>admin.php">Back to Admin</a>
 
 </main>
 </body>
 </html>
-
 <?php
-// Close database connection
+$stmt->close();
 $link->close();
 ?>
