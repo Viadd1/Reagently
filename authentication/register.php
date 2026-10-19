@@ -152,8 +152,8 @@ include BASE_PATH . "/navbar.php";
         required
     >
 
-    I consent to Reagently storing and processing my data in accordance with GDPR.
-
+    I consent to Reagently storing and processing my data in accordance with GDPR and Reagently's own Terms of Service.
+    
     <br><br>
 
     <input
@@ -165,14 +165,21 @@ include BASE_PATH . "/navbar.php";
 </form>
 
 <!-- Link for users who already have an account -->
- <p>
+<p>
 
 Already have an account?
 <a href="login.php">
 Log in
 </a>
-</p>
 
+<br><br>
+
+<a href="terms_of_service.php">
+Terms of Service
+</a>
+
+</p>
+    
 </main>
 </body>
 </html>
