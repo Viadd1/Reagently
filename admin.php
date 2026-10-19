@@ -128,6 +128,12 @@ include BASE_PATH . "/navbar.php";
         Add Project Member
     </a>
 
+    <a
+        class="button"
+        href="/admin/manage_projects.php"
+    >
+        Manage Projects
+    </a>
     <br><br>
 
     <h3>Inventory Management</h3>
