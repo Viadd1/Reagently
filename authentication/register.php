@@ -4,6 +4,12 @@ The entered information is sent to insert_user.php. -->
 
 <?php
 require_once __DIR__ . '/../init.php';
+include BASE_PATH . "/db.php";
+
+// Admins that a new user can choose from
+$admins = $link->query(
+    "SELECT user_id, firstname, lastname, lab FROM users
+     WHERE role = 'admin' AND approved = 1 ORDER BY lab, lastname");
 ?>
 
 <!DOCTYPE html>
@@ -80,6 +86,28 @@ include BASE_PATH . "/navbar.php";
 
     <br><br>
 
+<?php if ($admins->num_rows > 0): ?>
+
+        <!-- Admin who is responsible for this user and will approve the account -->
+    Your lab admin:
+
+    <select
+        name="supervisor_id"
+        required
+    >
+        <option value="" disabled selected>Select your admin</option>
+
+        <?php while ($a = $admins->fetch_assoc()): ?>
+            <option value="<?= (int)$a['user_id'] ?>">
+                <?= htmlspecialchars(trim($a['firstname'] . ' ' . $a['lastname']) . ' (' . ($a['lab'] ?? '') . ')') ?>
+            </option>
+        <?php endwhile; ?>
+    </select>
+
+    <br><br>
+
+ <?php endif; ?>
+
     <!-- Email address
         type="email" allows the browser to perform basic email-format validation. -->
     Email:
@@ -124,8 +152,8 @@ include BASE_PATH . "/navbar.php";
         required
     >
 
-    I consent to Reagently storing and processing my data in accordance with GDPR.
-
+    I consent to Reagently storing and processing my data in accordance with GDPR and Reagently's own Terms of Service.
+    
     <br><br>
 
     <input
@@ -137,14 +165,23 @@ include BASE_PATH . "/navbar.php";
 </form>
 
 <!-- Link for users who already have an account -->
- <p>
+<p>
 
 Already have an account?
 <a href="login.php">
 Log in
 </a>
-</p>
 
+<br><br>
+
+<a href="terms_of_service.php">
+Terms of Service
+</a>
+
+</p>
+    
 </main>
 </body>
 </html>
+
+<?php $link->close(); ?>
