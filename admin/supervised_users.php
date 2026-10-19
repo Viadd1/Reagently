@@ -13,7 +13,7 @@ include BASE_PATH . "/db.php";
 
 // Only logged-in admins may open this page
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /login.php");
+    header("Location: " . BASE_URL . "authentication/login.php");
     exit;
 }
 if (($_SESSION['role'] ?? '') !== 'admin') {
@@ -51,12 +51,21 @@ $result = $stmt->get_result();
 <!DOCTYPE html>
 <html>
 <head>
+
+    <!-- For usability on larger and smaller screens: -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reagently - My Users</title>
-    <link rel="stylesheet" href="/style.css">
+
+    <!-- Use the existing stylesheet -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>style.css">
 </head>
 <body>
 
-<?php include BASE_PATH . "/navbar.php"; ?>
+<?php
+// Main header and navigation bar
+include BASE_PATH . "/navbar.php";
+?>
 
 <main class="page">
     <h2>Users under my supervision</h2>
@@ -65,7 +74,7 @@ $result = $stmt->get_result();
         <?= (int)$result->num_rows ?> user(s). Accounts waiting for approval are listed first.
     </p>
 
-    <table border="1">
+    <table class="table">
         <tr>
             <th>Username</th>
             <th>Name</th>
@@ -93,7 +102,9 @@ $result = $stmt->get_result();
         <?php endif; ?>
     </table>
 
-    <a href="/admin.php">Back to admin page</a>
+    <br><br>
+
+    <a class="button" href="<?= BASE_URL ?>admin.php">Back to Admin</a>
 </main>
 </body>
 </html>

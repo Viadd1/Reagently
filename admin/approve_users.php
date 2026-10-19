@@ -13,7 +13,7 @@ include BASE_PATH . "/db.php";
 
 // Only logged-in admins may open this page
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /login.php");
+    header("Location: " . BASE_URL . "authentication/login.php");
     exit;
 }
 if (($_SESSION['role'] ?? '') !== 'admin') {
@@ -119,6 +119,9 @@ $result = $stmt->get_result();
 <html>
 <head>
 
+    <!-- For usability on larger and smaller screens: -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Reagently - Approve New Users</title>
 
     <!-- Use the existing stylesheet -->
@@ -148,7 +151,7 @@ include BASE_PATH . "/navbar.php";
         <br>
     <?php endif; ?>
 
-    <table border="1">
+    <table class="table">
 
         <tr>
             <th>Username</th>
