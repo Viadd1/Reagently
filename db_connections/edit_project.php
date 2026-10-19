@@ -1,4 +1,4 @@
-<!-- DB connection - Edit Reagent -->
+<!-- DB connection - Edit Project -->
 
 <?php
 
@@ -7,7 +7,6 @@ require_once __DIR__ . "/../init.php";
 
 // If the user is not logged in, redirect them to the login page
 if (!isset($_SESSION['user_id'])) {
-
     header("Location: /authentication/login.php");
     exit;
 }
@@ -72,6 +71,7 @@ $project_members = $stmt->get_result();
 include BASE_PATH . "/navbar.php";
 ?>
 
+<main class="page">
     <h2>Edit Reagent</h2><br>
     <form action="update_reagent.php" method="POST">
         <input type="hidden" name="project" value="<?= $project_id ?>">
@@ -79,6 +79,7 @@ include BASE_PATH . "/navbar.php";
         <label>Name:
             <input type="text" name="name" required
                    value="<?= htmlspecialchars($project['project_name']) ?>"></label><br><br>
+
         <label>Description:
             <textarea
                 name="description" rows="5" cols="40"
@@ -88,7 +89,7 @@ include BASE_PATH . "/navbar.php";
     </form>
     <a class="button" href="<?= BASE_URL ?>admin/manage_projects.php">Cancel</a>
 
-<br><br>
+<br><br><br>
 
 <h2>Manage Project Members</h2>
 <table class="table">

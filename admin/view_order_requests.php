@@ -232,6 +232,7 @@ include BASE_PATH . "/navbar.php";
                                value="<?= (int)$row['request_id'] ?>">
                         <input type="hidden" name="action" value="accept">
                         <input class="button" type="submit" value="Accept and notify">
+                    <br><br>
                     </form>
 
                     <!-- Deny the order and notify the user -->

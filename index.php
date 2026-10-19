@@ -4,7 +4,6 @@ It shows navigation options, a welcome message, quick links, and recent departme
 <?php
 
 // Start session so that the homepage knows whether a user is logged in
-
 require_once "init.php";
 include BASE_PATH . "/authentication/cookies_consent.php";
 include 'db.php';
