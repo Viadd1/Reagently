@@ -248,3 +248,50 @@ line-height: 1.6;}
         padding: 6px;
         overflow-wrap: anywhere;}
 }
+
+/* Cookie consent banner */
+#cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+
+    background: white;
+    color: #222;
+
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+    font-family: Arial, sans-serif;
+    z-index: 1000;}
+
+#cookie-banner h2 {
+    margin-top: 0;}
+
+#cookie-banner p {
+    line-height: 1.6;}
+
+#cookie-banner form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;}
+
+#cookie-banner button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;}
+
+#accept-cookies {
+    background: #176b45;
+    color: white;}
+
+#reject-cookies {
+    background: #eee;
+    color: #222;}
