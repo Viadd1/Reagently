@@ -34,6 +34,8 @@ $project_sql =
 
  FROM projects
 
+ WHERE project_name NOT LIKE 'null'
+
  ORDER BY project_name";
 
 $project_result =
@@ -49,6 +51,8 @@ $user_sql =
     email
 
  FROM users
+
+ WHERE username NOT LIKE 'null'
 
  ORDER BY username";
 

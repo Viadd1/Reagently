@@ -103,6 +103,8 @@ $sql =
     WHERE approved = 0
 
     AND is_verified = 1
+
+    AND username NOT LIKE 'null'
     
     ORDER BY lastname";
 

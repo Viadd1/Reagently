@@ -52,6 +52,7 @@ $sql =
     FROM users
     
     WHERE username LIKE '%$search_query%'
+    AND username NOT LIKE 'null'
 
     OR firstname LIKE '%$search_query%'
 

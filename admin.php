@@ -49,7 +49,7 @@ include BASE_PATH . "/navbar.php";
 
 <main class="page">
 
-<?php include BASE_PATH . "/expiry_notice.php"; ?>
+<?php include BASE_PATH . "/admin/expiry_notice.php"; ?>
 
 
     <h2>Admin Functions</h2>
