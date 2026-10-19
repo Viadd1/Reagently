@@ -5,15 +5,18 @@ To set up the email sending functionality, the following prerequisites are requi
 
 1.  Download the Composer file manager for PHP: 
     https://getcomposer.org/download/
+    When asked for the PHP version, locate php.exe in your server stack
 
-2.  Download PHPMailer and phpdotenv by running the following two commands:
+2.  Download PHPMailer and phpdotenv by running the following two commands in the project folder:
     composer require phpmailer/phpmailer
     composer require vlucas/phpdotenv
 
-3.  Create a file .env in the root folder, with the following content (if using a Gmail account):
-    SMTP_HOST = (smtp.gmail.com)
-    SMTP_USER = (user@gmail.com)
-    SMTP_PASS - (App password to the Gmail account)
+    Note: The project folder must be stored in the server stack folder! 
+
+3.  Create a file .env in the project folder, with the following content (if using a Gmail account):
+    SMTP_HOST = "smtp.gmail.com"
+    SMTP_USER = "user@gmail.com"
+    SMTP_PASS - "App password to the Gmail account"
 
 */
 

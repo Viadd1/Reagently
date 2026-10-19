@@ -173,6 +173,19 @@ if ($users->num_rows == 0) {
 
 } else {
 
+    // Read the admin that the user selected in the form
+    $supervisor_id = (int)($_POST['supervisor_id'] ?? 0);
+
+    // Make sure it is a real, approved admin
+    $check = $link->prepare(
+        "SELECT 1 FROM users WHERE user_id = ? AND role = 'admin' AND approved = 1");
+    $check->bind_param("i", $supervisor_id);
+    $check->execute();
+    if ($check->get_result()->num_rows !== 1) {
+        die("Please select a valid admin.");
+    }
+    $check->close();
+
     $sql =
     "INSERT INTO users
     (
@@ -181,23 +194,25 @@ if ($users->num_rows == 0) {
         lastname,
         lab,
         email,
-        password
+        password,
+        supervisor_id
     )
 
-    VALUES (?, ?, ?, ?, ?, ?)";
+    VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     // Prepare SQL statement
     $stmt =
         $link->prepare($sql);
 
     $stmt->bind_param(
-        "ssssss",
+        "ssssssi",
         $username,
         $firstname,
         $lastname,
         $lab,
         $email,
-        $hashed_password
+        $hashed_password,
+        $supervisor_id
     );
 }
 
