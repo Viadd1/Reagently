@@ -1,5 +1,9 @@
 <!-- Terms of Service -->
 
+<?php
+require_once __DIR__ . "/../init.php";
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,14 +15,14 @@
     <!-- Use the existing stylesheet -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="<?= BASE_URL ?>style.css"
     >
 </head>
 <body>
 
 <?php
 // Main header and navigation bar
-include "navbar.php";
+include BASE_PATH . "/navbar.php";
 ?>
 
 <main class="page">
@@ -44,13 +48,10 @@ include "navbar.php";
     <br><br>
     Reagently collects name, username, email and password for its users as well as what projects and companies the user belongs to and their use of the system in terms of reserved reagents. The reason for this is to allow for the central functions of Reagently. 
     <br><br>
-    <br><br>
     These conditions were written with the template by Termly as reference. 
-    <br><br>
-    
     </p>
 
-<a class="button" href="<?= BASE_URL ?>register.php">Back to Register</a>
+<a class="button" href="<?= BASE_URL ?>authentication/register.php">Back to Register</a>
 
 </main>
 </body>
