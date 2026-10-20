@@ -1,7 +1,8 @@
-<!-- Navbar -->
-
 <?php
-require_once "init.php";
+// Shared navbar: init.php is already loaded by most pages; load it if not.
+require_once __DIR__ . '/init.php';
+$role = (string) ($_SESSION['role'] ?? '');
+$loggedIn = !empty($_SESSION['user_id']);
 ?>
 
 <!-- Website title -->
@@ -10,63 +11,23 @@ require_once "init.php";
 </header>
 
 <nav class="navbar">
+    <?php if ($loggedIn && $role === 'reagently_admin'): ?>
+        <a href="<?= BASE_URL ?>platform_admin.php">Platform Admin</a>
+    <?php else: ?>
+        <a href="<?= BASE_URL ?>index.php">Home</a>
+        <?php if ($loggedIn): ?>
+            <a href="<?= BASE_URL ?>view_reagents.php">View reagents</a>
+            <a href="<?= BASE_URL ?>user.php">User</a>
+            <?php if ($role === 'admin'): ?>
+                <a href="<?= BASE_URL ?>admin.php">Admin</a>
+            <?php endif; ?>
+        <?php endif; ?>
+    <?php endif; ?>
 
-    <a href="<?= BASE_URL ?>index.php">
-        Home
-    </a>
-
-    <?php
-    // Show these links only when a user is logged in
-    if (isset($_SESSION['user_id'])) {
-    ?>
-
-        <a href="<?= BASE_URL ?>view_reagents.php">
-            View reagents
-        </a>
-
-        <a href="<?= BASE_URL ?>user.php">
-            User
-        </a>
-
-        <?php
-
-        // Only admins see the Admin link
-        if (
-            isset($_SESSION['role'])
-            &&
-            $_SESSION['role'] === 'admin'
-        ) {
-
-        ?>
-
-            <a href="<?= BASE_URL ?>admin.php">
-                Admin
-            </a>
-
-        <?php
-        }
-        ?>
-
-        <a href="<?= BASE_URL ?>authentication/logout.php">
-            Log out
-        </a>
-
-    <?php
-    } else {
-    ?>
-
-        <!-- Show Login and Register when nobody is logged in -->
-
-        <a href="<?= BASE_URL ?>authentication/login.php">
-            Login
-        </a>
-
-        <a href="<?= BASE_URL ?>authentication/register.php">
-            Register
-        </a>
-
-    <?php
-    }
-    ?>
-
+    <?php if ($loggedIn): ?>
+        <a href="<?= BASE_URL ?>authentication/logout.php">Log out</a>
+    <?php else: ?>
+        <a href="<?= BASE_URL ?>authentication/login.php">Login</a>
+        <a href="<?= BASE_URL ?>authentication/register_company.php">Register</a>
+    <?php endif; ?>
 </nav>

@@ -1,32 +1,25 @@
-<!-- DB connections - Insert announcments -->
-
 <?php
-
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
-
-// Connect to database
-include BASE_PATH . '/db.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
-$title   = trim($_POST['title'] ?? '');
-$message = trim($_POST['message'] ?? '');
-
-// The author comes from the session, NOT from the form, so an admin can't post under someone else's name.
-$author_name = ($_SESSION['firstname'] ?? 'Admin') . ' (' . ($_SESSION['username'] ?? '') . ')';
-
-if ($title === '' || $message === '') {
-    header("Location: /admin/add_announcement.php?error=" . urlencode("Title and message are required."));
-    exit;
+require_once __DIR__ . '/../init.php';
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_require_post_csrf();
+$title = $_POST['title'] ?? null;
+$message = $_POST['message'] ?? null;
+if (!is_string($title) || !is_string($message) || trim($title) === '' || trim($message) === '' || strlen(trim($title)) > 150) {
+    header('Location: ' . BASE_URL . 'admin/add_announcement.php?error=' . urlencode('Valid title and message required.')); exit;
 }
-
-$stmt = $link->prepare(
-    "INSERT INTO announcements (title, message, author_name) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $title, $message, $author_name);
-$stmt->execute();
-
-$stmt->close();
+$title = trim($title); $message = trim($message);
+$author = ($_SESSION['firstname'] ?? 'Admin') . ' (' . ($_SESSION['username'] ?? '') . ')';
+try {
+    $stmt = $link->prepare('INSERT INTO announcements (company_id, title, message, author_name) VALUES (?, ?, ?, ?)');
+    $stmt->bind_param('isss', $companyId, $title, $message, $author);
+    $stmt->execute(); $stmt->close();
+    $key = 'msg'; $notice = 'Announcement posted.';
+} catch (mysqli_sql_exception $e) {
+    error_log('Announcement insert failed: ' . $e->getMessage());
+    $key = 'error'; $notice = 'Unable to post announcement.';
+}
 $link->close();
-
-header("Location: /admin/add_announcement.php?msg=" . urlencode("Announcement posted."));
+header('Location: ' . BASE_URL . 'admin/add_announcement.php?' . $key . '=' . urlencode($notice));
+exit;

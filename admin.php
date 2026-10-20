@@ -1,7 +1,3 @@
-<!-- Admin 
-Main administration page for Reagently.
-Only users with the admin role can access this page and use the available reagent, project and inventory management functions. -->
-
 <?php
 
 // Start the session so that we can check the currently logged-in user's role
@@ -14,16 +10,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
+// Verify role, account approval, email, and company status against the database.
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
 ?>
 
 <!DOCTYPE html>

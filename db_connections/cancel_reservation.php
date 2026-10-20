@@ -1,164 +1,115 @@
-<!-- DB connection - Cancel Reservation 
-Cancels an active reservation owned by the logged-in user.
-Cancelling a reservation releases the reserved quantity without changing the physical stock. -->
-
 <?php
-
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
-
-// If the user is not logged in, redirect them to the login page
-if (!isset($_SESSION['user_id'])) {
-
-    header("Location: /authentication/login.php");
+/**
+ * Cancels an ACTIVE reservation with a POST + CSRF token.
+ * Serializes with other lot changes by locking reagent_lots first.
+ */
+require_once __DIR__ . '/../init.php';
+if (empty($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . 'authentication/login.php');
     exit;
 }
-
-// Include database connection
-include BASE_PATH . '/db.php';
-
-// Get the currently logged-in user's ID
-$user_id =
-    $_SESSION['user_id'];
-
-// Check whether reservation_id was provided in the URL
-// Example: cancel_reservation.php?reservation_id=5
-if (!isset($_GET['reservation_id'])) {
-    die(
-        "Reservation ID is missing."
-    );
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Method not allowed. Please cancel from the reservations page.');
 }
-
-// Get reservation ID from the URL
-$reservation_id =
-    (int) $_GET['reservation_id'];
-
-// Check that reservation ID is valid
-if ($reservation_id <= 0) {
-    die(
-        "Invalid reservation ID."
-    );
+$csrfSent = (string) ($_POST['csrf_token'] ?? '');
+$csrfExpected = (string) ($_SESSION['csrf_token'] ?? '');
+if ($csrfExpected === '' || !hash_equals($csrfExpected, $csrfSent)) {
+    http_response_code(403);
+    exit('Invalid or expired request token. Reload your reservations page.');
 }
+$userId = (int) $_SESSION['user_id'];
+$reservationId = filter_var($_POST['reservation_id'] ?? null, FILTER_VALIDATE_INT);
+if (!$reservationId || $reservationId <= 0) {
+    http_response_code(400);
+    exit('Invalid reservation ID.');
+}
+require BASE_PATH . '/db.php';
 
-/* Cancel reservation */
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
 
-// Change reservation status from ACTIVE to CANCELLED.
-// IMPORTANT:
-// user_id = ?
-// ensures that a user can only cancel their own reservation.
-// status = 'ACTIVE'
-// ensures that COMPLETED or already CANCELLED reservations cannot be cancelled again.
+// Get current user's company ID
+$companyId = tenant_require_user($link);
 
-$sql =
-"UPDATE reservations
-
- SET status = 'CANCELLED'
-
- WHERE reservation_id = ?
-
- AND user_id = ?
-
- AND status = 'ACTIVE'";
-
-// Prepare SQL statement
-$stmt =
-    $link->prepare($sql);
-
-// Bind variables
-// reservation_id = integer
-// user_id        = integer
-// Therefore the type definition is "ii".
-
-$stmt->bind_param(
-    "ii",
-    $reservation_id,
-    $user_id
+// Read the lot ID before beginning the transaction. This non-locking read
+// cannot create a stale transaction snapshot; update below revalidates status.
+$stmt = $link->prepare(
+    'SELECT res.lot_id, res.quantity_reserved FROM reservations res
+    JOIN projects p ON res.project_id = p.project_id
+    WHERE res.reservation_id = ? AND res.user_id = ? AND p.company_id = ?'
 );
+$stmt->bind_param('iii', $reservationId, $userId, $companyId);
 
-// Execute the UPDATE statement
 $stmt->execute();
-
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Reservations</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
-</head>
-<body>
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
-
-<main class="page">
-
-<?php
-
-/* Check result */
-
-// affected_rows tells us how many rows were actually changed.
-// If affected_rows = 1:
-// the reservation was successfully cancelled.
-// If affected_rows = 0:
-// possible reasons include:
-// - reservation does not exist
-// - reservation belongs to another user
-// - reservation is already CANCELLED
-// - reservation is already COMPLETED
-
-if ($stmt->affected_rows === 1) {
-    echo
-        "Reservation cancelled successfully.";
-
-    echo
-        "<br><br>";
-
-    echo
-        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
-            Back to reservations
-        </a>';
-
-} else {
-
-    echo
-        "The reservation could not be cancelled.";
-
-    echo
-        "<br><br>";
-
-    echo
-        "It may not exist, may belong to another user,
-        or may no longer be active.";
-
-    echo
-        "<br><br>";
-
-    echo
-        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
-            Back to reservations
-        </a>';
-}
-
-?>
-
-</main>
-</body>
-</html>
-
-<?php
-// Close prepared statement
+$reservation = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-// Close database connection
-$link->close();
+
+$cancelled = false;
+if ($reservation) {
+    $lotId = (int) $reservation['lot_id'];
+    $link->begin_transaction();
+    try {
+        // Same lock order as reservation confirmation / quantity adjustment.
+        $stmt = $link->prepare('SELECT  l.lot_id FROM reagent_lots l
+        JOIN reagents r ON l.reagent_id = r.reagent_id
+        JOIN locations loc ON l.location_id = loc.location_id
+        WHERE l.lot_id = ? AND r.company_id = ? AND loc.company_id = ? AND r.is_deleted = 0
+        FOR UPDATE');
+        $stmt->bind_param('iii', $lotId, $companyId, $companyId);
+
+        $stmt->execute();
+        $exists = $stmt->get_result()->num_rows === 1;
+        $stmt->close();
+        if (!$exists) {
+            throw new RuntimeException('Reservation lot does not exist.');
+        }
+
+        $stmt = $link->prepare(
+            "UPDATE reservations res
+            JOIN projects p ON res.project_id = p.project_id
+            SET status = 'CANCELLED'
+             WHERE res.reservation_id = ? AND res.user_id = ? AND res.lot_id = ? AND res.status = 'ACTIVE' AND p.company_id = ?");
+        $stmt->bind_param('iiii', $reservationId, $userId, $lotId, $companyId);
+        $stmt->execute();
+        $cancelled = $stmt->affected_rows === 1;
+        $stmt->close();
+
+        if ($cancelled) {
+            // Release of reservation changes available, not physical quantity.
+            $note = 'Cancelled reservation of ' . $reservation['quantity_reserved'] . '; physical stock unchanged.';
+            $zeroPhysicalChange = '0.00';
+            $stmt = $link->prepare(
+                "INSERT INTO inventory_transactions
+                 (lot_id, user_id, reservation_id, transaction_type, quantity_change, note)
+                 VALUES (?, ?, ?, 'CANCEL', ?, ?)"
+            );
+            $stmt->bind_param('iiids', $lotId, $userId, $reservationId, $zeroPhysicalChange, $note);
+            $stmt->execute();
+            $stmt->close();
+            $link->commit();
+        } else {
+            $link->rollback();
+        }
+    } catch (Throwable $e) {
+        $link->rollback();
+        error_log('Reagently cancellation failed: ' . $e->getMessage());
+        http_response_code(500);
+        exit('Unable to cancel reservation. No changes were saved.');
+    }
+}
+// Keep the DB connection available for navbar.php if it needs it.
 ?>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reagently - Cancel Reservation</title>
+<link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES) ?>style.css"></head>
+<body>
+<?php include BASE_PATH . '/navbar.php'; ?>
+<main class="page">
+    <h2>Cancel Reservation</h2>
+    <p><?= $cancelled ? 'Reservation cancelled successfully.' : 'The reservation does not exist, is not yours, or is no longer ACTIVE.' ?></p>
+    <a class="button" href="<?= BASE_URL ?>user/reservations.php">Back to reservations</a>
+</main>
+</body></html>

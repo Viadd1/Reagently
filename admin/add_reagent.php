@@ -1,30 +1,62 @@
-<!-- Add reagents -->
-
-<!-- Displays a form for adding a new reagent.
-The form sends the reagent information to insert_reagent.php -->
 
 <?php
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
+// Start session and set base path
+require_once __DIR__ . '/../init.php';
 
-// If the user is not logged in, redirect them to the login page
-if (!isset($_SESSION['user_id'])) {
-
-    header("Location: /authentication/login.php");
+// Check login
+if (empty($_SESSION['user_id'])) {
+    header(
+        'Location: ' . BASE_URL .
+        'authentication/login.php'
+    );
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
+// Database connection
+require_once BASE_PATH . '/db.php';
+
+// Company authorization
+require_once BASE_PATH . '/includes/tenant_auth.php';
+
+$companyId = tenant_require_user($link);
+$userId = (int) $_SESSION['user_id'];
+
+// Verify Company Admin permission
+$adminStmt = $link->prepare(
+    "SELECT 1
+     FROM users
+     WHERE user_id = ?
+       AND company_id = ?
+       AND role = 'admin'
+     LIMIT 1"
+);
+
+$adminStmt->bind_param(
+    'ii',
+    $userId,
+    $companyId
+);
+
+$adminStmt->execute();
+
+$isAdmin =
+    $adminStmt->get_result()->num_rows === 1;
+
+$adminStmt->close();
+
+if (!$isAdmin) {
+    http_response_code(403);
+    exit('Company Admin permission required.');
 }
+
+// Generate CSRF Token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$link->close();
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -56,6 +88,13 @@ include BASE_PATH . "/navbar.php";
     action="<?= BASE_URL ?>db_connections/insert_reagent.php"
     method="POST"
 >
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>"
+>
+
     Name:
     <input
         type="text"
@@ -69,6 +108,8 @@ include BASE_PATH . "/navbar.php";
     <input
         type="text"
         name="catalog_number"
+        maxlength="100"
+        required
     >
 
     <br><br>

@@ -1,7 +1,3 @@
-<!-- Transactions 
-Displays inventory transaction history.
-Regular users can view their own transactions, while admins can view all recorded inventory changes. -->
-
 <?php
 
 // Start session and set base path variable
@@ -21,89 +17,30 @@ include BASE_PATH . '/db.php';
 $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 
-//SQL query
-// Admin users can see all inventory transactions.
-// Regular users can only see transactions that were created by themselves.
+// Every history row must belong to this company via user, reagent and location.
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_user($link);
+$role = (string) $_SESSION['role'];
+$sql = "SELECT it.transaction_id, it.transaction_type, it.quantity_change,
+               it.note, it.created_at, u.username,
+               r.name AS reagent_name, r.catalog_number, r.unit,
+               l.lot_number, p.project_name
+        FROM inventory_transactions it
+        JOIN users u ON it.user_id = u.user_id
+        JOIN reagent_lots l ON it.lot_id = l.lot_id
+        JOIN reagents r ON l.reagent_id = r.reagent_id
+        JOIN locations loc ON l.location_id = loc.location_id
+        LEFT JOIN reservations res ON it.reservation_id = res.reservation_id
+        LEFT JOIN projects p ON res.project_id = p.project_id
+        WHERE u.company_id = ? AND r.company_id = ? AND loc.company_id = ?
+          AND (p.project_id IS NULL OR p.company_id = ?)";
+if ($role !== 'admin') { $sql .= ' AND it.user_id = ?'; }
+$sql .= ' ORDER BY it.created_at DESC';
+$stmt = $link->prepare($sql);
 if ($role === 'admin') {
-
-    $sql =
-    "SELECT
-
-        inventory_transactions.transaction_id,
-        inventory_transactions.transaction_type,
-        inventory_transactions.quantity_change,
-        inventory_transactions.note,
-        inventory_transactions.created_at,
-
-        users.username,
-
-        reagents.name AS reagent_name,
-        reagents.catalog_number,
-        reagents.unit,
-
-        reagent_lots.lot_number,
-
-        projects.project_name
-
-    FROM inventory_transactions
-
-    JOIN users ON inventory_transactions.user_id = users.user_id
-
-    JOIN reagent_lots ON inventory_transactions.lot_id = reagent_lots.lot_id
-
-    JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
-
-    LEFT JOIN reservations ON inventory_transactions.reservation_id = reservations.reservation_id
-
-    LEFT JOIN projects ON reservations.project_id = projects.project_id
-
-    ORDER BY inventory_transactions.created_at DESC";
-
-    // Admin query has no parameters
-    $stmt = $link->prepare($sql);
-
+    $stmt->bind_param('iiii', $companyId, $companyId, $companyId, $companyId);
 } else {
-
-    $sql =
-    "SELECT
-
-        inventory_transactions.transaction_id,
-        inventory_transactions.transaction_type,
-        inventory_transactions.quantity_change,
-        inventory_transactions.note,
-        inventory_transactions.created_at,
-
-        users.username,
-
-        reagents.name AS reagent_name,
-        reagents.catalog_number,
-        reagents.unit,
-
-        reagent_lots.lot_number,
-
-        projects.project_name
-
-    FROM inventory_transactions
-
-    JOIN users ON inventory_transactions.user_id = users.user_id
-
-    JOIN reagent_lots ON inventory_transactions.lot_id = reagent_lots.lot_id
-
-    JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
-
-    LEFT JOIN reservations ON inventory_transactions.reservation_id = reservations.reservation_id
-
-    LEFT JOIN projects ON reservations.project_id = projects.project_id
-
-    WHERE inventory_transactions.user_id = ?
-
-    ORDER BY inventory_transactions.created_at DESC";
-
-    // Prepare query for regular user
-    $stmt = $link->prepare($sql);
-
-    // user_id is an integer
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param('iiiii', $companyId, $companyId, $companyId, $companyId, $user_id);
 }
 
 // Execute query
@@ -145,7 +82,7 @@ include BASE_PATH . "/navbar.php";
 if ($role === 'admin') {
     echo
         "<p>
-            Showing all inventory transactions.
+            Showing inventory transactions for your company.
         </p>";
 } else {
     echo

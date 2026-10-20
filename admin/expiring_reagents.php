@@ -20,6 +20,9 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
     die("Access denied. Admin permission is required.");
 }
 
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+
 $sql =
 "SELECT
     r.name,
@@ -45,14 +48,18 @@ $sql =
  JOIN locations loc
  ON loc.location_id = l.location_id
 
- WHERE r.is_deleted = 0
+ WHERE r.company_id = ? AND loc.company_id = ?
+ AND r.is_deleted = 0
  AND l.current_quantity > 0
  AND l.expiry_date IS NOT NULL
  AND l.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
 
  ORDER BY l.expiry_date ASC";
 
-$result = $link->query($sql);
+$expiryStmt = $link->prepare($sql);
+$expiryStmt->bind_param('ii', $companyId, $companyId);
+$expiryStmt->execute();
+$result = $expiryStmt->get_result();
 
 // Split into already expired and expiring soon
 $expired = [];
@@ -142,4 +149,4 @@ function render_table($rows) {
 </main>
 </body>
 </html>
-<?php $link->close(); ?>
+<?php $expiryStmt->close(); $link->close(); ?>
