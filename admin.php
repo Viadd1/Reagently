@@ -168,13 +168,6 @@ include BASE_PATH . "/navbar.php";
         Administer Users
     </a>
 
-        <a
-        class="button"
-        href="/admin/supervised_users.php"
-    >
-        My Users
-    </a>
-
 </main>
 </body>
 </html>
