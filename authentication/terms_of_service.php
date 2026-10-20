@@ -47,7 +47,7 @@ include "navbar.php";
     <br><br>
     These conditions were written with the template by Termly as reference. 
     <br><br>
-    (button to register)
+    
     </p>
 
 <a class="button" href="<?= BASE_URL ?>register.php">Back to Register</a>
