@@ -6,15 +6,15 @@
   box-sizing: border-box}
 
 body {
-background-color: white;
-color: #8B0000;
+background-color: #C6DBEF;
+color: #08306B;
 font-family: 'Times New Roman', Times, serif;}
 
 /* Website title */
 header {
 text-align: center;
 padding: 25px;
-background-color: white;}
+background-color: #C6DBEF;}
 
 header h1 {
 font-size: 36px;}
@@ -30,19 +30,19 @@ align-items: center;
 /* Space between buttons */
 gap: 10px;
 /* Navigation background */
-background-color: #123A63;
+background-color: #08306B;
 /* Space inside navigation bar */
 padding: 12px;}
 /* Navigation links */
 .navbar a {
-color: white;
+color: #C6DBEF;
 text-decoration: none;
 font-size: 17px;
 padding: 10px 18px;
 border-radius: 5px;}
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
-background-color: #254117;}
+background-color: #2171B5;}
 
 .table {
     border-collapse: collapse;
@@ -52,7 +52,7 @@ background-color: #254117;}
 
 .table th,
 .table td {
-    border: 1px solid hotpink;
+    border: 1px solid #08306B;
     padding: 8px 12px; /* Spacing in cells */
     text-align: left;}
 
@@ -93,8 +93,8 @@ justify-content: center;}
 .button {
 display: inline-block;
 padding: 12px 20px;
-background-color: hotpink;
-color: white;
+background-color: #08306B;
+color: #C6DBEF;
 text-decoration: none;
 font-family: 'Times New Roman', Times, serif;
 font-size: 15px;
@@ -103,7 +103,7 @@ border-radius: 8px;
 }
 
 .button:hover {
-background-color: #222;}
+background-color: #2171B5;}
 
 /* Home page*/
 .welcome {
@@ -260,7 +260,7 @@ line-height: 1.6;}
     padding: 24px;
 
     background: white;
-    color: hotpink;
+    color: #08306B;
 
     border: 1px solid #ddd;
     border-radius: 12px;
@@ -293,4 +293,4 @@ line-height: 1.6;}
 
 #reject-cookies {
     background: #eee;
-    color: hotpink;}
+    color: #08306B;}
