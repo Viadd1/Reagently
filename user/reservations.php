@@ -1,7 +1,3 @@
-<!-- REservations 
-Displays reservations from projects that the logged-in user belongs to. Active reservations owned by the user can be cancelled
-or completed by recording usage. -->
-
 <?php
 
 // Start session and set base path variable
@@ -14,11 +10,19 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// CSRF protection for cancelling reservations
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Include database connection
 include BASE_PATH . '/db.php';
-
-// Get the currently logged-in user's ID
-$user_id = $_SESSION['user_id'];
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
+// Get current user's company
+$companyId = tenant_require_user($link);
+// Get current user ID
+$user_id = (int) $_SESSION['user_id'];
 
 //Get visible reservations
 // Retrieve reservations from projects that the current user belongs to.
@@ -63,8 +67,24 @@ JOIN reagent_lots ON reservations.lot_id = reagent_lots.lot_id
 -- Get reagent information
 JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
--- Only show reservations from projects that the current user belongs to
+-- Check the reagent lot's storage company
+JOIN locations
+ON reagent_lots.location_id = locations.location_id
+
+-- Only show reservations visible to this user
 WHERE project_members.user_id = ?
+
+-- The project belongs to the current company
+AND projects.company_id = ?
+
+-- The reservation creator belongs to the same company
+AND users.company_id = ?
+
+-- The reagent belongs to the current company
+AND reagents.company_id = ?
+
+-- The storage location belongs to the current company
+AND locations.company_id = ?
 
 ORDER BY
 
@@ -81,10 +101,7 @@ ORDER BY
 $stmt = $link->prepare($sql);
 
 // Bind current user's ID
-$stmt->bind_param(
-    "i",
-    $user_id
-);
+$stmt->bind_param("iiiii", $user_id, $companyId, $companyId, $companyId, $companyId);
 
 // Execute query
 $stmt->execute();
@@ -264,13 +281,14 @@ if ($result->num_rows > 0) {
 
             echo "<br><br>";
 
-            // Link to cancel the reservation
-            echo
-            "<a class='button' href=" . BASE_URL . "db_connections/cancel_reservation.php?reservation_id=" .
-            $row["reservation_id"] .
-            "'>
-                Cancel
-            </a>";
+            // Cancellation changes data: use POST and a CSRF token, not a GET link.
+            echo "<form method='POST' action='" .
+                htmlspecialchars(BASE_URL . "db_connections/cancel_reservation.php", ENT_QUOTES) .
+                "' onsubmit=\"return confirm('Cancel this reservation?');\">" .
+                "<input type='hidden' name='reservation_id' value='" . (int)$row['reservation_id'] . "'>" .
+                "<input type='hidden' name='csrf_token' value='" . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) . "'>" .
+                "<button class='button' type='submit'>Cancel</button>" .
+                "</form>";
 
         } else {
 

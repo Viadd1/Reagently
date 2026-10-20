@@ -10,6 +10,9 @@ require_once __DIR__ . "/../init.php";
 
 // Include database connection
 include BASE_PATH . "/db.php";
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_require_post_csrf();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
 
@@ -68,7 +71,7 @@ function valid_date($v) {
 
 /* ---------- reagents ---------- */
 
-function import_reagents($link, $csv, $admin_id, &$errors, &$summary) {
+function import_reagents($link, $csv, $admin_id, $companyId, &$errors, &$summary) {
     $cats = [
         'organic'     => 'Organic',
         'inorganic'   => 'Inorganic',
@@ -76,7 +79,7 @@ function import_reagents($link, $csv, $admin_id, &$errors, &$summary) {
         'other'       => 'Other',
     ];
 
-    $exists = $link->prepare("SELECT 1 FROM reagents WHERE catalog_number = ?");
+    $exists = $link->prepare("SELECT 1 FROM reagents WHERE catalog_number = ? AND company_id = ?");
     $seen   = [];
     $valid  = [];
 
@@ -108,7 +111,7 @@ function import_reagents($link, $csv, $admin_id, &$errors, &$summary) {
             if (isset($seen[strtolower($catalog)])) {
                 $rowErrors[] = "catalog_number $catalog appears twice in the file";
             } else {
-                $exists->bind_param("s", $catalog);
+                $exists->bind_param("si", $catalog, $companyId);
                 $exists->execute();
                 if ($exists->get_result()->num_rows > 0) {
                     $rowErrors[] = "a reagent with catalog_number $catalog already exists";
@@ -143,14 +146,14 @@ function import_reagents($link, $csv, $admin_id, &$errors, &$summary) {
     $link->begin_transaction();
     try {
         $ins = $link->prepare(
-            "INSERT INTO reagents (name, catalog_number, category, unit, storage_condition)
-             VALUES (?, ?, ?, ?, ?)");
+            "INSERT INTO reagents (company_id, name, catalog_number, category, unit, storage_condition)
+             VALUES (?, ?, ?, ?, ?, ?)");
         $nickIns = $link->prepare(
             "INSERT INTO reagent_nicknames (reagent_id, nickname, created_by) VALUES (?, ?, ?)");
 
         $nickCount = 0;
         foreach ($valid as $v) {
-            $ins->bind_param("sssss", $v['name'], $v['catalog'], $v['category'], $v['unit'], $v['storage']);
+            $ins->bind_param("isssss", $companyId, $v['name'], $v['catalog'], $v['category'], $v['unit'], $v['storage']);
             $ins->execute();
             $reagent_id = $link->insert_id;
 
@@ -165,16 +168,17 @@ function import_reagents($link, $csv, $admin_id, &$errors, &$summary) {
         $summary[] = "$nickCount nickname(s) added.";
     } catch (mysqli_sql_exception $e) {
         $link->rollback();
-        $errors[] = 'Database error, nothing was imported: ' . $e->getMessage();
+        error_log('CSV import failed: ' . $e->getMessage());
+        $errors[] = 'Database error; nothing was imported.';
     }
 }
 
 
 /* ---------- lots ---------- */
 
-function import_lots($link, $csv, &$errors, &$summary) {
+function import_lots($link, $csv, $companyId, &$errors, &$summary) {
     $findReagent = $link->prepare(
-        "SELECT reagent_id FROM reagents WHERE catalog_number = ? AND is_deleted = 0");
+        "SELECT reagent_id FROM reagents WHERE catalog_number = ? AND company_id = ? AND is_deleted = 0");
     $valid = [];
 
     foreach ($csv['rows'] as $row) {
@@ -198,7 +202,7 @@ function import_lots($link, $csv, &$errors, &$summary) {
         if ($catalog === '') {
             $rowErrors[] = 'catalog_number is empty';
         } else {
-            $findReagent->bind_param("s", $catalog);
+            $findReagent->bind_param("si", $catalog, $companyId);
             $findReagent->execute();
             $found = $findReagent->get_result()->fetch_assoc();
             if (!$found) {
@@ -240,9 +244,9 @@ function import_lots($link, $csv, &$errors, &$summary) {
     try {
         $findLoc = $link->prepare(
             "SELECT location_id FROM locations
-             WHERE room = ? AND storage_unit <=> ? AND shelf <=> ? AND box_name <=> ?");
+             WHERE room = ? AND storage_unit <=> ? AND shelf <=> ? AND box_name <=> ? AND company_id = ?");
         $newLoc = $link->prepare(
-            "INSERT INTO locations (room, storage_unit, shelf, box_name) VALUES (?, ?, ?, ?)");
+            "INSERT INTO locations (company_id, room, storage_unit, shelf, box_name) VALUES (?, ?, ?, ?, ?)");
         $newLot = $link->prepare(
             "INSERT INTO reagent_lots
              (reagent_id, location_id, supplier, lot_number, current_quantity, received_date, expiry_date)
@@ -255,14 +259,14 @@ function import_lots($link, $csv, &$errors, &$summary) {
             $key = implode('|', [$v['room'], $v['storage_unit'], $v['shelf'], $v['box']]);
 
             if (!isset($locCache[$key])) {
-                $findLoc->bind_param("ssss", $v['room'], $v['storage_unit'], $v['shelf'], $v['box']);
+                $findLoc->bind_param("ssssi", $v['room'], $v['storage_unit'], $v['shelf'], $v['box'], $companyId);
                 $findLoc->execute();
                 $loc = $findLoc->get_result()->fetch_assoc();
 
                 if ($loc) {
                     $locCache[$key] = (int)$loc['location_id'];
                 } else {
-                    $newLoc->bind_param("ssss", $v['room'], $v['storage_unit'], $v['shelf'], $v['box']);
+                    $newLoc->bind_param("issss", $companyId, $v['room'], $v['storage_unit'], $v['shelf'], $v['box']);
                     $newLoc->execute();
                     $locCache[$key] = $link->insert_id;
                     $locCreated++;
@@ -279,14 +283,15 @@ function import_lots($link, $csv, &$errors, &$summary) {
         $summary[] = "$locCreated new location(s) created.";
     } catch (mysqli_sql_exception $e) {
         $link->rollback();
-        $errors[] = 'Database error, nothing was imported: ' . $e->getMessage();
+        error_log('CSV import failed: ' . $e->getMessage());
+        $errors[] = 'Database error; nothing was imported.';
     }
 }
 
 
 /* ---------- main ---------- */
 
-function run_import($link, $admin_id, &$errors, &$summary) {
+function run_import($link, $admin_id, $companyId, &$errors, &$summary) {
     $type = $_POST['import_type'] ?? '';
     if (!in_array($type, ['reagents', 'lots'], true)) {
         $errors[] = 'Invalid import type.'; return;
@@ -319,13 +324,13 @@ function run_import($link, $admin_id, &$errors, &$summary) {
     }
 
     if ($type === 'reagents') {
-        import_reagents($link, $csv, $admin_id, $errors, $summary);
+        import_reagents($link, $csv, $admin_id, $companyId, $errors, $summary);
     } else {
-        import_lots($link, $csv, $errors, $summary);
+        import_lots($link, $csv, $companyId, $errors, $summary);
     }
 }
 
-run_import($link, $admin_id, $errors, $summary);
+run_import($link, $admin_id, $companyId, $errors, $summary);
 ?>
 <!DOCTYPE html>
 <html>

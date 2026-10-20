@@ -1,275 +1,35 @@
-<!-- DB connection - Delete User 
-Deletes the submitted user account and all information related to it.
-If the user is linked to other database records we want to keep,
-the user id is redirected to a null user created at the start of this script.-->
-
 <?php
-
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
-
-// Include database connection
-include BASE_PATH . "/db.php";
-
-// Ensure user has gone to this page through a POST method form
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
-$user_id = $_POST['user_id'];
-
-// Check if there is a null user in the database
-$sql_check_null = "SELECT user_id FROM users
-                   WHERE username = 'null'";
-
-$result = $link->query($sql_check_null);
-
-// Create null user in the database if it doesn't exist
-if ($result->num_rows == 0) {
-
-    $sql_create_null = "INSERT INTO users (`username`, `email`, `password`)
-                        VALUES ('null', 'null@null', 'null')";
-
-    $create_null = $link->query($sql_create_null);
-
-    if (!$create_null) {
-        echo "Error: " . $link->error;
-    }
-
-    $result = $link->query($sql_check_null);
+/** Soft account deactivation; never rewrite reservation/history owners to a fake user. */
+require_once __DIR__ . '/../init.php';
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId=tenant_require_user($link);
+tenant_require_post_csrf();
+$viewerId=(int)$_SESSION['user_id'];
+$targetId=filter_var($_POST['user_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+if (!is_int($targetId)) {http_response_code(400);exit('Invalid user.');}
+if ($targetId !== $viewerId && ($_SESSION['role']??'')!=='admin') {
+    http_response_code(403);exit('Not permitted.');
 }
-
-// There should now be one (1) null user in the database
-if ($result->num_rows == 1) {
-    while ($row = $result->fetch_assoc()) {
-        $null_user_id = $row["user_id"];
-    }
-}
-
-/* 
-Delete password reset entries from the user. They don't need to be saved.
-*/
-$sql_pr = "DELETE FROM password_resets
-           WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_pr);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-$stmt->close();
-
-/*
-Delete data about cookie consent from the user. They don't need to be saved.
-*/
-$sql_cc = "DELETE FROM cookie_consent
-           WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_cc);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-$stmt->close();
-
-/* Delete order requests made by the user.
-Since order requests are personal, they can be deleted without rerouting. */
-$sql_or = "DELETE FROM order_requests
-           WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_or);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-$stmt->close();
-
-/* Delete nicknames made by the user if it is an admin.
-Nicknames created by a specific user may be identifiable personal information, so it's safest to remove them altogether. */
-$sql_nn = "DELETE FROM reagent_nicknames
-           WHERE created_by = ?";
-
-$stmt = $link->prepare($sql_nn);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-$stmt->close();
-
-/* Reroute inventory transactions to the null user.
-We want to preserve the inventory data since it is used for internal calculations. */
-$sql_it = "UPDATE inventory_transactions
-           SET user_id = ?
-           WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_it);
-
-$stmt->bind_param(
-    "ii",
-    $null_user_id,
-    $user_id
-);
-
-$stmt->execute();
-$stmt->close();
-
-/* Create 'null' project members for each project the user is part of.
-This is necessary for rerouting reservations. */
-$sql_pm = "SELECT *
-           FROM project_members
-           WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_pm);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-$result = $stmt->get_result();
-$stmt->close();
-
-while ($row = $result->fetch_assoc()) {
-        
-    // For each project_id found, insert a 'null' project member if it doesn't already exist
-    $pid = $row["project_id"];
-
-    $check_null_pm = "SELECT *
-                      FROM project_members
-                      WHERE project_id = ? AND user_id = ?";
-        
-    $stmt = $link->prepare($check_null_pm);
-
-    $stmt->bind_param(
-        "ii",
-        $pid,
-        $null_user_id
+try {
+    // No destructive physical deletion. Prevent active reservations from being orphaned.
+    $stmt=$link->prepare(
+        "UPDATE users u SET u.approved=0
+         WHERE u.user_id=? AND u.company_id=? AND u.role='user'
+           AND NOT EXISTS (SELECT 1 FROM reservations res
+                           WHERE res.user_id=u.user_id AND res.status='ACTIVE')"
     );
-
-    $stmt->execute();
-
-    $res = $stmt->get_result();
-
-    if ($res->num_rows == 0) {
-
-        $stmt->close();
-
-        $null_pm = "INSERT INTO project_members (project_id, user_id)
-                    VALUES (?, ?)";
-    
-        $stmt = $link->prepare($null_pm);
-
-        $stmt->bind_param(
-            "ii",
-            $pid,
-            $null_user_id
-        );
-
-        $stmt->execute();
-    }
+    $stmt->bind_param('ii',$targetId,$companyId);$stmt->execute();
+    $changed=$stmt->affected_rows;$stmt->close();
+} catch (mysqli_sql_exception $e) {
+    error_log('Deactivate user failed: '.$e->getMessage());
+    http_response_code(500);exit('Could not deactivate user.');
 }
-
-/* Reroute all reservations to the null user */
-$sql_res = "UPDATE reservations
-            SET user_id = ?
-            WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_res);
-
-$stmt->bind_param(
-    "ii",
-    $null_user_id,
-    $user_id
-);
-
-$stmt->execute();
-
-/* Before removing the user, remove all project member entries linked to the user. */
-$sql_rm_pm = "DELETE FROM project_members
-              WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_rm_pm);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$stmt->execute();
-
-/* All links to the user account have been removed or unlinked, so we can now delete the user from the database. */
-$sql_rm_user = "DELETE FROM users
-                WHERE user_id = ?";
-
-$stmt = $link->prepare($sql_rm_user);
-
-$stmt->bind_param(
-    "i",
-    $user_id
-);
-
-$delete = $stmt->execute();
-
-// If unable to delete account, raise error
-if (!$delete) {
-
-    echo "Error: " . $stmt->error;
-}
-
-// If the user deletes their own account, destroy session
-elseif ($delete && $_SESSION['user_id'] == $user_id) {
-    
-    session_unset();
-
-    session_destroy();
-
-    header("Location: /authentication/login.php");
-
-    exit;
-} 
-
-// Otherwise, an admin deleted the account, so we do nothing
-else {
-
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Delete User</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
-</head>
-<body>
-
-<?php
-
-include BASE_PATH . "/navbar.php";
-
-echo "Account deleted successfully.<br><br>
-
-<a class='button' href=" . BASE_URL . "admin/view_users.php>Back to Administer Users</a>";
-
-}
-
-$stmt->close();
 $link->close();
-?>
+if ($changed!==1) {http_response_code(409);exit('Only a regular user in your company without ACTIVE reservations can be deactivated.');}
+if ($targetId === $viewerId) {
+    $_SESSION=[];
+    session_regenerate_id(true);
+    header('Location: '.BASE_URL.'authentication/login.php'); exit;
+}
+header('Location: '.BASE_URL.'admin/view_users.php');exit;

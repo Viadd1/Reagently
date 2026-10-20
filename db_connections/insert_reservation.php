@@ -1,289 +1,125 @@
-<!-- DB Connection - Insert Reservation 
-Validates and creates a new reagent reservation.
-It checks project membership and current stock availability before saving the reservation to the database. -->
-
 <?php
-
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
-
-// Ensure that page has been entered through a POST method form
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
-// If the user is not logged in, redirect them to the login page
-if (!isset($_SESSION['user_id'])) {
-
-    header("Location: /authentication/login.php");
+/**
+ * Reservation preview only. No database writes are made here.
+ * Availability is recalculated inside a transaction on confirmation.
+ */
+require_once __DIR__ . '/../init.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Method not allowed.');
+}
+if (empty($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . 'authentication/login.php');
     exit;
 }
+require BASE_PATH . '/db.php';
 
-// Include database connection
-include BASE_PATH . '/db.php';
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_user($link);
 
-// Get the current logged-in user's ID
-// IMPORTANT:
-// user_id comes from the session, NOT from the reservation form.
-// This prevents a user from creating a reservation using another user's ID.
-$user_id =
-    $_SESSION['user_id'];
+$userId = (int) $_SESSION['user_id'];
+$projectId = filter_var($_POST['project_id'] ?? null, FILTER_VALIDATE_INT);
+$lotId = filter_var($_POST['lot_id'] ?? null, FILTER_VALIDATE_INT);
+$requestedRaw = trim((string) ($_POST['quantity_reserved'] ?? ''));
+$neededDate = (string) ($_POST['needed_date'] ?? '');
+$date = DateTimeImmutable::createFromFormat('!Y-m-d', $neededDate);
+if (!$projectId || $projectId <= 0 || !$lotId || $lotId <= 0 ||
+    !preg_match('/^\d+(?:\.\d{1,2})?$/D', $requestedRaw) ||
+    (float) $requestedRaw <= 0 || (float) $requestedRaw > 99999999.99 ||
+    !$date || $date->format('Y-m-d') !== $neededDate) {
+    http_response_code(400);
+    exit('Invalid reservation details. Enter a positive quantity (up to two decimal places) and a valid date.');
+}
+$requestedCents = (int) round(((float) $requestedRaw) * 100);
 
-// Get reservation information submitted from make_reservation.php
-$project_id =
-    (int) $_POST['project_id'];
+$stmt = $link->prepare(
+    'SELECT 1 FROM project_members pm
+     JOIN projects p ON pm.project_id = p.project_id
+     WHERE pm.project_id = ? AND pm.user_id = ? AND p.company_id = ?');
 
-$lot_id =
-    (int) $_POST['lot_id'];
 
-$quantity_reserved =
-    (float) $_POST['quantity_reserved'];
-
-$needed_date =
-    $_POST['needed_date'];
-
-// Check that the reservation quantity is positive
-if ($quantity_reserved <= 0) {
-    die(
-        "Reservation quantity must be greater than 0."
-    );
+$stmt->bind_param('iii', $projectId, $userId, $companyId);
+$stmt->execute();
+$isMember = $stmt->get_result()->num_rows === 1;
+$stmt->close();
+if (!$isMember) {
+    http_response_code(403);
+    exit('You are not a member of this project.');
 }
 
-// IMPORTANT: this file now only checks if we want to reserve and order
-// the actual orer and reserve is done by confirm_partial_reservation
-// that is why we don't have a database link in this script
-
-/* Check project membership */
-// Check whether the current user really belongs to the selected project.
-// Even though make_reservation.php only shows the user's own projects, we must check again on the server side.
-// Users should never be trusted only based on form values.
-$membership_sql =
-"SELECT
-    project_id
-
- FROM project_members
-
- WHERE project_id = ?
- AND user_id = ?";
-
-$membership_stmt =
-    $link->prepare($membership_sql);
-
-$membership_stmt->bind_param(
-    "ii",
-    $project_id,
-    $user_id
+// A plain SELECT is intentional: a preview should never hold a row lock
+// while a human is deciding whether to proceed.
+$stmt = $link->prepare(
+    'SELECT l.current_quantity FROM reagent_lots l
+     JOIN reagents r ON r.reagent_id = l.reagent_id
+     JOIN locations loc ON loc.location_id = l.location_id
+     WHERE l.lot_id = ? AND r.company_id = ? AND loc.company_id = ? AND r.is_deleted = 0'
 );
-
-$membership_stmt->execute();
-
-$membership_result =
-    $membership_stmt->get_result();
-
-// If no matching project membership exists, stop the reservation
-if ($membership_result->num_rows !== 1) {
-    $link->rollback();
-    die(
-        "You are not a member of this project."
-    );
+$stmt->bind_param('iii', $lotId, $companyId, $companyId);
+$stmt->execute();
+$lot = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if (!$lot) {
+    http_response_code(404);
+    exit('Selected reagent lot does not exist.');
 }
 
-$membership_stmt->close();
-
-/* Lock and check reagent lot */
-// Get the current physical quantity of the selected reagent lot.
-// FOR UPDATE locks this lot while the reservation is being checked and inserted.
-// This helps prevent two users from reserving the same available stock at exactly the same time.
-$lot_sql =
-"SELECT
-    reagent_lots.current_quantity
-
- FROM reagent_lots
-
- JOIN reagents
- ON reagents.reagent_id = reagent_lots.reagent_id
-
- WHERE reagent_lots.lot_id = ?
- AND reagents.is_deleted = 0
-
- FOR UPDATE";
-
-$lot_stmt =
-    $link->prepare($lot_sql);
-
-$lot_stmt->bind_param(
-    "i",
-    $lot_id
+$stmt = $link->prepare(
+    "SELECT COALESCE(SUM(quantity_reserved), 0) AS reserved
+     FROM reservations WHERE lot_id = ? AND status = 'ACTIVE'"
 );
+$stmt->bind_param('i', $lotId);
+$stmt->execute();
+$reserved = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+// Keep the DB connection available for navbar.php if it needs it.
 
-$lot_stmt->execute();
-
-$lot_result =
-    $lot_stmt->get_result();
-
-// Check whether the selected lot actually exists
-if ($lot_result->num_rows !== 1) {
-    $link->rollback();
-    die(
-        "Selected reagent lot does not exist."
-    );
+$physicalCents = (int) round(((float) $lot['current_quantity']) * 100);
+$reservedCents = (int) round(((float) $reserved['reserved']) * 100);
+$availableCents = max(0, $physicalCents - $reservedCents);
+$reserveCents = min($requestedCents, $availableCents);
+$orderCents = $requestedCents - $reserveCents;
+$formatQuantity = static fn(int $cents): string => number_format($cents / 100, 2, '.', '');
+// Each preview gets a single-use confirmation token. A second submission cannot
+// create another reservation if the user double-clicks or refreshes the result.
+if (!isset($_SESSION['reservation_confirmations']) || !is_array($_SESSION['reservation_confirmations'])) {
+    $_SESSION['reservation_confirmations'] = [];
 }
-
-// Get physical stock quantity
-$lot =
-    $lot_result->fetch_assoc();
-
-$current_quantity =
-    (float) $lot['current_quantity'];
-
-$lot_stmt->close();
-
-/* Calculate reserved quantity */
-// Calculate the total quantity already reserved for this lot.
-// IMPORTANT:
-// This includes ALL ACTIVE reservations, regardless of user or project.
-// This is necessary because the physical reagent inventory is shared by all projects.
-$reserved_sql =
-"SELECT
-
-    COALESCE(
-        SUM(quantity_reserved),
-        0
-    ) AS reserved_quantity
-
- FROM reservations
-
- WHERE lot_id = ?
-
- AND status = 'ACTIVE'";
-
-$reserved_stmt =
-    $link->prepare($reserved_sql);
-
-$reserved_stmt->bind_param(
-    "i",
-    $lot_id
-);
-
-$reserved_stmt->execute();
-
-$reserved_result =
-    $reserved_stmt->get_result();
-
-$reserved =
-    $reserved_result->fetch_assoc();
-
-$reserved_quantity =
-    (float) $reserved['reserved_quantity'];
-
-$reserved_stmt->close();
-
-/* Calculate available quantity */
-// Available quantity is calculated dynamically.
-// Available = Physical stock - Active reservations
-$available_quantity =
-    $current_quantity
-    -
-    $reserved_quantity;
-
-/* Check requested quantity */
-// Reserve as much as is currently available, but never more than the user requested. 
-$reservation_quantity = 
-    min( 
-        $quantity_reserved, 
-        $available_quantity 
-    ); 
-
-// Anything that cannot be reserved becomes an order request. 
-$request_quantity = 
-    $quantity_reserved - $reservation_quantity;
-
-/* HTML form */
-// display to the user what the stock is and ask for an input Yes or No
-// if yes, a reservation and order will be made
-// if not, reservation is canceled
+if (count($_SESSION['reservation_confirmations']) >= 20) {
+    $_SESSION['reservation_confirmations'] = array_slice($_SESSION['reservation_confirmations'], -19, null, true);
+}
+$confirmationToken = bin2hex(random_bytes(32));
+$_SESSION['reservation_confirmations'][$confirmationToken] = hash('sha256', implode('|', [
+    $projectId, $lotId, $requestedCents, $neededDate
+]));
 ?>
-
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Make Reservation</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reagently - Review Reservation</title>
+    <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES) ?>style.css">
 </head>
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
-
+<body>
+<?php include BASE_PATH . '/navbar.php'; ?>
 <main class="page">
-
-<h2> Make Reservation </h2>
-
-<br><br>
-
-<form method="POST" action="confirm_partial_reservation.php">
-
-    <input type="hidden" name="project_id"
-           value="<?= htmlspecialchars($project_id) ?>">
-
-    <input type="hidden" name="lot_id"
-           value="<?= htmlspecialchars($lot_id) ?>">
-
-    <input type="hidden" name="quantity_reserved"
-           value="<?= htmlspecialchars($quantity_reserved) ?>">
-
-    <input type="hidden" name="needed_date"
-           value="<?= htmlspecialchars($needed_date) ?>">
-
-    <p class="reagent-text">
-        You requested:
-        <?= htmlspecialchars($quantity_reserved) ?>
-    </p>
-
-    <br><br>
-
-    <p class="reagent-text">
-        Available quantity:
-        <?= htmlspecialchars($available_quantity) ?>
-    </p>
-    
-    <br><br>
-
-    <p class="reagent-text">
-        Quantity to reserve:
-        <?= htmlspecialchars($reservation_quantity) ?>
-    </p>
-
-    <br><br>
-
-    <p class="reagent-text">
-        Quantity to order:
-        <?= htmlspecialchars($request_quantity) ?>
-    </p>
-
-    <br><br>
-    
-    <button class="button" type="submit" name="decision" value="confirm">
-        Yes, continue
-    </button>
-
-    <button class="button" type="submit" name="decision" value="cancel">
-        No, cancel
-    </button>
-
-</form>
+    <h2>Review Reservation</h2>
+    <p>Requested: <?= $formatQuantity($requestedCents) ?></p>
+    <p>Available right now: <?= $formatQuantity($availableCents) ?></p>
+    <p>Proposed reservation: <?= $formatQuantity($reserveCents) ?></p>
+    <p>Proposed order request: <?= $formatQuantity($orderCents) ?></p>
+    <p><strong>Preview only:</strong> Stock may change. Quantities will be checked again when you confirm.</p>
+    <form method="post" action="<?= htmlspecialchars(BASE_URL, ENT_QUOTES) ?>db_connections/confirm_partial_reservation.php">
+        <input type="hidden" name="confirmation_token" value="<?= htmlspecialchars($confirmationToken, ENT_QUOTES) ?>">
+        <input type="hidden" name="project_id" value="<?= $projectId ?>">
+        <input type="hidden" name="lot_id" value="<?= $lotId ?>">
+        <input type="hidden" name="quantity_reserved" value="<?= $formatQuantity($requestedCents) ?>">
+        <input type="hidden" name="needed_date" value="<?= htmlspecialchars($neededDate, ENT_QUOTES) ?>">
+        <button class="button" type="submit" name="decision" value="confirm">Yes, continue</button>
+        <button class="button" type="submit" name="decision" value="cancel">No, cancel</button>
+    </form>
 </main>
+</body>
 </html>
-
-<?php
-// The reservation and order request will only be created by 
-// confirm_partial_reservation.php after the user clicks "Yes". 
-exit; 
-?>

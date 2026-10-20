@@ -1,20 +1,18 @@
-<!-- View Reagents 
-Displays the current reagent inventory, including physical, reserved and available quantities for each reagent lot. -->
-
 <?php
+// View Reagents - Company Data Isolation
 
-// Start session and set base path variable
-require_once "init.php";
+require_once __DIR__ . '/init.php';
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
 
-// If the user is not logged in then redirect them to the login page
+// Check login
 if (!isset($_SESSION['user_id'])) {
-
-    header("Location: /authentication/login.php");
+    header('Location: ' . BASE_URL . 'authentication/login.php');
     exit;
 }
 
-// Include database connection
-include 'db.php';
+// Get company ID of current user
+$companyId = tenant_require_user($link);
 
 // Give default values when the page is opened before any search or filter has been submitted
 $_GET['search_query'] =
@@ -125,6 +123,10 @@ ON reagent_lots.lot_id = reservation_totals.lot_id
 
 -- Only show reagents that match search query and filters
 WHERE reagents.is_deleted = 0
+-- Only show the current company's reagents
+  AND reagents.company_id = ?
+-- Location must belong to the same company
+  AND locations.company_id = ?
 
 AND (
     reagents.name LIKE ?
@@ -149,7 +151,7 @@ ORDER BY
 $like = '%' . $search_query . '%';
 $category_filter = $_GET['category_filter'] ?? '';
 $stmt = $link->prepare($sql);
-$stmt->bind_param("ssss", $like, $like, $category_filter, $category_filter);
+$stmt->bind_param("iissss", $companyId, $companyId, $like, $like, $category_filter, $category_filter);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -336,7 +338,7 @@ include "navbar.php";
                         ")</span>";
                 }
 
-                "</td>";
+                echo "</td>";
 
                 // Catalog number
                 echo "<td>" .
@@ -381,13 +383,8 @@ include "navbar.php";
                 htmlspecialchars(
                     $row["current_quantity"]
                 ) .
-
                 " " .
-
-                htmlspecialchars(
-                    $row["unit"]
-                ) .
-
+                htmlspecialchars($row["unit"]) .
                 "</td>";
 
                 /* Reserved quantity */
@@ -397,13 +394,8 @@ include "navbar.php";
                 htmlspecialchars(
                     $row["reserved_quantity"]
                 ) .
-
                 " " .
-
-                htmlspecialchars(
-                    $row["unit"]
-                ) .
-
+                htmlspecialchars($row["unit"]) .
                 "</td>";
 
                 /* Available quantity */
@@ -413,13 +405,8 @@ include "navbar.php";
                 htmlspecialchars(
                     $row["available_quantity"]
                 ) .
-
                 " " .
-
-                htmlspecialchars(
-                    $row["unit"]
-                ) .
-
+                htmlspecialchars($row["unit"]) .
                 "</td>";
 
                 // Recommended storage condition for this reagent
@@ -467,25 +454,13 @@ include "navbar.php";
                 // Action button
                 echo "<td>";
 
-                if ($row["available_quantity"] > 0) {
-                    echo
-                    "<a
-                         class='button'
-                         href=" . BASE_URL . "user/make_reservation.php?lot_id=" .
-                         $row["lot_id"] .
-                         "'>
-                         Reserve
-                    </a>";
-                }
-                else {
-                    echo
-                    "<a
-                        class='button'
-                        href=" . BASE_URL . "user/request_order.php?reagent_id=" .
-                        $row["reagent_id"] .
-                        "'>
-                        Request Order
-                    </a>";
+                // CAUTION: reservation/order routes are NOT tenant-secured by this page.
+                if ((float)$row["available_quantity"] > 0) {
+                    $actionHref = BASE_URL . 'user/make_reservation.php?lot_id=' . (int)$row['lot_id'];
+                    echo '<a class="button" href="' . htmlspecialchars($actionHref, ENT_QUOTES, 'UTF-8') . '">Reserve</a>';
+                } else {
+                    $actionHref = BASE_URL . 'user/request_order.php?reagent_id=' . (int)$row['reagent_id'];
+                    echo '<a class="button" href="' . htmlspecialchars($actionHref, ENT_QUOTES, 'UTF-8') . '">Request Order</a>';
                 }
 
                 echo "</td>";
@@ -534,6 +509,16 @@ include "navbar.php";
         href="<?= BASE_URL ?>user/make_reservation.php"
     >
         Make Reservation
+    </a>
+
+
+        <h4>Didn't find the reagent you need? </h4>
+    <!-- Go to request order page -->
+    <a
+        class="button"
+        href="<?= BASE_URL ?>user/request_order.php"
+    >
+        Request Order
     </a>
 
 </main>

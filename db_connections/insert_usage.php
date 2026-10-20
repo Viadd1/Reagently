@@ -1,453 +1,185 @@
-<!-- DB Connection - Insert Usage 
-Records the final reagent usage for a reservation.
-It updates the physical stock, creates an inventory transaction, and changes the reservation status to COMPLETED. -->
-
 <?php
-
-// Start session and set base path variable
-require_once __DIR__ . "/../init.php";
-
-// Ensure that page has been entered through a POST method form
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
-// If the user is not logged in, redirect them to the login page
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /authentication/login.php");
+/**
+ * Record the final actual usage for exactly one ACTIVE reservation.
+ * Concurrency: lock reagent_lots FIRST, then reservation; use one transaction.
+ * Physical stock decreases by actual usage, not by reservation quantity.
+ * Remaining reserved amount becomes available when reservation becomes COMPLETED.
+ */
+require_once __DIR__ . '/../init.php';
+if (empty($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . 'authentication/login.php');
     exit;
 }
-
-// Include database connection
-include BASE_PATH . '/db.php';
-
-// Get the currently logged-in user's ID.
-// IMPORTANT:
-// user_id comes from the session, not from the form.
-$user_id =
-    $_SESSION['user_id'];
-
-// Get data submitted from record_usage.php
-$reservation_id =
-    (int) $_POST['reservation_id'];
-
-$quantity_used =
-    (float) $_POST['quantity_used'];
-
-$note =
-    $_POST['note'] ?? '';
-
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Insert Usage</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
-</head>
-
-<?php
-
-// Basic validation
-// quantity_used may be 0, but it cannot be negative.
-if ($quantity_used < 0) {
-    die(
-        "Usage quantity cannot be negative."
-    );
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Method not allowed.');
+}
+$expectedCsrf = (string) ($_SESSION['csrf_token'] ?? '');
+$submittedCsrf = (string) ($_POST['csrf_token'] ?? '');
+if ($expectedCsrf === '' || !hash_equals($expectedCsrf, $submittedCsrf)) {
+    http_response_code(403);
+    exit('Invalid request token. Reload Record Usage and retry.');
 }
 
-/* Start database transaction */
-// The following operations belong together:
-// 1. Update physical stock
-// 2. Create usage transaction
-// 3. Complete reservation
-// If one step fails, all changes should be cancelled.
+$userId = (int) $_SESSION['user_id'];
+$reservationId = filter_var($_POST['reservation_id'] ?? null, FILTER_VALIDATE_INT);
+$usedRaw = trim((string) ($_POST['quantity_used'] ?? ''));
+$note = trim((string) ($_POST['note'] ?? ''));
+if (!$reservationId || $reservationId <= 0 ||
+    !preg_match('/^\d+(?:\.\d{1,2})?$/D', $usedRaw) ||
+    (float) $usedRaw > 99999999.99 || strlen($note) > 2000) {
+    http_response_code(400);
+    exit('Invalid reservation, usage quantity, or note. Quantity must be nonnegative with up to two decimals.');
+}
+$usedCents = (int) round((float) $usedRaw * 100);
+require BASE_PATH . '/db.php';
+
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
+// Get current user's company ID
+$companyId = tenant_require_user($link);
+
+// This lookup happens OUTSIDE the transaction to avoid creating a stale InnoDB
+// snapshot before the lot lock. Ownership and status are rechecked under lock.
+$stmt = $link->prepare(
+    'SELECT res.lot_id FROM reservations res
+     JOIN projects p ON res.project_id = p.project_id
+     WHERE res.reservation_id = ? AND res.user_id = ? AND p.company_id = ?');
+
+
+$stmt->bind_param('iii', $reservationId, $userId, $companyId);
+$stmt->execute();
+$lookup = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if (!$lookup) {
+    http_response_code(404);
+    exit('Reservation not found.');
+}
+$lotId = (int) $lookup['lot_id'];
 $link->begin_transaction();
+try {
+    // All writers touching the same lot MUST take this lock before checking
+    // ACTIVE reservations. It serializes Usage, Cancel, Reserve, Adjust.
+    $stmt = $link->prepare(
+        'SELECT l.current_quantity FROM reagent_lots l
+         JOIN reagents r ON l.reagent_id = r.reagent_id
+         JOIN locations loc ON l.location_id = loc.location_id
+         WHERE l.lot_id = ? AND r.company_id = ? AND loc.company_id = ? AND r.is_deleted = 0
+         FOR UPDATE');
 
-/* Get and lock reservation */
-// Retrieve the ACTIVE reservation.
-// We also retrieve lot information because physical stock is stored in reagent_lots.
-// IMPORTANT:
-// user_id = ?
-// ensures that users can only record usage for their own reservations.
-// status = 'ACTIVE'
-// ensures that the same reservation cannot be completed twice.
-// FOR UPDATE locks the reservation and lot while the usage is being processed.
-$reservation_sql =
-"SELECT
+    $stmt->bind_param('iii', $lotId, $companyId, $companyId);
 
-    reservations.reservation_id,
-    reservations.lot_id,
-    reservations.quantity_reserved,
+    $stmt->execute();
+    $lot = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$lot) {
+        throw new DomainException('The reagent lot no longer exists.');
+    }
 
-    reagent_lots.current_quantity,
-
-    reagents.unit
-
-FROM reservations
-
-JOIN reagent_lots
-
-ON reservations.lot_id
-=
-reagent_lots.lot_id
-
-JOIN reagents
-
-ON reagent_lots.reagent_id
-=
-reagents.reagent_id
-
-WHERE reservations.reservation_id = ?
-
-AND reservations.user_id = ?
-
-AND reservations.status = 'ACTIVE'
-
-FOR UPDATE";
-
-// Prepare query
-$reservation_stmt =
-    $link->prepare($reservation_sql);
-
-// Bind IDs
-$reservation_stmt->bind_param(
-    "ii",
-    $reservation_id,
-    $user_id
-);
-
-// Execute
-$reservation_stmt->execute();
-
-// Get result
-$reservation_result =
-    $reservation_stmt->get_result();
-
-// The reservation must exist, belong to the current user, and still be ACTIVE.
-if ($reservation_result->num_rows !== 1) {
-
-    $link->rollback();
-
-    $reservation_stmt->close();
-
-    $link->close();
-
-    die(
-        "Reservation not found or usage cannot be recorded."
+    // Lock reservation only after the lot, keeping a consistent lock order.
+    $stmt = $link->prepare(
+        'SELECT res.quantity_reserved, res.status FROM reservations res
+         JOIN projects p ON res.project_id = p.project_id
+         WHERE res.reservation_id = ? AND res.user_id = ? AND res.lot_id = ? AND p.company_id = ?
+         FOR UPDATE'
     );
-}
+    $stmt->bind_param('iiii', $reservationId, $userId, $lotId, $companyId);
+    $stmt->execute();
+    $reservation = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$reservation || $reservation['status'] !== 'ACTIVE') {
+        throw new DomainException('Usage was already recorded, the reservation was cancelled, or it is not yours.');
+    }
 
-// Fetch reservation information
-$reservation =
-    $reservation_result->fetch_assoc();
+    $reservedCents = (int) round((float) $reservation['quantity_reserved'] * 100);
+    $physicalCents = (int) round((float) $lot['current_quantity'] * 100);
+    if ($usedCents > $reservedCents) {
+        throw new DomainException('Actual usage cannot exceed the reserved quantity.');
+    }
 
-// Get important values
-$lot_id =
-    (int) $reservation['lot_id'];
+    $stmt = $link->prepare(
+        "SELECT COALESCE(SUM(quantity_reserved), 0) AS active_reserved
+         FROM reservations WHERE lot_id = ? AND status = 'ACTIVE'"
+    );
+    $stmt->bind_param('i', $lotId);
+    $stmt->execute();
+    $totals = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    $activeCents = (int) round((float) $totals['active_reserved'] * 100);
+    if ($physicalCents < $activeCents) {
+        throw new RuntimeException('Inventory inconsistency: reservations exceed physical stock.');
+    }
 
-$quantity_reserved =
-    (float) $reservation['quantity_reserved'];
+    $stmt = $link->prepare(
+        "UPDATE reservations SET status = 'COMPLETED'
+         WHERE reservation_id = ? AND user_id = ? AND lot_id = ? AND status = 'ACTIVE'"
+    );
+    $stmt->bind_param('iii', $reservationId, $userId, $lotId);
+    $stmt->execute();
+    $completed = $stmt->affected_rows === 1;
+    $stmt->close();
+    if (!$completed) {
+        throw new DomainException('This reservation has already been processed.');
+    }
 
-$current_quantity =
-    (float) $reservation['current_quantity'];
-
-$unit =
-    $reservation['unit'];
-
-$reservation_stmt->close();
-
-/* Validate actual usage */
-// Actual usage cannot be larger than the originally reserved quantity.
-// Example:
-// Reserved = 10 mL
-// Used = 6 mL   -> allowed
-// Used = 10 mL  -> allowed
-// Used = 12 mL  -> NOT allowed
-if (
-    $quantity_used
-    >
-    $quantity_reserved
-) {
-
-    $link->rollback();
-
-    $link->close();
-
-    echo
-        "Usage quantity cannot be larger than the reserved quantity.";
-
-    echo "<br><br>";
-
-    echo
-        "Reserved quantity: " .
-        htmlspecialchars(
-            $quantity_reserved
-        ) .
-        " " .
-        htmlspecialchars(
-            $unit
+    $usedAmount = number_format($usedCents / 100, 2, '.', '');
+    if ($usedCents > 0) {
+        $stmt = $link->prepare(
+            'UPDATE reagent_lots SET current_quantity = current_quantity - ?
+             WHERE lot_id = ? AND current_quantity >= ?'
         );
+        $stmt->bind_param('did', $usedAmount, $lotId, $usedAmount);
+        $stmt->execute();
+        $updated = $stmt->affected_rows === 1;
+        $stmt->close();
+        if (!$updated) {
+            throw new RuntimeException('Physical quantity update failed.');
+        }
+    }
 
-    echo "<br><br>";
-
-    echo
-        '<a class="button" href=' . BASE_URL .'user/reservations.php>
-            Back to reservations
-        </a>';
-
-    exit;
-}
-
-// Also check physical stock.
-// Normally there should be enough stock, but stock may have changed because of an adjustment or other inventory operation.
-if (
-    $quantity_used
-    >
-    $current_quantity
-) {
-
-    $link->rollback();
-
-    $link->close();
-
-    echo
-        "Not enough physical stock.";
-
-    echo "<br><br>";
-
-    echo
-        "Current physical stock: " .
-        htmlspecialchars(
-            $current_quantity
-        ) .
-        " " .
-        htmlspecialchars(
-            $unit
-        );
-
-    echo "<br><br>";
-
-    echo
-        '<a class="button" href=' . BASE_URL . 'user/reservations.php>
-            Back to reservations
-        </a>';
-
-    exit;
-}
-
-/* Update physical stock */
-// Physical stock is reduced ONLY by the quantity actually used.
-// Example:
-// Physical = 100 mL
-// Reserved = 10 mL
-// Used     = 6 mL
-// New physical stock:
-// 100 - 6 = 94 mL
-$stock_sql =
-"UPDATE reagent_lots
-
- SET current_quantity =
-     current_quantity - ?
-
- WHERE lot_id = ?";
-
-$stock_stmt =
-    $link->prepare($stock_sql);
-
-// quantity_used = decimal
-// lot_id        = integer
-// Therefore: "di"
-$stock_stmt->bind_param(
-    "di",
-    $quantity_used,
-    $lot_id
-);
-
-// Execute stock update
-if (!$stock_stmt->execute()) {
-
-    $link->rollback();
-
-    die(
-        "Failed to update physical stock."
+    // quantity_change always means PHYSICAL delta (RESERVE/CANCEL log 0).
+    $negativeUsage = number_format(-$usedCents / 100, 2, '.', '');
+    $unused = number_format(($reservedCents - $usedCents) / 100, 2, '.', '');
+    $details = "Used {$usedAmount}; released {$unused} from ACTIVE reservation.";
+    if ($note !== '') {
+        $details .= " Note: {$note}";
+    }
+    $stmt = $link->prepare(
+        "INSERT INTO inventory_transactions
+         (lot_id, user_id, reservation_id, transaction_type, quantity_change, note)
+         VALUES (?, ?, ?, 'USAGE', ?, ?)"
     );
-}
-
-$stock_stmt->close();
-
-/* Create inventory transaction */
-// Store the physical stock change in inventory_transactions.
-// USAGE is a negative change.
-// Example:
-// quantity_used = 6
-// quantity_change = -6
-$transaction_type =
-    "USAGE";
-
-$quantity_change =
-    -$quantity_used;
-
-// Insert usage history
-$transaction_sql =
-"INSERT INTO inventory_transactions
-(
-    lot_id,
-    user_id,
-    reservation_id,
-    transaction_type,
-    quantity_change,
-    note
-)
-
-VALUES (?, ?, ?, ?, ?, ?)";
-
-$transaction_stmt =
-    $link->prepare($transaction_sql);
-
-// Data types:
-// lot_id            = integer
-// user_id           = integer
-// reservation_id    = integer
-// transaction_type  = string
-// quantity_change   = decimal
-// note              = string
-// Therefore: i i i s d s
-
-$transaction_stmt->bind_param(
-    "iiisds",
-    $lot_id,
-    $user_id,
-    $reservation_id,
-    $transaction_type,
-    $quantity_change,
-    $note
-);
-
-// Execute transaction INSERT
-if (!$transaction_stmt->execute()) {
-
+    $stmt->bind_param('iiids', $lotId, $userId, $reservationId, $negativeUsage, $details);
+    $stmt->execute();
+    $stmt->close();
+    $link->commit();
+} catch (Throwable $e) {
     $link->rollback();
-
-    die(
-        "Failed to create inventory transaction."
-    );
+    if ($e instanceof DomainException) {
+        http_response_code(409);
+        exit(htmlspecialchars($e->getMessage(), ENT_QUOTES));
+    }
+    error_log('Reagently usage transaction failed: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Unable to record usage. No database changes were saved.');
 }
-
-$transaction_stmt->close();
-
-/* Complete reservation */
-// The reservation has now been used.
-// Change its status:
-// ACTIVE
-//   ↓
-// COMPLETED
-// Once completed, the entire reserved quantity is released from the reservation system.
-// Any amount that was reserved but not used simply becomes available again.
-$complete_sql =
-"UPDATE reservations
-
- SET status = 'COMPLETED'
-
- WHERE reservation_id = ?
-
- AND user_id = ?
-
- AND status = 'ACTIVE'";
-
-$complete_stmt =
-    $link->prepare($complete_sql);
-
-$complete_stmt->bind_param(
-    "ii",
-    $reservation_id,
-    $user_id
-);
-
-// Execute status update
-if (!$complete_stmt->execute()) {
-
-    $link->rollback();
-
-    die(
-        "Failed to complete reservation."
-    );
-}
-
-// The reservation should have changed exactly once
-if ($complete_stmt->affected_rows !== 1) {
-
-    $link->rollback();
-
-    die(
-        "Reservation could not be completed."
-    );
-}
-
-$complete_stmt->close();
-
-/* Commit transaction */
-// All three operations were successful:
-// physical stock updated
-// usage transaction created
-// reservation completed
-// Save all changes permanently.
-$link->commit();
-
 ?>
-
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reagently - Usage Recorded</title>
+  <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES) ?>style.css">
+</head>
 <body>
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
-
+<?php include BASE_PATH . '/navbar.php'; ?>
 <main class="page">
-
-<?php
-
-/* Success message */
-echo
-    "Usage recorded successfully.";
-
-echo
-    "<br><br>";
-
-echo
-    "Actual quantity used: " .
-    htmlspecialchars(
-        $quantity_used
-    ) .
-    " " .
-    htmlspecialchars(
-        $unit
-    );
-
-echo
-    "<br><br>";
-
-echo
-    '<a class="button" href=' . BASE_URL . 'user/reservations.php>
-        Back to reservations
-    </a>';
-
-echo
-    "<br>";
-
-?>
-
+  <h2>Usage Recorded</h2>
+  <p>Actual usage: <?= htmlspecialchars($usedAmount, ENT_QUOTES) ?></p>
+  <p>Unused reservation released: <?= htmlspecialchars($unused, ENT_QUOTES) ?></p>
+  <p>The reservation is now COMPLETED. Physical stock has been reduced by the amount actually used.</p>
+  <a class="button" href="<?= BASE_URL ?>user/reservations.php">Back to Reservations</a>
 </main>
 </body>
 </html>
-
-<?php
-// Close database connection
-$link->close();
-?>

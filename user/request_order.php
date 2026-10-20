@@ -1,6 +1,3 @@
-<!-- Request Order 
-Allows a logged-in user to submit a text request for a reagent that is out of stock or not currently registered. -->
-
 <?php
 
 // Start session and set base path variable
@@ -15,6 +12,9 @@ if (!isset($_SESSION['user_id'])) {
 
 // Include database connection
 include BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_user($link);
+tenant_csrf_token();
 
 // Default values
 $reagent_id = null;
@@ -30,12 +30,12 @@ if (isset($_GET['reagent_id'])) {
     // Get reagent name from database
     $sql =
     "SELECT reagent_id, name FROM reagents 
-    WHERE reagent_id = ?
+    WHERE reagent_id = ? AND company_id = ?
     AND is_deleted = 0";
 
     $stmt = $link->prepare($sql);
 
-    $stmt->bind_param("i", $reagent_id);
+    $stmt->bind_param("ii", $reagent_id, $companyId);
 
     $stmt->execute();
 
@@ -92,6 +92,7 @@ include BASE_PATH . "/navbar.php";
         action="<?= BASE_URL ?>db_connections/insert_order_request.php"
         method="POST"
     >
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
 
         <!-- reagent_id is available when the reagent already exists in the database.
             It will be empty if the searched reagent does not exist yet. -->

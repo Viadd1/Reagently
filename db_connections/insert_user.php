@@ -1,247 +1,158 @@
 <?php
-/*
-Creates a new user account using information submitted from register.php.
-The password is checked and hashed before the user is added to the database.
-Afterwards, a verification email is sent to the user's email address.
-*/
+// Public company account request. No automatic admin role, no automatic approval.
+require_once __DIR__ . '/../init.php';
+require_once BASE_PATH . '/db.php';
 
-require_once __DIR__ . "/../init.php";
-
-// Ensure that page has been entered through a POST method form
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
-
-// Include database connection and send email function
-include BASE_PATH . '/db.php';
-require_once BASE_PATH . '/send_email.php';
-use function Email\sendEmail;
-
-function sendVerificationEmail(string $username, string $userEmail, mysqli $db): bool {
-    // 1. Create token
-    $token = bin2hex(random_bytes(32));
-
-    // The token is only valid for 24 hours,
-    // but we write +26 hours due to time zone difference
-    $expiresAt = date('Y-m-d H:i:s', strtotime('+26 hours'));
-
-    // 2. Save token
-    $sql = 'UPDATE users 
-            SET verification_token = ?, token_expires_at = ? 
-            WHERE username = ?';
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param('sss', $token, $expiresAt, $username);
-    $stmt->execute();
-
-    // 3. Build link
-    $link = BASE_URL . "/localhost/authentication/verify_email.php?token=" . $token;
-
-    // 4. Send email
-    $subject = "Please verify your email address";
-    $body = "
-        <h2>Welcome!</h2>
-        <p>Click the button below to verify your email address.</p>
-        <p><a href=\"$link\" style=\"background:#222;color:white;padding:12px 24px;
-        text-decoration:none;border-radius:4px;\">Verify Email</a></p>
-        <p>This link expires in 24 hours.</p>
-        <p>If you did not register, ignore this email.</p>
-    ";
-
-    return sendEmail($userEmail, $username, $subject, $body);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('POST required.');
 }
 
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Registration</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?=BASE_URL?>style.css"
-    >
-</head>
-<body>
-
-<?php
-include BASE_PATH . "/navbar.php";
-
-// Fetch data submitted from register.php
-$username =
-    $_POST['username'];
-
-$firstname =
-    $_POST['firstname'];
-
-$lastname =
-    $_POST['lastname'];
-
-$lab =
-    $_POST['lab'];
-
-$email =
-    $_POST['email'];
-
-$password =
-    $_POST['password'];
-
-$confirm_password =
-    $_POST['confirm_password'];
-
-/* Check that user has not entered username 'null'
-This is not allowed as it is reserved for a dummy user for deleted accounts */
-if ($username === 'null') {
-    die("Invalid username.");
+function registration_fail(string $message): never
+{
+    header('Location: ' . BASE_URL . 'authentication/register_company.php?error=' . rawurlencode($message));
+    exit;
 }
 
-// Ensure that username consists of alphanumeric characters only
-if (!ctype_alnum($username)) {
-    die("Username can only contain letters and numbers.");
+$csrf = $_POST['csrf_token'] ?? '';
+if (!is_string($csrf) || !isset($_SESSION['registration_csrf']) ||
+    !is_string($_SESSION['registration_csrf']) ||
+    !hash_equals($_SESSION['registration_csrf'], $csrf)) {
+    http_response_code(403);
+    exit('Invalid registration token. Open the registration page again.');
 }
 
-// Ensure that email is of valid format
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    die("$email is not a valid email address.");
+$companyId = filter_var($_POST['company_id'] ?? null, FILTER_VALIDATE_INT);
+
+// Reject non-text input rather than casting attacker-supplied arrays to strings.
+foreach (['username', 'firstname', 'lastname', 'lab', 'email', 'password', 'confirm_password'] as $field) {
+    if (isset($_POST[$field]) && !is_string($_POST[$field])) {
+        registration_fail('Invalid form data.');
+    }
 }
 
-// Check that password is 8 or more characters
+$username = trim($_POST['username'] ?? '');
+$firstname = trim($_POST['firstname'] ?? '');
+$lastname = trim($_POST['lastname'] ?? '');
+$lab = trim($_POST['lab'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$password = $_POST['password'] ?? '';
+$confirm = $_POST['confirm_password'] ?? '';
+
+if (!$companyId || $companyId < 1) {
+    registration_fail('Please select a company.');
+}
+if (!preg_match('/^[A-Za-z0-9]{1,100}$/D', $username) || strtolower($username) === 'null') {
+    registration_fail('Username must contain only letters and numbers.');
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
+    registration_fail('Invalid email address.');
+}
 if (strlen($password) < 8) {
-    die("Password not long enough.");
+    registration_fail('Password must be at least 8 characters long.');
 }
 
-// Check whether the two entered passwords match
-if ($password !== $confirm_password) {
-    die("Passwords do not match.");
+if ($password !== $confirm) {
+    registration_fail('Passwords do not match.');
 }
 
-// Hash the password before storing it in the database
-// The original password should never be stored directly
-$hashed_password =
-    password_hash(
-        $password,
-        PASSWORD_DEFAULT
-    );
-
-/* Before constructing and executing the SQL query for inserting users,
-check if any users exist already in the database.
-If no users exist, the first user becomes the admin.
-Otherwise, the role is automatically assigned as user and approved=0. */
-$sql_check_users = "SELECT *
-                    FROM users";
-
-$users = $link->query($sql_check_users);
-
-if ($users->num_rows == 0) {
-
-    $role = "admin";
-    $approved = 1;
-
-    $sql = 
-    "INSERT INTO users
-    (
-        username,
-        firstname,
-        lastname,
-        lab,
-        email,
-        password,
-        role,
-        approved
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-    // Prepare SQL statement
-    $stmt =
-        $link->prepare($sql);
-
-    $stmt->bind_param(
-        "sssssssi",
-        $username,
-        $firstname,
-        $lastname,
-        $lab,
-        $email,
-        $hashed_password,
-        $role,
-        $approved
-    );    
-
-} else {
-
-    // Read the admin that the user selected in the form
-    $supervisor_id = (int)($_POST['supervisor_id'] ?? 0);
-
-    // Make sure it is a real, approved admin
-    $check = $link->prepare(
-        "SELECT 1 FROM users WHERE user_id = ? AND role = 'admin' AND approved = 1");
-    $check->bind_param("i", $supervisor_id);
-    $check->execute();
-    if ($check->get_result()->num_rows !== 1) {
-        die("Please select a valid admin.");
+foreach ([$firstname, $lastname, $lab] as $field) {
+    if ((function_exists('mb_strlen') ? mb_strlen($field, 'UTF-8') : strlen($field)) > 100) {
+        registration_fail('One of the names or lab fields is too long.');
     }
-    $check->close();
-
-    $sql =
-    "INSERT INTO users
-    (
-        username,
-        firstname,
-        lastname,
-        lab,
-        email,
-        password,
-        supervisor_id
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-    // Prepare SQL statement
-    $stmt =
-        $link->prepare($sql);
-
-    $stmt->bind_param(
-        "ssssssi",
-        $username,
-        $firstname,
-        $lastname,
-        $lab,
-        $email,
-        $hashed_password,
-        $supervisor_id
-    );
 }
 
-// Execute the INSERT statement
-$result =
+$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$token = bin2hex(random_bytes(32));
+
+try {
+    $link->begin_transaction();
+
+    // Only users of an active company can register.
+    $stmt = $link->prepare(
+        "SELECT company_id FROM companies WHERE company_id = ? AND status = 'ACTIVE' FOR UPDATE"
+    );
+    $stmt->bind_param('i', $companyId);
     $stmt->execute();
-
-// Check whether registration was successful
-if ($result) {
-    echo "Account requested successfully.<br>";
-
-    if (!sendVerificationEmail($username, $email, $link)) {
-        echo "Failed to send verification email.";
-        exit;
+    $companyExists = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$companyExists) {
+        $link->rollback();
+        registration_fail('Company is not accepting registrations.');
     }
 
-    echo "Verification email sent to " . $email . ".";
-} else {
-
-    // Display database error
-    // For example, this may happen when an email address already exists because email is UNIQUE.
-    echo "Error: " .
-         $stmt->error;
+    // All new registrations remain ordinary users, pending email verification and approval.
+    $stmt = $link->prepare(
+        'INSERT INTO users (username, firstname, lastname, lab, email, password, role,
+                            approved, is_verified, company_id, verification_token, token_expires_at)
+         VALUES (?, ?, ?, ?, ?, ?, \'user\', 0, 0, ?, ?, DATE_ADD(NOW(), INTERVAL 24 HOUR))'
+    );
+    $stmt->bind_param(
+        'ssssssis',
+        $username,
+        $firstname,
+        $lastname,
+        $lab,
+        $email,
+        $passwordHash,
+        $companyId,
+        $token
+    );
+    $stmt->execute();
+    $stmt->close();
+    $link->commit();
+} catch (mysqli_sql_exception $e) {
+    $link->rollback();
+    error_log('Registration failed: ' . $e->getMessage());
+    registration_fail((int) $e->getCode() === 1062 ? 'Username or email already registered.' : 'Database error.');
 }
 
-session_destroy();
+unset($_SESSION['registration_csrf']);
 
-// Close prepared statement
-$stmt->close();
-// Close database connection
+// SMTP is optional in local testing. Never claim a verification email was sent unless it was.
+$emailSent = false;
+if (is_file(BASE_PATH . '/vendor/autoload.php') && is_file(BASE_PATH . '/.env')) {
+    try {
+        require_once BASE_PATH . '/send_email.php';
+        $base = getenv('REAGENTLY_APP_URL') ?: '';
+        if ($base === '') {
+            $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+            if (preg_match('/^(localhost|127\.0\.0\.1)(:[0-9]{1,5})?$/D', $host)) {
+                $base = 'http://' . $host;
+            }
+        }
+        if ($base !== '') {
+            $url = rtrim($base, '/') . BASE_URL . 'authentication/verify_email.php?token=' . rawurlencode($token);
+            $safeUser = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+            $safeUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+            $body = '<p>Hi ' . $safeUser . ',</p><p>Please verify your email within 24 hours:</p>' .
+                    '<p><a href="' . $safeUrl . '">Verify Email</a></p>';
+            $emailSent = \Email\sendEmail($email, $username, 'Verify your Reagently email', $body);
+        }
+    } catch (Throwable $e) {
+        error_log('Registration verification email failed: ' . $e->getMessage());
+    }
+}
 $link->close();
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reagently - Account request</title>
+    <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL . 'style.css', ENT_QUOTES, 'UTF-8') ?>">
+</head>
+<body>
+<?php include BASE_PATH . '/navbar.php'; ?>
+<main class="page">
+    <h2>Account request saved</h2>
+    <?php if ($emailSent): ?>
+        <p>Check your email for a verification link. After verification, your company administrator must approve the account.</p>
+    <?php else: ?>
+        <p>Your account request was saved, but the verification email was not sent. Ask the TEST administrator to verify this account in the TEST database. Company approval is still required.</p>
+    <?php endif; ?>
+    <a class="button" href="<?= htmlspecialchars(BASE_URL . 'authentication/login.php', ENT_QUOTES, 'UTF-8') ?>">Go to Login</a>
+</main>
+</body>
+</html>
