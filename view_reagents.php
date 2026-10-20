@@ -513,7 +513,7 @@ include "navbar.php";
 
 
         <h4>Didn't find the reagent you need? </h4>
-    <!-- Go to reservation page -->
+    <!-- Go to request order page -->
     <a
         class="button"
         href="<?= BASE_URL ?>user/request_order.php"
