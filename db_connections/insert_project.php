@@ -17,6 +17,10 @@ $project_name =
     $_POST['project_name'];
 $description =
     $_POST['description'];
+
+if (strtolower($project_name) == 'null') {
+    die("Invalid project name.");
+}
 ?>
 
 <!DOCTYPE html>

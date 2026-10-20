@@ -25,7 +25,7 @@ $sql_check_null = "SELECT project_id FROM projects
 $result = $link->query($sql_check_null);
 
 
-// Create null user in the database if it doesn't exist
+// Create null project in the database if it doesn't exist
 if ($result->num_rows == 0) {
 
     $sql_create_null = "INSERT INTO projects (`project_name`)
@@ -48,6 +48,36 @@ if ($result->num_rows == 1) {
     }
 }
 
+// Create project member entries for the null projects where necessary
+$sql_pm = "SELECT user_id
+           FROM project_members
+           WHERE project_id = ?";
+
+$stmt = $link->prepare($sql_pm);
+
+$stmt->bind_param(
+    "i",
+    $project_id
+);
+
+$stmt->execute();
+$result = $stmt->get_result();
+$stmt->close();
+
+while ($row = $result->fetch_assoc()) {
+
+    $sql_ins_pm = "INSERT INTO project_members(`user_id`, `project_id`)
+                   VALUES (?, ?)";
+    $stmt = $link->prepare($sql_ins_pm);
+
+    $stmt->bind_param(
+        "ii",
+        $row["user_id"],
+        $null_project_id
+    );
+
+    $stmt->execute();
+}
 
 /* Reroute inventory transactions to the null project.
 We want to preserve the inventory data since it is used for internal calculations. */
@@ -67,7 +97,7 @@ $stmt->execute();
 $stmt->close();
 
 
-/* Before removing the user, remove all project member entries linked to the user. */
+/* Before removing the project, remove all project member entries linked to the project. */
 $sql_rm_pm = "DELETE FROM project_members
               WHERE project_id = ?";
 
@@ -75,7 +105,9 @@ $stmt = $link->prepare($sql_rm_pm);
 $stmt->bind_param("i", $project_id);
 $stmt->execute();
 
-/* All links to the project have been removed or unlinked, so we can now delete the project from the database. */
+
+/* All links to the project have been removed or unlinked,
+so we can now delete the project from the database. */
 $sql_rm_proj = "DELETE FROM projects
                 WHERE project_id = ?";
 
@@ -114,7 +146,11 @@ else {
 
 include BASE_PATH . "/navbar.php";
 
-echo "Project deleted successfully.";
+echo "Project deleted successfully.<br><br>
+<a  class='button'
+    href='/admin/manage_projects.php'>
+    Back to Manage Projects
+</a>";
 
 }
 
