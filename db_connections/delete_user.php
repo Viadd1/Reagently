@@ -44,6 +44,38 @@ if ($result->num_rows == 1) {
     }
 }
 
+/* 
+Delete password reset entries from the user. They don't need to be saved.
+*/
+$sql_pr = "DELETE FROM password_resets
+           WHERE user_id = ?";
+
+$stmt = $link->prepare($sql_pr);
+
+$stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$stmt->execute();
+$stmt->close();
+
+/*
+Delete data about cookie consent from the user. They don't need to be saved.
+*/
+$sql_cc = "DELETE FROM cookie_consent
+           WHERE user_id = ?";
+
+$stmt = $link->prepare($sql_cc);
+
+$stmt->bind_param(
+    "i",
+    $user_id
+);
+
+$stmt->execute();
+$stmt->close();
+
 /* Delete order requests made by the user.
 Since order requests are personal, they can be deleted without rerouting. */
 $sql_or = "DELETE FROM order_requests
@@ -232,7 +264,9 @@ else {
 
 include BASE_PATH . "/navbar.php";
 
-echo "Account deleted successfully.";
+echo "Account deleted successfully.<br><br>
+
+<a class='button' href=" . BASE_URL . "admin/view_users.php>Back to Administer Users</a>";
 
 }
 
