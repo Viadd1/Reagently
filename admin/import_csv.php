@@ -11,10 +11,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-if (($_SESSION['role'] ?? '') !== 'admin') {
-    http_response_code(403);
-    die("Access denied. Admin permission is required.");
-}
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_csrf_token();
+$link->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -44,7 +45,8 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
         Optional columns: <strong> nicknames</strong>
         (separate several nicknames with <strong>|</strong>)<br>
     </p>
-    <form action="/DB_connections/insert_import.php" method="POST" enctype="multipart/form-data">
+    <form action="<?= BASE_URL ?>db_connections/insert_import.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="import_type" value="reagents">
         <input type="file" name="csv_file" accept=".csv" required>
         <input class="button" type="submit" value="Import reagents">
@@ -55,7 +57,8 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
         The reagent must already exist. Locations that do not exist yet
         are created automatically.
     </p>
-    <form action="/DB_connections/insert_import.php" method="POST" enctype="multipart/form-data">
+    <form action="<?= BASE_URL ?>db_connections/insert_import.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="import_type" value="lots">
         <input type="file" name="csv_file" accept=".csv" required>
         <input class="button" type="submit" value="Import lots">

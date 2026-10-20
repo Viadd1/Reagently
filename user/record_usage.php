@@ -1,6 +1,3 @@
-<!-- Record usage
-Displays an active reservation and allows the user to enter the actual quantity of reagent used and an optional note. -->
-
 <?php
 
 // Start session and set base path variable
@@ -13,12 +10,22 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// CSRF token for the usage POST form.
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Include database connection
 include BASE_PATH . '/db.php';
 
-// Get the currently logged-in user's ID
-$user_id =
-    $_SESSION['user_id'];
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
+
+// Get current user's company ID
+$companyId = tenant_require_user($link);
+
+// Get current user ID
+$user_id = (int) $_SESSION['user_id'];
 
 // Check whether reservation_id was provided in the URL
 // Example: record_usage.php?reservation_id=5
@@ -46,9 +53,7 @@ if ($reservation_id <= 0) {
 // ensures that the logged-in user can only record usage for their own reservation.
 // status = 'ACTIVE'
 // ensures that usage cannot be recorded for an already completed or cancelled reservation.
-$sql =
-"SELECT
-
+$sql = " SELECT
     reservations.reservation_id,
     reservations.quantity_reserved,
     reservations.needed_date,
@@ -66,40 +71,36 @@ $sql =
 FROM reservations
 
 JOIN projects
-
-ON reservations.project_id
-=
-projects.project_id
+    ON reservations.project_id = projects.project_id
 
 JOIN reagent_lots
-
-ON reservations.lot_id
-=
-reagent_lots.lot_id
+    ON reservations.lot_id = reagent_lots.lot_id
 
 JOIN reagents
+    ON reagent_lots.reagent_id = reagents.reagent_id
 
-ON reagent_lots.reagent_id
-=
-reagents.reagent_id
+JOIN locations
+    ON reagent_lots.location_id = locations.location_id
 
 WHERE reservations.reservation_id = ?
-
-AND reservations.user_id = ?
-
-AND reservations.status = 'ACTIVE'";
+  AND reservations.user_id = ?
+  AND reservations.status = 'ACTIVE'
+  AND projects.company_id = ?
+  AND reagents.company_id = ?
+  AND locations.company_id = ?
+";
 
 // Prepare SQL statement
-$stmt =
-    $link->prepare($sql);
+$stmt = $link->prepare($sql);
 
 // Bind variables
-// reservation_id = integer
-// user_id        = integer
 $stmt->bind_param(
-    "ii",
+    'iiiii',
     $reservation_id,
-    $user_id
+    $user_id,
+    $companyId,
+    $companyId,
+    $companyId
 );
 
 // Execute query
@@ -115,7 +116,7 @@ if ($result->num_rows !== 1) {
     $stmt->close();
     $link->close();
     die(
-        "Reservation not found or usage cannot be recorded."
+        'Reservation not found or usage cannot be recorded.'
     );
 }
 
@@ -129,23 +130,23 @@ $reservation =
 <head>
 
 <!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 
     <title>Reagently - Record usage</title>
     <!-- Use the existing stylesheet -->
     <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
+        rel='stylesheet'
+        href='<?= BASE_URL ?>style.css'
     >
 </head>
 <body>
 <?php
 
 // Main header and navigation bar
-include BASE_PATH . "/navbar.php";
+include BASE_PATH . '/navbar.php';
 ?>
 
-<main class="page">
+<main class='page'>
 
 <h1>Record Usage</h1>
 
@@ -237,6 +238,9 @@ The user does not need to type this value, but insert_usage.php needs to know wh
             );
         ?>"
     >
+
+    <input type="hidden" name="csrf_token"
+           value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
 
     <!-- Actual quantity used
         This can be smaller than the reserved quantity.

@@ -6,26 +6,31 @@ Include it on any page after init.php has started the session.
 It prints nothing for non-admins, or when no lot is expiring.
 */
 
-if (($_SESSION['role'] ?? '') === 'admin') {
+if (!empty($_SESSION['user_id']) && ($_SESSION['role'] ?? '') === 'admin') {
 
     // Use the page's existing database connection if there is one
     if (!isset($link)) {
         include BASE_PATH . "/db.php";
     }
 
-    $expiry_result = $link->query(
+    require_once BASE_PATH . '/includes/tenant_auth.php';
+    $companyId = tenant_require_admin($link);
+    $expiryStmt = $link->prepare(
         "SELECT
             COALESCE(SUM(l.expiry_date < CURDATE()), 0)  AS expired,
             COALESCE(SUM(l.expiry_date >= CURDATE()), 0) AS expiring
          FROM reagent_lots l
          JOIN reagents r ON r.reagent_id = l.reagent_id
-         WHERE r.is_deleted = 0
+         JOIN locations loc ON loc.location_id = l.location_id
+         WHERE r.company_id = ? AND loc.company_id = ? AND r.is_deleted = 0
            AND l.current_quantity > 0
            AND l.expiry_date IS NOT NULL
            AND l.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 1 MONTH)"
     );
-
-    $expiry_counts   = $expiry_result->fetch_assoc();
+    $expiryStmt->bind_param('ii', $companyId, $companyId);
+    $expiryStmt->execute();
+    $expiry_counts = $expiryStmt->get_result()->fetch_assoc();
+    $expiryStmt->close();
     $expiry_expired  = (int)$expiry_counts['expired'];
     $expiry_expiring = (int)$expiry_counts['expiring'];
 

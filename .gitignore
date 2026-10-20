@@ -1,3 +1,11 @@
-composer.*
-vendor/*
+# Environment files
+.env
 *.env
+
+# macOS temporary files
+.DS_Store
+
+# PHP dependencies
+/vendor/
+composer.phar
+composer-setup.php
