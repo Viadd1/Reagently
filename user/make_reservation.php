@@ -1,7 +1,3 @@
-<!-- Make Reservation 
-Displays the reservation form for the logged-in user.
-Only projects the user belongs to are shown, and reagent availability is calculated from the current stock and active reservations. -->
-
 <?php
 
 // Start session and set base path variable
@@ -17,9 +13,14 @@ if (!isset($_SESSION['user_id'])) {
 // Include database connection
 include BASE_PATH . '/db.php';
 
-// Get the ID of the currently logged-in user
-$user_id =
-    $_SESSION['user_id'];
+// Include company authorization
+require_once BASE_PATH . '/includes/tenant_auth.php';
+
+// Get logged-in user ID
+$user_id = (int) $_SESSION['user_id'];
+
+// Get current user's company ID
+$companyId = tenant_require_user($link);
 
 //Get user's projects
 // Only show projects that the current user belongs to. project_members connects users and projects.
@@ -33,6 +34,7 @@ $project_sql =
  JOIN project_members ON projects.project_id = project_members.project_id
 
  WHERE project_members.user_id = ?
+    AND projects.company_id = ?
 
  ORDER BY projects.project_name";
 
@@ -41,8 +43,9 @@ $project_stmt = $link->prepare($project_sql);
 
 // Bind the current user's ID
 $project_stmt->bind_param(
-    "i",
-    $user_id
+    "ii",
+    $user_id,
+    $companyId
 );
 
 // Execute the query
@@ -99,9 +102,10 @@ LEFT JOIN (
 
 ON reagent_lots.lot_id = reservation_totals.lot_id
 
-WHERE
-
-    reagents.is_deleted = 0 AND reagent_lots.current_quantity - COALESCE( reservation_totals.reserved_quantity, 0) > 0
+WHERE reagents.is_deleted = 0
+    AND reagents.company_id = ?
+    AND locations.company_id = ?
+    AND reagent_lots.current_quantity - COALESCE( reservation_totals.reserved_quantity, 0) > 0
 
 ORDER BY
 
@@ -109,8 +113,10 @@ ORDER BY
     reagent_lots.expiry_date";
 
 // Execute the reagent lot query
-$lot_result =
-    $link->query($lot_sql);
+$lot_stmt = $link->prepare($lot_sql);
+$lot_stmt->bind_param("ii",$companyId,$companyId);
+$lot_stmt->execute();
+$lot_result = $lot_stmt->get_result();
 
 ?>
 
@@ -281,6 +287,7 @@ The selected project, reagent lot, quantity and needed date will be sent to inse
 <?php
 // Close the prepared project query
 $project_stmt->close();
+$lot_stmt->close();
 // Close database connection
 $link->close();
 ?>

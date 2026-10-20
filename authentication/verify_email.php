@@ -1,46 +1,28 @@
 <?php
-// Include database connection 
 require_once __DIR__ . '/../init.php';
-require BASE_PATH . '/db.php';
-
-$token = $_GET['token'] ?? '';
-if (empty($token)) {
-    die('Invalid link.');
+require_once BASE_PATH . '/db.php';
+$token = $_GET['token'] ?? null;
+if (!is_string($token) || !preg_match('/\A[a-f0-9]{64}\z/D', $token)) {
+    http_response_code(400);
+    exit('Invalid verification link.');
 }
-
-// Look up the token — must exist and not be expired
-$sql = 'SELECT user_id FROM users
-        WHERE verification_token = ?
-        AND token_expires_at > NOW()
-        AND is_verified = 0';
-
-$stmt = $link->prepare($sql);
-$stmt->bind_param('s', $token);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if (!$result) {
-    die('This link is invalid or has expired. Please request a new one.');
-    
-} else {
-    while ($row = $result->fetch_assoc()) {
-        $user_id = $row["user_id"];
-    }
+try {
+    $stmt = $link->prepare(
+        'UPDATE users SET is_verified = 1, verification_token = NULL, token_expires_at = NULL
+         WHERE verification_token = ? AND token_expires_at > NOW() AND is_verified = 0'
+    );
+    $stmt->bind_param('s', $token);
+    $stmt->execute();
+    $verified = $stmt->affected_rows === 1;
+    $stmt->close();
+} catch (mysqli_sql_exception $e) {
+    error_log('Email verification failed: ' . $e->getMessage());
+    http_response_code(500); exit('Unable to verify email.');
 }
-
-$stmt->close();
-
-// Mark the account as verified and clear the token
-$verify_sql =  'UPDATE users
-                SET is_verified = 1, verification_token = NULL
-                WHERE user_id = ?';
-
-$stmt = $link->prepare($verify_sql);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-
-echo 'Your email has been verified! <a href="login.php">Log in</a>';
-
-$stmt->close();
 $link->close();
 ?>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Verify Email</title>
+<link rel="stylesheet" href="<?= BASE_URL ?>style.css"></head><body>
+<?php include BASE_PATH . '/navbar.php'; ?>
+<main class="page"><p><?= $verified ? 'Your email has been verified. You can log in once your company administrator approves your account.' : 'This verification link is invalid, expired or already used.' ?></p>
+<a class="button" href="<?= BASE_URL ?>authentication/login.php">Login</a></main></body></html>

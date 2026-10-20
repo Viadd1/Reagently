@@ -1,8 +1,5 @@
-<!-- Login 
-Displays the login form where users enter their username and password.
-The form sends the login information to login_process.php.
--->
 <?php
+/* Login form: CAPTCHA verification is handled by login_process.php. */
 require_once __DIR__ . '/../init.php';
 ?>
 <!DOCTYPE html>
@@ -89,7 +86,7 @@ include BASE_PATH . "/navbar.php";
         <br><br>
         
         <!-- Refresh CAPTCHA without refreshing the whole page -->
-         <button
+         <button type="button"
                 class=button
                 onclick="document.getElementById('captchaImage').src ='captcha.php?' + Date.now();" >
                 Refresh CAPTCHA

@@ -1,6 +1,3 @@
-<!-- Displays a form for creating a new research project.
-The form sends the project information to insert_project.php. -->
-
 <?php
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
@@ -12,16 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_csrf_token();
+$link->close();
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +48,7 @@ The entered project information will be sent to insert_project.php using the POS
     action="<?= BASE_URL ?>db_connections/insert_project.php"
     method="POST"
 >
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
     <!-- Project name is required because project_name is NOT NULL in the database -->
     Project name:
     <input

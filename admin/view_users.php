@@ -1,6 +1,3 @@
-<!-- Administration page for Reagently users, where 
-Only users with the admin role can access this page. -->
-
 <?php
 
 // Start session and set base path variable
@@ -13,53 +10,22 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
-
-// Include database connection
-include BASE_PATH . '/db.php';
-
-// Give search_query a default value when the page is opened without a search
-$_GET['search_query'] =
-    $_GET['search_query'] ?? '';
-
-// If admin has searched for something, save in variable
-if ($_GET['search_query']) {
-    $search_query = $_GET['search_query'];
-} 
-else {
-    $search_query = "";
-}
-
-$sql = 
-" SELECT
-        user_id,
-        username,
-        lab,
-        firstname,
-        lastname,
-        email,
-        approved
-
-    FROM users
-    
-    WHERE username LIKE '%$search_query%'
-
-    OR firstname LIKE '%$search_query%'
-
-    OR lastname LIKE '%$search_query%'
-    
-    ORDER BY lastname";
-
-$result = $link->query($sql);
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_csrf_token();
+$searchQuery = $_GET['search_query'] ?? '';
+if (!is_string($searchQuery)) $searchQuery = '';
+$like = '%' . substr(trim($searchQuery), 0, 100) . '%';
+$stmt = $link->prepare(
+    "SELECT user_id, username, lab, firstname, lastname, email, approved
+     FROM users WHERE company_id = ? AND role IN ('admin','user')
+       AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)
+     ORDER BY lastname, username"
+);
+$stmt->bind_param('isss', $companyId, $like, $like, $like);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -212,6 +178,7 @@ include BASE_PATH . "/navbar.php";
                     method='POST'
                     style='display:inline;'
                     >
+                    <input type='hidden' name='csrf_token' value='" . htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') . "'>
                     <input 
                     type='hidden' 
                     name='user_id' 

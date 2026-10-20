@@ -1,5 +1,4 @@
-<!-- User
-Displays information for the currently logged-in user, including personal details, project memberships and reservations. -->
+
 
 <?php
 
@@ -16,9 +15,19 @@ if (!isset($_SESSION['user_id'])) {
 // Include database connection
 include 'db.php';
 
-// Get current user's ID from session
-$user_id =
-    $_SESSION['user_id'];
+// Company Data Isolation
+require_once BASE_PATH . '/includes/tenant_auth.php';
+
+// Verify user and company
+$companyId = tenant_require_user($link);
+
+// Get current user's ID
+$user_id = (int) $_SESSION['user_id'];
+
+// CSRF protection for cancelling reservations
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Get user information:
 // Get personal information about the currently logged-in user
@@ -34,7 +43,7 @@ $user_sql =
 
  FROM users
 
- WHERE user_id = ?";
+ WHERE user_id = ? AND company_id = ?";
 
 // Prepare query
 $user_stmt =
@@ -42,8 +51,8 @@ $user_stmt =
 
 // Bind current user ID
 $user_stmt->bind_param(
-    "i",
-    $user_id
+    "ii",
+    $user_id, $companyId
 );
 
 // Execute query
@@ -83,7 +92,7 @@ $project_sql =
  =
  project_members.project_id
 
- WHERE project_members.user_id = ?
+ WHERE project_members.user_id = ? AND projects.company_id = ?
 
  ORDER BY projects.project_name";
 
@@ -91,8 +100,8 @@ $project_stmt =
     $link->prepare($project_sql);
 
 $project_stmt->bind_param(
-    "i",
-    $user_id
+    "ii",
+    $user_id, $companyId
 );
 
 $project_stmt->execute();
@@ -123,25 +132,15 @@ $reservation_sql =
 
  FROM reservations
 
- JOIN projects
+ JOIN projects ON reservations.project_id = projects.project_id
 
- ON reservations.project_id
- =
- projects.project_id
+ JOIN reagent_lots ON reservations.lot_id = reagent_lots.lot_id
 
- JOIN reagent_lots
+ JOIN reagents ON reagent_lots.reagent_id = reagents.reagent_id
 
- ON reservations.lot_id
- =
- reagent_lots.lot_id
+ JOIN locations ON reagent_lots.location_id = locations.location_id
 
- JOIN reagents
-
- ON reagent_lots.reagent_id
- =
- reagents.reagent_id
-
- WHERE reservations.user_id = ?
+ WHERE reservations.user_id = ? AND projects.company_id = ? AND reagents.company_id = ? AND locations.company_id = ?
 
  ORDER BY
 
@@ -157,8 +156,8 @@ $reservation_stmt =
     $link->prepare($reservation_sql);
 
 $reservation_stmt->bind_param(
-    "i",
-    $user_id
+    "iiii",
+    $user_id, $companyId, $companyId, $companyId,
 );
 
 $reservation_stmt->execute();
@@ -250,6 +249,7 @@ include BASE_PATH . "/navbar.php";
             method='POST'
             style='display:inline;'
             >
+                <input type='hidden' name='csrf_token' value='" . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') . "'>
                 <input 
                 type='hidden' 
                 name='user_id' 
@@ -427,12 +427,21 @@ include BASE_PATH . "/navbar.php";
                 "ACTIVE"
             ) {
 
-                echo
-                "<a class='button' href=" . BASE_URL . "user/record_usage.php?reservation_id=" .
-                $reservation["reservation_id"] .
-                "'>
-                    Record usage
-                </a>";
+                // Cancel reservation via POST with CSRF protection
+            echo '<form method="POST" action="' .
+                htmlspecialchars(
+                    BASE_URL . 'db_connections/cancel_reservation.php', ENT_QUOTES, 'UTF-8') .
+                '" onsubmit="return confirm(\'Cancel this reservation?\');">' .
+
+                '<input type="hidden" name="reservation_id" value="' .
+                (int) $reservation['reservation_id'] . '">' .
+
+                '<input type="hidden" name="csrf_token" value="' .
+                htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') .
+                '">' .
+
+                '<button class="button" type="submit">Cancel</button>' .
+                '</form>';
 
                 echo "<br><br>";
 

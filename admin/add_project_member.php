@@ -1,6 +1,3 @@
-<!--Displays a form for adding an existing user to an existing project.
-Users and projects are loaded from the database and shown in dropdown menus. -->
-
 <?php
 // Start session and set base path variable
 require_once __DIR__ . "/../init.php";
@@ -12,48 +9,19 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Only admins can access this page
-if (
-    !isset($_SESSION['role'])
-    ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die(
-        "Access denied. Admin permission is required."
-    );
-}
-
-// Include database connection
-include BASE_PATH . '/db.php';
-
-// Get all projects from the database. These projects will be shown in the project dropdown
-$project_sql =
-"SELECT
-    project_id,
-    project_name
-
- FROM projects
-
- ORDER BY project_name";
-
-$project_result =
-    $link->query($project_sql);
-
-// Get all users from the database. These users will be shown in the user dropdown
-$user_sql =
-"SELECT
-    user_id,
-    username,
-    firstname,
-    lastname,
-    email
-
- FROM users
-
- ORDER BY username";
-
-$user_result =
-    $link->query($user_sql);
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_admin($link);
+tenant_csrf_token();
+$projectStmt = $link->prepare('SELECT project_id, project_name FROM projects WHERE company_id = ? ORDER BY project_name');
+$projectStmt->bind_param('i', $companyId);
+$projectStmt->execute();
+$project_result = $projectStmt->get_result();
+$userStmt = $link->prepare("SELECT user_id, username, firstname, lastname, email
+    FROM users WHERE company_id = ? AND role IN ('user','admin') AND approved = 1 AND is_verified = 1 ORDER BY username");
+$userStmt->bind_param('i', $companyId);
+$userStmt->execute();
+$user_result = $userStmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -87,6 +55,7 @@ The selected project_id and user_id will be sent to insert_project_member.php.--
     action="<?= BASE_URL ?>db_connections/insert_project_member.php"
     method="POST"
 >
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
     <!-- Project selection -->
     Project:
     <select
@@ -178,5 +147,7 @@ The selected project_id and user_id will be sent to insert_project_member.php.--
 
 <?php
 // Close database connection
+$projectStmt->close();
+$userStmt->close();
 $link->close();
 ?>

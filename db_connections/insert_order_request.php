@@ -1,6 +1,3 @@
-<!-- DB Connection - Insert Order Request 
-Saves a reagent order request submitted by a logged-in user. -->
-
 <?php
 
 // Start session and set base path variable
@@ -16,161 +13,48 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Include database connection
-include BASE_PATH . '/db.php';
-
-// Get current user's ID from session
-$user_id = $_SESSION['user_id'];
-
-// Get submitted form data
-$reagent_id = $_POST['reagent_id'] ?? '';
-
-$reagent_name = trim($_POST['reagent_name'] ?? '');
-
-$request_text = trim($_POST['request_text'] ?? '');
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reagently - Request Order</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
-</head>
-
-<?php
-
-// Validate form data
-// Reagent name cannot be empty
-if ($reagent_name === '') {
-    die("Reagent name is required.");
+// The company is verified against the current session's database account.
+require_once BASE_PATH . '/db.php';
+require_once BASE_PATH . '/includes/tenant_auth.php';
+$companyId = tenant_require_user($link);
+tenant_require_post_csrf();
+$userId = (int)$_SESSION['user_id'];
+$reagentIdRaw = $_POST['reagent_id'] ?? '';
+$name = $_POST['reagent_name'] ?? null;
+$note = $_POST['request_text'] ?? null;
+if (!is_string($name) || !is_string($note) || trim($name) === '' || trim($note) === '' || strlen(trim($name)) > 255) {
+    http_response_code(400); exit('Invalid reagent name or request.');
 }
-
-// Request message cannot be empty
-if ($request_text === '') {
-    die("Request message is required.");
-}
-
-//Insert order request
-// There are two possible cases: 
-// 1. Existing reagent: reagent_id has a value 
-// 2. Reagent does not exist: reagent_id is empty / NULL
-if ($reagent_id !== '') {
-    // Existing reagent
-    $reagent_id = (int) $reagent_id;
-
-    $sql =
-    "INSERT INTO order_requests
-    (
-        user_id,
-        reagent_id,
-        reagent_name,
-        request_text
-    )
-
-    VALUES (?, ?, ?, ?)";
-
-    $stmt =
-        $link->prepare($sql);
-
-    // user_id      = integer
-    // reagent_id   = integer
-    // reagent_name = string
-    // request_text = string
-
-    $stmt->bind_param(
-        "iiss",
-        $user_id,
-        $reagent_id,
-        $reagent_name,
-        $request_text
-    );
-
-} else {
-
-    // Reagent does not exist in the database.
-    // reagent_id is stored as NULL.
-    $sql =
-    "INSERT INTO order_requests
-    (
-        user_id,
-        reagent_id,
-        reagent_name,
-        request_text
-    )
-
-    VALUES (?, NULL, ?, ?)";
-
-    $stmt =
-        $link->prepare($sql);
-
-    // user_id      = integer
-    // reagent_name = string
-    // request_text = string
-
-    $stmt->bind_param(
-        "iss",
-        $user_id,
-        $reagent_name,
-        $request_text
-    );
-}
-
-// Execute INSERT
-$result =
-    $stmt->execute();
-
-?>
-
-<body>
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
-
-<main class="page">
-
-<?php
-
-//Result
-if ($result) {
-    echo
-        "Order request submitted successfully.";
-
-    echo
-        "<br><br>";
-
-    echo
-        "Requested reagent: " .
-        htmlspecialchars(
-            $reagent_name
+$name=trim($name); $note=trim($note);
+try {
+    if ($reagentIdRaw !== '') {
+        $reagentId=filter_var($reagentIdRaw, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+        if (!is_int($reagentId)) {http_response_code(400); exit('Invalid reagent ID.');}
+        // The reagent must belong to the submitter's company.
+        $stmt = $link->prepare(
+            "INSERT INTO order_requests (user_id, reagent_id, reagent_name, request_text)
+             SELECT ?, r.reagent_id, r.name, ? FROM reagents r
+             WHERE r.reagent_id = ? AND r.company_id = ? AND r.is_deleted = 0"
         );
-
-} else {
-
-    echo
-        "Error: " .
-        $stmt->error;
-
+        $stmt->bind_param('isii', $userId, $note, $reagentId, $companyId);
+    } else {
+        $stmt = $link->prepare(
+            'INSERT INTO order_requests (user_id, reagent_id, reagent_name, request_text) VALUES (?, NULL, ?, ?)'
+        );
+        $stmt->bind_param('iss', $userId, $name, $note);
+    }
+    $stmt->execute();
+    $inserted = $stmt->affected_rows === 1;
+    $stmt->close();
+} catch (mysqli_sql_exception $e) {
+    error_log('Order insert failed: '.$e->getMessage());
+    $inserted=false;
 }
-
-?>
-
-</main>
-</body>
-</html>
-
-<?php
-// Close statement
-$stmt->close();
-// Close database connection
 $link->close();
 ?>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Request Order</title>
+<link rel="stylesheet" href="<?= BASE_URL ?>style.css"></head><body>
+<?php include BASE_PATH . '/navbar.php'; ?><main class="page">
+<h2><?= $inserted ? 'Order request submitted successfully.' : 'Order request could not be submitted.' ?></h2>
+<a class="button" href="<?= BASE_URL ?>user/request_order.php">Back to request</a>
+</main></body></html>
