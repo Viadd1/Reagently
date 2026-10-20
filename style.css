@@ -7,7 +7,7 @@
 
 body {
 background-color: white;
-color: hotpink;
+color: #8B0000;
 font-family: 'Times New Roman', Times, serif;}
 
 /* Website title */
@@ -30,7 +30,7 @@ align-items: center;
 /* Space between buttons */
 gap: 10px;
 /* Navigation background */
-background-color: hotpink;
+background-color: #123A63;
 /* Space inside navigation bar */
 padding: 12px;}
 /* Navigation links */
@@ -42,7 +42,7 @@ padding: 10px 18px;
 border-radius: 5px;}
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
-background-color: hotpink;}
+background-color: #254117;}
 
 .table {
     border-collapse: collapse;
