@@ -6,7 +6,7 @@ require_once "init.php";
 
 <!-- Website title -->
 <header>
-    <h1>Reagently</h1>
+    <h1>R e a g e n t l y</h1>
 </header>
 
 <nav class="navbar">
