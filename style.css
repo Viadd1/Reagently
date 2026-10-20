@@ -7,7 +7,7 @@
 
 body {
 background-color: white;
-color: #222;
+color: hotpink;
 font-family: 'Times New Roman', Times, serif;}
 
 /* Website title */
@@ -30,7 +30,7 @@ align-items: center;
 /* Space between buttons */
 gap: 10px;
 /* Navigation background */
-background-color: #222;
+background-color: hotpink;
 /* Space inside navigation bar */
 padding: 12px;}
 /* Navigation links */
@@ -42,7 +42,7 @@ padding: 10px 18px;
 border-radius: 5px;}
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
-background-color: #222;}
+background-color: hotpink;}
 
 .table {
     border-collapse: collapse;
@@ -52,7 +52,7 @@ background-color: #222;}
 
 .table th,
 .table td {
-    border: 1px solid #222;
+    border: 1px solid hotpink;
     padding: 8px 12px; /* Spacing in cells */
     text-align: left;}
 
@@ -93,7 +93,7 @@ justify-content: center;}
 .button {
 display: inline-block;
 padding: 12px 20px;
-background-color: #222;
+background-color: hotpink;
 color: white;
 text-decoration: none;
 font-family: 'Times New Roman', Times, serif;
@@ -260,13 +260,13 @@ line-height: 1.6;}
     padding: 24px;
 
     background: white;
-    color: #222;
+    color: hotpink;
 
     border: 1px solid #ddd;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
-    font-family: Arial, sans-serif;
+    font-family:'Times New Roman', Times, serif;
     z-index: 1000;}
 
 #cookie-banner h2 {
@@ -293,4 +293,4 @@ line-height: 1.6;}
 
 #reject-cookies {
     background: #eee;
-    color: #222;}
+    color: hotpink;}
