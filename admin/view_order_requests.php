@@ -1,222 +1,219 @@
 <?php
+/**
+ * Company-scoped order request management.
+ * Keep both Accept and Deny actions introduced on main.
+ * An order request is removed only after the email was sent successfully.
+ */
 require_once __DIR__ . '/../init.php';
 require_once BASE_PATH . '/db.php';
 require_once BASE_PATH . '/includes/tenant_auth.php';
+
 $companyId = tenant_require_admin($link);
-tenant_csrf_token();
-$email_msg = '';
+$csrfToken = tenant_csrf_token();
+
+function orderRequestRedirect(string $key, string $message): void
+{
+    header('Location: ' . BASE_URL . 'admin/view_order_requests.php?' . $key . '=' . urlencode($message));
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     tenant_require_post_csrf();
-    $requestId = filter_var($_POST['request_id'] ?? null, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
-    if (!is_int($requestId)) { http_response_code(400); exit('Invalid order request ID.'); }
-    // All recipient details are looked up by request ID and current company.
-    $stmt = $link->prepare(
-        'SELECT o.request_id, o.reagent_name, u.username, u.email FROM order_requests o
-         JOIN users u ON o.user_id = u.user_id
-         WHERE o.request_id = ? AND u.company_id = ?'
+
+    $requestId = filter_var(
+        $_POST['request_id'] ?? null,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1]]
     );
-    $stmt->bind_param('ii', $requestId, $companyId);
-    $stmt->execute(); $recipient = $stmt->get_result()->fetch_assoc(); $stmt->close();
-    if (!$recipient) {
-        $email_msg = 'Order request not found in your company.';
-    } else {
-        require_once BASE_PATH . '/send_email.php';
-        $safeName = htmlspecialchars($recipient['username'], ENT_QUOTES, 'UTF-8');
-        $safeReagent = htmlspecialchars($recipient['reagent_name'], ENT_QUOTES, 'UTF-8');
-        $body = '<p>Hi ' . $safeName . ',</p><p>Your requested reagent, ' . $safeReagent .
-                ', has been marked available. Sign in to Reagently to make a reservation.</p>';
-        try {
-            $sent = \Email\sendEmail($recipient['email'], $recipient['username'], 'Order request accepted', $body);
-        } catch (Throwable $e) {
-            error_log('Order request email failed: ' . $e->getMessage()); $sent=false;
-        }
-        if ($sent) {
-            $stmt = $link->prepare(
-                'DELETE o FROM order_requests o JOIN users u ON o.user_id = u.user_id
-                 WHERE o.request_id = ? AND u.company_id = ?'
-            );
-            $stmt->bind_param('ii', $requestId, $companyId);
-            $stmt->execute(); $stmt->close();
-            $email_msg = 'User notified; order request archived from the pending list.';
-        } else {
-            $email_msg = 'Email failed. The request remains in the pending list.';
-        }
+    $action = $_POST['action'] ?? null;
+
+    if (!is_int($requestId) || !is_string($action) || !in_array($action, ['accept', 'deny'], true)) {
+        orderRequestRedirect('error', 'Invalid order request or action.');
     }
+
+    // Fetch recipient data from the database, not from untrusted POST fields.
+    // The requester and, when linked, the reagent must belong to this company.
+    try {
+        $recipientStmt = $link->prepare(
+            'SELECT o.request_id, o.reagent_name, u.username, u.email
+             FROM order_requests AS o
+             JOIN users AS u ON u.user_id = o.user_id
+             LEFT JOIN reagents AS r ON r.reagent_id = o.reagent_id
+             WHERE o.request_id = ?
+               AND u.company_id = ?
+               AND (o.reagent_id IS NULL OR r.company_id = ?)
+             LIMIT 1'
+        );
+        $recipientStmt->bind_param('iii', $requestId, $companyId, $companyId);
+        $recipientStmt->execute();
+        $recipient = $recipientStmt->get_result()->fetch_assoc();
+        $recipientStmt->close();
+    } catch (mysqli_sql_exception $e) {
+        error_log('Order request lookup failed: ' . $e->getMessage());
+        orderRequestRedirect('error', 'Database error.');
+    }
+
+    if (!$recipient) {
+        orderRequestRedirect('error', 'Order request not found in your company.');
+    }
+
+    // Loading send_email.php also loads Composer and SMTP configuration.
+    // Missing mail configuration must not crash the management page.
+    if (
+        !is_file(BASE_PATH . '/send_email.php') ||
+        !is_file(BASE_PATH . '/vendor/autoload.php') ||
+        !is_file(BASE_PATH . '/.env')
+    ) {
+        orderRequestRedirect('error', 'Email is not configured. The order request was kept.');
+    }
+
+    $safeName = htmlspecialchars($recipient['username'], ENT_QUOTES, 'UTF-8');
+    $safeReagent = htmlspecialchars($recipient['reagent_name'], ENT_QUOTES, 'UTF-8');
+
+    if ($action === 'accept') {
+        $subject = 'Order request accepted';
+        $reservationUrl = htmlspecialchars(
+            BASE_URL . 'user/make_reservation.php',
+            ENT_QUOTES,
+            'UTF-8'
+        );
+        $body = '<p>Hi ' . $safeName . ',</p>'
+              . '<p>Your order request for ' . $safeReagent . ' has been accepted.</p>'
+              . '<p>Please check current availability before making a reservation.</p>'
+              . '<p><a href="' . $reservationUrl . '">Make Reservation</a></p>';
+    } else {
+        $subject = 'Order request denied';
+        $body = '<p>Hi ' . $safeName . ',</p>'
+              . '<p>Your order request for ' . $safeReagent . ' has been denied.</p>'
+              . '<p>Contact your lab administrator if you have questions.</p>';
+    }
+
+    try {
+        require_once BASE_PATH . '/send_email.php';
+        $sent = \Email\sendEmail(
+            $recipient['email'],
+            $recipient['username'],
+            $subject,
+            $body
+        );
+    } catch (Throwable $e) {
+        error_log('Order request email failed: ' . $e->getMessage());
+        $sent = false;
+    }
+
+    if (!$sent) {
+        orderRequestRedirect('error', 'Unable to notify the user. The request was kept.');
+    }
+
+    // Delete only after successfully sending the email. Scope the DELETE too.
+    try {
+        $deleteStmt = $link->prepare(
+            'DELETE o FROM order_requests AS o
+             JOIN users AS u ON u.user_id = o.user_id
+             LEFT JOIN reagents AS r ON r.reagent_id = o.reagent_id
+             WHERE o.request_id = ?
+               AND u.company_id = ?
+               AND (o.reagent_id IS NULL OR r.company_id = ?)'
+        );
+        $deleteStmt->bind_param('iii', $requestId, $companyId, $companyId);
+        $deleteStmt->execute();
+        $deleted = $deleteStmt->affected_rows;
+        $deleteStmt->close();
+    } catch (mysqli_sql_exception $e) {
+        error_log('Order request delete failed: ' . $e->getMessage());
+        orderRequestRedirect('error', 'Email sent, but the request could not be cleared.');
+    }
+
+    if ($deleted !== 1) {
+        orderRequestRedirect('error', 'Email sent, but the request was already handled or could not be cleared.');
+    }
+
+    $completedAction = $action === 'accept' ? 'accepted' : 'denied';
+    orderRequestRedirect('msg', 'Order request ' . $completedAction . ' and user notified.');
 }
-$stmt = $link->prepare(
+
+// Company-scoped listing; no requests from other companies are visible.
+$listStmt = $link->prepare(
     'SELECT o.request_id, o.reagent_name, o.request_text, o.created_at,
             u.username, u.firstname, u.lastname, u.lab
-     FROM order_requests o JOIN users u ON o.user_id = u.user_id
-     WHERE u.company_id = ? ORDER BY o.created_at DESC'
+     FROM order_requests AS o
+     JOIN users AS u ON u.user_id = o.user_id
+     LEFT JOIN reagents AS r ON r.reagent_id = o.reagent_id
+     WHERE u.company_id = ?
+       AND (o.reagent_id IS NULL OR r.company_id = ?)
+     ORDER BY o.created_at DESC'
 );
-$stmt->bind_param('i', $companyId);
-$stmt->execute(); $result = $stmt->get_result();
+$listStmt->bind_param('ii', $companyId, $companyId);
+$listStmt->execute();
+$result = $listStmt->get_result();
+
+$msg = is_string($_GET['msg'] ?? null) ? $_GET['msg'] : '';
+$error = is_string($_GET['error'] ?? null) ? $_GET['error'] : '';
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<!-- For usability on larger and smaller screens: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reagently - Order Requests</title>
-    <!-- Use the existing stylesheet -->
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>style.css"
-    >
+    <link rel="stylesheet" href="<?= BASE_URL ?>style.css">
 </head>
 <body>
-
-<?php
-// Main header and navigation bar
-include BASE_PATH . "/navbar.php";
-?>
-
+<?php include BASE_PATH . '/navbar.php'; ?>
 <main class="page">
-
     <h2>Requests of Orders</h2>
+    <p>Reagent order requests submitted by users in your company.</p>
 
-    <p>
-        Reagent order requests submitted by users.
-    </p>
+    <?php if ($msg !== ''): ?>
+        <p style="color:darkgreen"><?= htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
+    <?php if ($error !== ''): ?>
+        <p style="color:red"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
 
-    <h5 style="color:darkgreen">
-
-        <?php 
-        echo htmlspecialchars($email_msg, ENT_QUOTES, 'UTF-8');
-    ?>
-
-    </h5>
-
-    <!-- Order request table -->
     <table class="table">
-
         <tr>
-
-            <th>User</th>
-
-            <th>Name</th>
-
-            <th>Lab Group</th>
-
-            <th>Reagent</th>
-
-            <th>Request</th>
-
-            <th>Date</th>
-
-            <th>In stock?</th>
-
+            <th>User</th><th>Name</th><th>Lab Group</th>
+            <th>Reagent</th><th>Request</th><th>Date</th><th>Action</th>
         </tr>
 
-        <?php
-
-        // Check whether any order requests exist
-        if ($result->num_rows > 0) {
-
-            // Display one row for each request
-            while (
-                $row =
-                $result->fetch_assoc()
-            ) {
-                echo "<tr>";
-
-                // Username
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["username"]
-                ) .
-
-                "</td>";
-
-                // Full name
-                echo "<td>" .
-
-                htmlspecialchars(
-                    ($row["firstname"] ?? "") .
-                    " " .
-                    ($row["lastname"] ?? "")
-                ) .
-
-                "</td>";
-
-                // Lab group
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["lab"] ?? ""
-                ) .
-
-                "</td>";
-
-                // Requested reagent
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["reagent_name"]
-                ) .
-
-                "</td>";
-
-                // Request message
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["request_text"]
-                ) .
-
-                "</td>";
-
-                // Date submitted
-                echo "<td>" .
-
-                htmlspecialchars(
-                    $row["created_at"]
-                ) .
-
-                "</td>";
-
-                echo '<td><form method="POST" action="' . BASE_URL . 'admin/view_order_requests.php">'
-                   . '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(tenant_csrf_token(), ENT_QUOTES, 'UTF-8') . '">'
-                   . '<input type="hidden" name="request_id" value="' . (int)$row['request_id'] . '">'
-                   . '<button class="button" type="submit">Notify user</button></form></td>';
-
-                echo "</tr>";
-            }
-
-        } else {
-
-            // No order requests have been submitted yet
-            echo
-            "<tr>
-
-                <td colspan='7'>
-                    No order requests found.
-                </td>
-
-            </tr>";
-        }
-        ?>
-
+        <?php if ($result->num_rows === 0): ?>
+            <tr><td colspan="7">No order requests found.</td></tr>
+        <?php else: ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['username'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars(trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? '')), ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['lab'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['reagent_name'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['request_text'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['created_at'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td>
+                        <form action="<?= BASE_URL ?>admin/view_order_requests.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="request_id" value="<?= (int)$row['request_id'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="action" value="accept">
+                            <button class="button" type="submit">Accept and notify</button>
+                        </form>
+                        <br><br>
+                        <form action="<?= BASE_URL ?>admin/view_order_requests.php" method="POST" style="display:inline;"
+                              onsubmit="return confirm('Deny this order request and notify the user?');">
+                            <input type="hidden" name="request_id" value="<?= (int)$row['request_id'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="action" value="deny">
+                            <button class="button" type="submit">Deny and notify</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php endif; ?>
     </table>
 
     <br><br>
-
-    <a
-        class="button"
-        href="<?= BASE_URL ?>admin.php"
-    >
-        Back to Admin
-    </a>
-
+    <a class="button" href="<?= BASE_URL ?>admin.php">Back to Admin</a>
 </main>
 </body>
 </html>
-
 <?php
-// Close database connection
-$stmt->close(); $link->close();
-?>
+$listStmt->close();
+$link->close();

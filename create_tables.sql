@@ -18,13 +18,21 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     approved BOOL DEFAULT 0,
+    -- Company-aware registration; NULL permits platform administrators.
     company_id INT DEFAULT NULL,
     is_verified TINYINT(1) NOT NULL DEFAULT 0,
     verification_token VARCHAR(64),
     token_expires_at DATETIME,
+    -- Legacy supervisor-based registration compatibility from main.
+    supervisor_id INT DEFAULT NULL,
 
     INDEX idx_users_company (company_id),
-    FOREIGN KEY (company_id) REFERENCES companies(company_id)
+    INDEX idx_users_supervisor (supervisor_id),
+    FOREIGN KEY (company_id)
+        REFERENCES companies(company_id),
+    FOREIGN KEY (supervisor_id)
+        REFERENCES users(user_id)
+        ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 
@@ -187,4 +195,19 @@ CREATE TABLE password_resets (
 
     INDEX idx_password_resets_user (user_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
+-- Retained from main: one consent record per user.
+CREATE TABLE cookie_consent (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL UNIQUE,
+    consent_status ENUM('accepted', 'rejected') NOT NULL,
+    consent_version VARCHAR(20) NOT NULL DEFAULT '1',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;

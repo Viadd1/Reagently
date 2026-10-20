@@ -6,15 +6,15 @@
   box-sizing: border-box}
 
 body {
-background-color: white;
-color: #222;
-font-family: 'Times New Roman', Times, serif;}
+background-color: #f3f7fc;
+color: #08306B;
+font-family: 'Mercury', Times, serif;}
 
 /* Website title */
 header {
 text-align: center;
 padding: 25px;
-background-color: white;}
+background-color: #f3f7fc;}
 
 header h1 {
 font-size: 36px;}
@@ -30,19 +30,19 @@ align-items: center;
 /* Space between buttons */
 gap: 10px;
 /* Navigation background */
-background-color: #222;
+background-color: #08306B;
 /* Space inside navigation bar */
 padding: 12px;}
 /* Navigation links */
 .navbar a {
-color: white;
+color: #f3f7fc;
 text-decoration: none;
 font-size: 17px;
 padding: 10px 18px;
 border-radius: 5px;}
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
-background-color: #222;}
+background-color: #08519C;}
 
 .table {
     border-collapse: collapse;
@@ -52,7 +52,7 @@ background-color: #222;}
 
 .table th,
 .table td {
-    border: 1px solid #222;
+    border: 1px solid #08306B;
     padding: 8px 12px; /* Spacing in cells */
     text-align: left;}
 
@@ -93,8 +93,8 @@ justify-content: center;}
 .button {
 display: inline-block;
 padding: 12px 20px;
-background-color: #222;
-color: white;
+background-color: #08306B;
+color: #f3f7fc;
 text-decoration: none;
 font-family: 'Times New Roman', Times, serif;
 font-size: 15px;
@@ -103,7 +103,7 @@ border-radius: 8px;
 }
 
 .button:hover {
-background-color: #222;}
+background-color: #08519C;}
 
 /* Home page*/
 .welcome {
@@ -170,7 +170,6 @@ font-size: 18px;
 max-width: 700px;
 margin: 0 auto 15px;
 line-height: 1.6;}
-
 
 /* Small screen settings */
 /* Making fonts and side padding smaller and other functions for smal ler screens*/ 
@@ -248,3 +247,50 @@ line-height: 1.6;}
         padding: 6px;
         overflow-wrap: anywhere;}
 }
+
+/* Cookie consent banner */
+#cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+
+    background: white;
+    color: #08306B;
+
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+    font-family:'Times New Roman', Times, serif;
+    z-index: 1000;}
+
+#cookie-banner h2 {
+    margin-top: 0;}
+
+#cookie-banner p {
+    line-height: 1.6;}
+
+#cookie-banner form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;}
+
+#cookie-banner button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;}
+
+#accept-cookies {
+    background: #176b45;
+    color: white;}
+
+#reject-cookies {
+    background: #eee;
+    color: #08306B;}

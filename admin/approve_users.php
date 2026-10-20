@@ -46,6 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (mysqli_sql_exception $e) {
         company_go('error', 'Database error.');
     }
+
+    // Redirect so that refreshing the page does not resend the form
+    $query = $error !== '' ? "error=" . urlencode($error) : "msg=" . urlencode($msg);
+    header("Location: " . BASE_URL . "admin/approve_users.php?" . $query);
+    exit;
 }
 
 $stmt = $link->prepare("SELECT user_id, username, lab, firstname, lastname, email

@@ -4,7 +4,12 @@ require_once __DIR__ . '/init.php';
 $role = (string) ($_SESSION['role'] ?? '');
 $loggedIn = !empty($_SESSION['user_id']);
 ?>
-<header><h1>Reagently</h1></header>
+
+<!-- Website title -->
+<header>
+    <h1>R e a g e n t l y</h1>
+</header>
+
 <nav class="navbar">
     <?php if ($loggedIn && $role === 'reagently_admin'): ?>
         <a href="<?= BASE_URL ?>platform_admin.php">Platform Admin</a>
