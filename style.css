@@ -6,7 +6,7 @@
   box-sizing: border-box}
 
 body {
-background-color: #C6DBEF;
+background-color: #DEEBF7;
 color: #08306B;
 font-family: 'Times New Roman', Times, serif;}
 
@@ -14,7 +14,7 @@ font-family: 'Times New Roman', Times, serif;}
 header {
 text-align: center;
 padding: 25px;
-background-color: #C6DBEF;}
+background-color: #DEEBF7;}
 
 header h1 {
 font-size: 36px;}
@@ -35,14 +35,14 @@ background-color: #08306B;
 padding: 12px;}
 /* Navigation links */
 .navbar a {
-color: #C6DBEF;
+color: #DEEBF7;
 text-decoration: none;
 font-size: 17px;
 padding: 10px 18px;
 border-radius: 5px;}
 /* What happens when you move the mouse over a navigation button */
 .navbar a:hover {
-background-color: #2171B5;}
+background-color: #08519C;}
 
 .table {
     border-collapse: collapse;
@@ -94,7 +94,7 @@ justify-content: center;}
 display: inline-block;
 padding: 12px 20px;
 background-color: #08306B;
-color: #C6DBEF;
+color: #DEEBF7;
 text-decoration: none;
 font-family: 'Times New Roman', Times, serif;
 font-size: 15px;
@@ -103,7 +103,7 @@ border-radius: 8px;
 }
 
 .button:hover {
-background-color: #2171B5;}
+background-color: #08519C;}
 
 /* Home page*/
 .welcome {
