@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $base = 'http://' . $host;
                     }
                 }
-                if ($base !== '' && preg_match('#\Ahttps?://[A-Za-z0-9.:-]+(?:/[^?#]*)?\z/D#', $base)) {
+                if ($base !== '' && preg_match('~\Ahttps?://[A-Za-z0-9.:-]+(?:/[^?#]*)?\z~D', $base)) {
                     $url = rtrim($base, '/') . BASE_URL . 'authentication/reset_password.php?token=' . rawurlencode($token);
                     try {
                         if (is_file(BASE_PATH . '/vendor/autoload.php') && is_file(BASE_PATH . '/.env')) {

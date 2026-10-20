@@ -48,9 +48,14 @@ if (!preg_match('/^[A-Za-z0-9]{1,100}$/D', $username) || strtolower($username) =
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
     registration_fail('Invalid email address.');
 }
-if (strlen($password) < 8 || $password !== $confirm) {
-    registration_fail('Passwords do not match or are too short.');
+if (strlen($password) < 8) {
+    registration_fail('Password must be at least 8 characters long.');
 }
+
+if ($password !== $confirm) {
+    registration_fail('Passwords do not match.');
+}
+
 foreach ([$firstname, $lastname, $lab] as $field) {
     if ((function_exists('mb_strlen') ? mb_strlen($field, 'UTF-8') : strlen($field)) > 100) {
         registration_fail('One of the names or lab fields is too long.');
