@@ -511,6 +511,16 @@ include "navbar.php";
         Make Reservation
     </a>
 
+
+        <h4>Didn't find the reagent you need? </h4>
+    <!-- Go to reservation page -->
+    <a
+        class="button"
+        href="<?= BASE_URL ?>user/request_order.php"
+    >
+        Request Order
+    </a>
+
 </main>
 </body>
 </html>
