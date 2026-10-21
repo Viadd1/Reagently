@@ -427,30 +427,24 @@ include BASE_PATH . "/navbar.php";
                 "ACTIVE"
             ) {
 
-                // Cancel reservation via POST with CSRF protection
-            echo '<form method="POST" action="' .
-                htmlspecialchars(
-                    BASE_URL . 'db_connections/cancel_reservation.php', ENT_QUOTES, 'UTF-8') .
-                '" onsubmit="return confirm(\'Cancel this reservation?\');">' .
+            // Link to record the final usage
+            echo
+            "<a class='button' href=" . BASE_URL . "user/record_usage.php?reservation_id=" .
+            $reservation["reservation_id"] .
+            "'>
+                Record usage
+            </a>";
 
-                '<input type="hidden" name="reservation_id" value="' .
-                (int) $reservation['reservation_id'] . '">' .
+            echo "<br><br>";
 
-                '<input type="hidden" name="csrf_token" value="' .
-                htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') .
-                '">' .
-
-                '<button class="button" type="submit">Cancel</button>' .
-                '</form>';
-
-                echo "<br><br>";
-
-                echo
-                "<a class='button' href=" . BASE_URL . "db_connections/cancel_reservation.php?reservation_id=" .
-                $reservation["reservation_id"] .
-                "'>
-                    Cancel
-                </a>";
+            // Cancellation changes data: use POST and a CSRF token, not a GET link.
+            echo "<form method='POST' action='" .
+                htmlspecialchars(BASE_URL . "db_connections/cancel_reservation.php", ENT_QUOTES) .
+                "' onsubmit=\"return confirm('Cancel this reservation?');\">" .
+                "<input type='hidden' name='reservation_id' value='" . (int)$reservation['reservation_id'] . "'>" .
+                "<input type='hidden' name='csrf_token' value='" . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) . "'>" .
+                "<button class='button' type='submit'>Cancel</button>" .
+                "</form>";
 
             } else {
 
