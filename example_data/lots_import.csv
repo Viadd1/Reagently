@@ -1,6 +1,6 @@
 ﻿catalog_number,supplier,lot_number,quantity,room,storage_unit,shelf,box_name,received_date,expiry_date
-1.00971,Merck,7633455,2500,Room 102,Flammables cabinet,Shelf 1,Box A,2026-06-10,2028-06-10
-70011044,Thermo Fisher Scientific,3266517,500,Room 103,Shelf unit B,Shelf 2,Box 1,2026-08-18,2028-02-18
+1.00971,Merck,7633455,2500,Room 102,Flammables cabinet,Shelf 1,Box A,2026-06-10,2026-06-10
+70011044,Thermo Fisher Scientific,3266517,500,Room 103,Shelf unit B,Shelf 2,Box 1,2026-08-18,2026-10-18
 T2694,Sigma-Aldrich,8897765,100,Room 103,Shelf unit B,Shelf 2,Box 2,2026-04-20,2027-10-20
 1.06404,Merck,1127365,0,Room 103,Shelf unit C,Shelf 1,Box 1,2025-11-02,2029-11-02
 A9539,Sigma-Aldrich,9965423,100,Room 103,Shelf unit C,Shelf 2,,2026-07-14,2028-07-14
