@@ -3,10 +3,11 @@
 require_once __DIR__ . '/../init.php';
 require_once BASE_PATH . '/db.php';
 require_once BASE_PATH . '/includes/tenant_auth.php';
+require_once BASE_PATH . '/includes/user_management_csrf.php';
 
 // Check the logged-in user and their admin role against the database.
 $companyId = tenant_require_admin($link);
-$csrfToken = tenant_csrf_token();
+$csrfToken = reagently_user_csrf_token();
 
 // The search term is data, not SQL. Limit its length and bind it safely.
 $searchQuery = $_GET['search_query'] ?? '';
